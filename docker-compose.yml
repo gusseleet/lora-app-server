@@ -7,6 +7,8 @@ services:
     command: make serve
     volumes:
       - ./:/go/src/github.com/gusseleet/lora-app-server
+      - /go/src/github.com/gusseleet/lora-app-server/vendor
+      - /go/src/github.com/gusseleet/lora-app-server/ui/node_modules
     links:
       - postgres
       - redis
