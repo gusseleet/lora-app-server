@@ -34,6 +34,10 @@ services:
       - POSTGRES_PASSWORD=loraserver
       - POSTGRES_USER=loraserver
       - POSTGRES_DB=loraserver
+    ports:
+      - 5432:5432
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
 
   redis:
     image: redis:3.0.7-alpine
