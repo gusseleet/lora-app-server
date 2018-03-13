@@ -60,7 +60,7 @@ func (a *UserAPI) Create(ctx context.Context, req *pb.AddUserRequest) (*pb.AddUs
 		Email:      req.Email,
 		Note:       req.Note,
 	}
-	
+
 	/* Commented out for testing purposes - Working authentication */
 
 	/*isAdmin, err := a.validator.GetIsAdmin(ctx)
