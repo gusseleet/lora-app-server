@@ -12,6 +12,8 @@ import (
 	"github.com/gusseleet/lora-app-server/internal/api/auth"
 	"github.com/gusseleet/lora-app-server/internal/config"
 	"github.com/gusseleet/lora-app-server/internal/storage"
+	/* Used for Create() validation.  Commented out for testing purposes - Working authentication */
+	//"os/user"
 )
 
 // UserAPI exports the User related functions.
@@ -33,6 +35,9 @@ func NewUserAPI(validator auth.Validator) *UserAPI {
 
 // Create creates the given user.
 func (a *UserAPI) Create(ctx context.Context, req *pb.AddUserRequest) (*pb.AddUserResponse, error) {
+
+	/*  Commented out for testing purposes - Working authentication */
+
 	/*if err := a.validator.Validate(ctx,
 		auth.ValidateUsersAccess(auth.Create)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
@@ -55,6 +60,8 @@ func (a *UserAPI) Create(ctx context.Context, req *pb.AddUserRequest) (*pb.AddUs
 		Email:      req.Email,
 		Note:       req.Note,
 	}
+	
+	/* Commented out for testing purposes - Working authentication */
 
 	/*isAdmin, err := a.validator.GetIsAdmin(ctx)
 	if err != nil {
