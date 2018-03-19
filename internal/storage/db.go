@@ -60,7 +60,7 @@ func OpenDatabase(dsn string) (*common.DBLogger, error) {
 
 // Transaction wraps the given function in a transaction. In case the given
 // functions returns an error, the transaction will be rolled back.
-func Transaction(db *common.DBLogger, f func(tx sqlx.Ext) error) error {
+func gTransaction(db *common.DBLogger, f func(tx sqlx.Ext) error) error {
 	tx, err := db.Beginx()
 	if err != nil {
 		return errors.Wrap(err, "begin transaction error")

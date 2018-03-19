@@ -12,6 +12,7 @@ import (
 	"github.com/gusseleet/lora-app-server/internal/api/auth"
 	"github.com/gusseleet/lora-app-server/internal/config"
 	"github.com/gusseleet/lora-app-server/internal/storage"
+	"fmt"
 )
 
 // UserAPI exports the User related functions.
@@ -30,6 +31,33 @@ func NewUserAPI(validator auth.Validator) *UserAPI {
 		validator: validator,
 	}
 }
+
+func (a *UserAPI) Register(ctx context.Context, req *pb.RegisterUserRequest) (*pb.AddUserResponse, error){
+	user := storage.User{
+		Username: 	req.Username,
+		IsAdmin: false,
+		Email: req.Email,
+	}
+
+	var err error
+	var userID int64
+
+	err = storage.Transaction(config.C.PostgreSQL.DB, func(tx sqlx.Ext) error {
+		userID, err = storage.CreateUser(tx, &user, req.Password)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	return &pb.AddUserResponse{Id: userID}, nil
+
+}
+
 
 // Create creates the given user.
 func (a *UserAPI) Create(ctx context.Context, req *pb.AddUserRequest) (*pb.AddUserResponse, error) {
@@ -133,6 +161,8 @@ func (a *UserAPI) List(ctx context.Context, req *pb.ListUserRequest) (*pb.ListUs
 		return nil, errToRPCError(err)
 	}
 
+	fmt.Println(users);
+
 	result := make([]*pb.GetUserResponse, len(users))
 	for i, user := range users {
 		result[i] = &pb.GetUserResponse{
@@ -216,6 +246,7 @@ func NewInternalUserAPI(validator auth.Validator) *InternalUserAPI {
 func (a *InternalUserAPI) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	jwt, err := storage.LoginUser(config.C.PostgreSQL.DB, req.Username, req.Password)
 	if nil != err {
+		fmt.Println(err);
 		return nil, errToRPCError(err)
 	}
 
