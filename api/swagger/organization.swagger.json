@@ -358,6 +358,10 @@
           "type": "boolean",
           "format": "boolean",
           "title": "Can the organization create and \"own\" Gateways?"
+        },
+        "orgNr": {
+          "type": "string",
+          "title": "The Organization number"
         }
       },
       "description": "Add a new organization."
@@ -400,6 +404,10 @@
         "updatedAt": {
           "type": "string",
           "description": "When the user was last updated (excludes changes in application access)."
+        },
+        "orgNr": {
+          "type": "string",
+          "description": "Organization Number."
         }
       }
     },
@@ -507,6 +515,10 @@
           "type": "boolean",
           "format": "boolean",
           "title": "Can the organization create and \"own\" Gateways?"
+        },
+        "orgNr": {
+          "type": "string",
+          "title": "The new org number"
         }
       },
       "description": "Not quite the AddOrganizationRequest."
