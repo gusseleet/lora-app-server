@@ -85,7 +85,7 @@
       ],
       "mountPoints": [
         {
-          "sourceVolume": "./",
+          "sourceVolume": "appserver",
           "containerPath": "/go/src/github.com/gusseleet/lora-app-server"
         }
       ]
