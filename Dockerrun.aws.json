@@ -4,25 +4,25 @@
     {
       "name": "appserver",
       "host": {
-        "sourcePath": ""
+        "sourcePath": "var/app/current/appserver"
       }
     },
     {
       "name": "postgres",
       "host": {
-        "sourcePath": ""
+        "sourcePath": "var/app/current/postgres"
       }
     },
     {
       "name": "redis",
       "host": {
-        "sourcePath": ""
+        "sourcePath": "var/app/current/redis"
       }
     },
     {
       "name": "mosquitto",
       "host": {
-        "sourcePath": ""
+        "sourcePath": "var/app/current/mosquitto"
       }
     }
   ],
