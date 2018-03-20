@@ -2,7 +2,7 @@
 
 # Since GOPATH can be a path, we can't just use it as a variable.  Split it up 
 # to the various paths, and append the subpaths.
-GOSUBPATHS="/src:/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis"
+GOSUBPATHS="/go:/src:/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/"
 GOPATHLIST=""
 OIFS=$IFS
 IFS=':' 
