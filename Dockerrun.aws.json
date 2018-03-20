@@ -28,10 +28,9 @@
   ],
   "containerDefinitions": [
 
-
     {
       "name": "appserver",
-      "image": " 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest",
+      "image": "228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest",
       "essential": true,
       "memory": 256,
       "enviroment": [
