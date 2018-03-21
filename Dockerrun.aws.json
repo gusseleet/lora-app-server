@@ -38,7 +38,7 @@
         "mosquitto",
         "postgres"
       ],
-      "enviroment": [
+      "environment": [
         {
           "name": "POSTGRES_DSN",
           "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
