@@ -101,7 +101,7 @@
       "image": "postgres:9.5",
       "essential": true,
       "memory": 512,
-      "enviroment": [
+      "environment": [
         {
           "name": "POSTGRES_PASSWORD",
           "value": "loraserver"
