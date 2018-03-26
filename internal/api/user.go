@@ -37,6 +37,7 @@ func (a *UserAPI) Register(ctx context.Context, req *pb.RegisterUserRequest) (*p
 		Username: 	req.Username,
 		IsAdmin: false,
 		Email: req.Email,
+		IsActive: true,
 	}
 
 	var err error

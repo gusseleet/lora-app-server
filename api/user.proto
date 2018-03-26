@@ -158,6 +158,7 @@ message AddUserResponse {
 	int64 id = 1;
 }
 
+// Request for register
 message RegisterUserRequest {
 	string username = 1;
 	string password = 2;
