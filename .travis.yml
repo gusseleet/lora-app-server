@@ -2,48 +2,35 @@ language: go
 sudo: required
 dist: trusty
 go:
-    - 1.9.x
+- 1.9.x
 services:
-    - redis-server
-    - postgresql
-    - docker
+- redis-server
+- postgresql
+- docker
 addons:
-    postgresql: '9.5'
+  postgresql: '9.5'
 env:
-    matrix:
-        - 'TEST_POSTGRES_DSN=postgres://postgres@localhost/loraserver?sslmode=disable'
-        -
-            secure: Gk66YzaLfif4DVyXiCsbzPhWFvrb99Mz1WAQc2jUwIdke/eGy+CmdiUg4W6AkTKumanRuiRaWb7hKLpQKRzWdJC/23ra5NrlmI1lX4OLW5yKdFhHxkuvU6q2LtSIOngAgJLD5kzCbsG1YyFIom5dyANjS33Wkbl5a5/V0yDjXF+MGqYuPHAkGxBR3+GDZCHZ72YFLaXfYYGSn0j7zac85QI/unL2tOfZz0VABioISSTuMrxDoa6AMDDaizmf6IOAgz6SuDzYZVtPeCmDxRVn7kV+xrgKkQ4rUHm/oULa1dEBbZFsIGpqI2SBG8gfoJR+aP0gdzJhFfL0JVFX7mGoYp3A5iVdbeyxj3Of9itt4AtAgHUYlZtZzDVjtXP5AHM7qTWJ/49c8U2SQVBnLK8J92uIgL7C/wwr5kynxJK5pSFNMHV1LJ+803HkqejdwQuqSYSZGz6K0VcgWGMj5sSWz8gBcKp+/xImesnXHiMXZ0A38B2JWGW2mWqVTgFgaHomQyjnL8j+m26/mF1S2cwnCBkAnb1D3cLZIBHahy66QXNEWD5J+OeDDuu8LahNIoXuaeesMY1k1S3PIFPu5o9TpNE0/eAWAb79GsqFhZAXxvHWTHNsSN9L4O6LUv/3bahAAbzT9KhYuMpTiq8ZO7fKisV9SvLuXMOsEzl543mbco4=
-        -
-            secure: yIpETbO89KIlyYsarKaNg4ruuqJcK1B8sRCMEso6G/FNYZ+x8WkWUhN8CzN6vL7PSl0Ex3xvxrpli34QuNfaBlPipGYnErXpKPWqBXtqVFozb4PZm2CQDwEiiVUAqPRnVqdMygQkEqdGwzb9f5MOuI2H+swlzJKpsEGN1QEc4q68BajGrnxZkrxmunKxR9dSapUbM+Nz4MYjrjZrRk2bloMlK9Uzot+bCLtW8yWl9G6GHpex3EfpMzAFpfWA+KhJXTqRaSja8PH59aMf0Q4qvRRaQJjvm9ozzOZ9jckrx9W6Th3qcw7oOtvBK+WXvBqOr6/kyfdaGrPhfhqaK4VVwWp1xqGALUaazn/RmJiPebTaN/Evtrl932MNeIepNcOE5B+XWbwqNHXn2xWFgxAMuJAr0wrHUupq/43sc/KDDwD5SlOI0n18PBPyHriX0Hb0UMO+CzkZDeuWivRVZNpE+l3ABecV/OmS7sLrqUMTD1hXGsewJLLgl1xx11mH37CNDDZAYWclrajE6nqvKATTyyIxFBgXiA3rs8hb7p9y763xwsNxKPbXoshcvc5lwqUP4B00SP6sz88/2L0PvoMwwgfPFumRmfxuqxH3gekA45uTQe9ULx/lIJLNVRBZO3q21+cPdtV57mTu6zhywkZI0dIrOJlIFUEHHRc7SFUdWmg=
-        -
-            secure: ZAAMmXdzS3wykJYf2oPOFOeIcgmbscabHBm14BcE4xluHdqH5n6qqtw2sVWWxg8lrRGHgBk+9jYLkWRBg1qNJ2o7goiKNMFaiR3/6a5YGJXS8YyB70A2RgOPMqjSnT8lDOtccO7cNdVOYFerWRfOLkbRjCroXtfP80nZd/miOTHJKsPvQP6f36uZqlr4tu1hsXNcbV4eJH8zxBq8n/ZRLelB+iglrhI51fC6CscOBuPoB/BHVUsd697pNXDlsrp4UMqw2Nc9jLz4GKozwfrEp6Dpz0zTPowfEtimnXHcegoSSs5DzBjao0rNvlgsxs0EjNmfxf2PUbOdHllFjgptJyO9WPVDPND3n7wxC4YOJZ/7jWB1eRreKejrRYnOOc2Vs76S75VsnkkDbyFDjsnlM+cL5NlzSNiVsDGvPEGStvm2OMVimCeVrFRrG81grzOMFucu9R+uK1yIhAWa+eqZfya7RDUPpRwR4fxVWnC3AA/nSYCGsNIdTnNV4RYZstsflw7uSpTQLxzAxHDIJzepB0FewG4rRrMtebjjsH8le7/v+8irz4KSlCGgIB7xQ4K/d1OegHy+ITqwQZsD/UXjlkmzXknI5jqQwODmlMO6VoHoj8GXUNNhfNiMMXzj6CoLXNZTZb9pS0mUzWt/EhX2fsllPXGXvvco5m0QjFaRSy0=
-
-
+  matrix:
+    secure: yjfkM6ZJxfL8nrZkNQskq6yzqUPjm/T8lPqZFGjPCNmKn0X8jTPb0W54RPByjqDRQZLP1VzQXrj1ltm+1VMMq66nAZP8kN3l7VpHwmRNyErwFeUZZN5AxoDXB2Ed5cUPAw1GULMjj7e/y/92l8sudcsztXF0ipTSuvpcBkq0QpULFh4VCaoSS0Lbtbo9olc/s78X2TeMr9J/VWi3TLMWIMBQowvObqVb0strcOEpqlbJ9+siciLTTwcczC63/P06BzFtTilpQegaJKtFp+EYqbSORfiNOV2vgDwRsYneIGTd9RtF7AAdYCmP8674ERgkAO+rDi043Wr3vyTmTHp53QrZBbVxfyW3PgoiuGJzj0/ZupS20n14FYnjxo7ziyzUG6K/lWrzNz20qiQn4KPFwXGmTpFW47abWgUR8VyELlUIUa3XhkoKzrxDSJ03bh1aEdS219nWRzljTlCgC58g3ilDOhAE9+4re4UnVAwZOl7QryUaHmz4k6YRJiw8cN2jtlPOjpaobfoYTN0PBVstqTBMqtV6nHDKePcST8od88Zf9EvERZL5jXwrDKmhuCWcDGApUS5hJUYMWIf/iNEWIMSuOs/ulzggdNCx9teqphEmMx59loMh4bUrayrx02ft7PJy6NhEGKXyXG1HquYk+g5pHfGg5G4eNjMLK13MHqg=
 install:
-  - echo "install nothing!" # put your normal pre-testing installs here
-
+- echo "install nothing!"
 script:
-  - echo "no tests!" # put your normal testing scripts here
-
+- echo "no tests!"
 deploy:
-    provider: elasticbeanstalk
-    access_key_id: AKIAJL2ERUB644Z3MALA
-    secret_access_key:
-        secure: "$AWS_SECRET_ACCESS_KEY"
-    region: eu-central-1
-    app: appserver-backend
-    env: appserver-backend-dev
-    on:
-      branch: post_user
-
-
-
+  provider: elasticbeanstalk
+  access_key_id: "$AWS_ACCESS_KEY_ID"
+  secret_access_key:
+    secure: "$AWS_SECRET_ACCESS_KEY"
+  region: eu-central-1
+  app: appserver-backend
+  env: appserver-backend-dev
+  on:
+    branch: post_user
 after_sucess:
-    - 'docker --version'
-    - 'pip install --user awscli'
-    - 'export PATH=$PATH:$HOME/.local/bin'
-    - 'eval $(aws ecr get-login --region eu-central-1)'
-    - 'docker build -t maliot .'
-    - 'docker tag maliot:latest 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest'
-    - 'docker push 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest'
+- docker --version
+- pip install --user awscli
+- export PATH=$PATH:$HOME/.local/bin
+- eval $(aws ecr get-login --region eu-central-1)
+- docker build -t maliot .
+- docker tag maliot:latest 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
+- docker push 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
