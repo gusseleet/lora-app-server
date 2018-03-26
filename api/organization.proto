@@ -137,6 +137,9 @@ message CreateOrganizationRequest {
 
 	// The Organization number
 	string orgNr = 4;
+
+	// The ID of the user that creates the organization
+	int64 userID = 5;
 }
 
 message CreateOrganizationResponse {
