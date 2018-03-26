@@ -9,9 +9,6 @@ services:
 - docker
 addons:
   postgresql: '9.5'
-env:
-  matrix:
-    secure: yjfkM6ZJxfL8nrZkNQskq6yzqUPjm/T8lPqZFGjPCNmKn0X8jTPb0W54RPByjqDRQZLP1VzQXrj1ltm+1VMMq66nAZP8kN3l7VpHwmRNyErwFeUZZN5AxoDXB2Ed5cUPAw1GULMjj7e/y/92l8sudcsztXF0ipTSuvpcBkq0QpULFh4VCaoSS0Lbtbo9olc/s78X2TeMr9J/VWi3TLMWIMBQowvObqVb0strcOEpqlbJ9+siciLTTwcczC63/P06BzFtTilpQegaJKtFp+EYqbSORfiNOV2vgDwRsYneIGTd9RtF7AAdYCmP8674ERgkAO+rDi043Wr3vyTmTHp53QrZBbVxfyW3PgoiuGJzj0/ZupS20n14FYnjxo7ziyzUG6K/lWrzNz20qiQn4KPFwXGmTpFW47abWgUR8VyELlUIUa3XhkoKzrxDSJ03bh1aEdS219nWRzljTlCgC58g3ilDOhAE9+4re4UnVAwZOl7QryUaHmz4k6YRJiw8cN2jtlPOjpaobfoYTN0PBVstqTBMqtV6nHDKePcST8od88Zf9EvERZL5jXwrDKmhuCWcDGApUS5hJUYMWIf/iNEWIMSuOs/ulzggdNCx9teqphEmMx59loMh4bUrayrx02ft7PJy6NhEGKXyXG1HquYk+g5pHfGg5G4eNjMLK13MHqg=
 install:
 - echo "install nothing!"
 script:
@@ -29,5 +26,4 @@ deploy:
     branch: post_user
   zip-file: Dockerrun.aws.json
   bucket_name: elasticbeanstalk-eu-central-1-228684700718
-  bucket_path: appserver-backend
 
