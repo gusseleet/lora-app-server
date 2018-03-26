@@ -85,7 +85,7 @@
         }
       ],
       "command": [
-        "make",
+        "make123",
         "serve"
       ],
       "mountPoints": [
