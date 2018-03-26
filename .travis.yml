@@ -9,11 +9,16 @@ services:
 - docker
 addons:
   postgresql: '9.5'
+before_install:
+- pip install --user awscli
+- export PATH=$PATH:$HOME/.local/bin
 install:
 - echo "install nothing!"
 script:
-- echo "no tests!"
-
+- eval $(aws ecr get-login --no-include-email --region eu-central-1)
+- docker build -t maliot .
+- docker tag maliot:latest 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
+- docker push 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
 deploy:
   provider: s3
   access_key_id: AKIAJL2ERUB644Z3MALA
@@ -24,3 +29,14 @@ deploy:
   on:
     repo: gusseleet/lora-app-server
     branch: post_user
+after_success:
+- pip install --user awscli
+- export PATH=$PATH:/$HOME/.local/bin
+- aws ecr create-repository --repository-name $REPO --region us-west-2
+- eval $(aws ecr get-login --region us-west-2)
+- docker tag $REPO:$TRAVIS_BUILD_NUMBER $AWS_ACCOUNT_NUMBER.dkr.ecr.us-west-2.amazonaws.com/$REPO:$TRAVIS_BUILD_NUMBER
+- docker push $AWS_ACCOUNT_NUMBER.dkr.ecr.us-west-2.amazonaws.com/$REPO:$TRAVIS_BUILD_NUMBER
+env:
+  global:
+  - secure: CgwrPYCBikhTVHSPa42zX6YUJmI344Q1w12jtzgwG/GzLxPptQ0O8DcWa236SrhYPBIc2E1Dk10Dv8aV1y6PhRo7JnPneZ+FpLk+Nf0hN1LWk1MySUjZCIxFNuTaon2b3Wj2+op8MPmlGw2HYLGTNuZkanXq4ArycWIcxc/L239dSCYEgzNPm2ujUh6riHA9zx+Qd2ZD+KR/PBCmr1aU3e5gs8ktyuIvtsjrgFtXSl9R8Sv7gOO6U0/1UpT7N8rQBuUrGmuC4qOjEVpV7Xj6TyoMv6l8nm/JrULp9irNRXuG2Y6TGMQA31Otvxe2prqaRcApKFwA1/JpPxK+U29rt5JwXIcrxdYbR61WgTgzJLjqnc8uov/nTobPXMFhVH0vQjeNDTTue3FLKzSh93unwsklFeUVsJe77APJ7aLmHptxlicSjwQPAQehpdJRReXhxcLfPlnUFVBqr/yUGhIPu1btuHdSllOULVVdeqJ0YFwebCYRjUzsZUOxfPhPnFajUMPVuYqykyODDVki/DW6KVPQkw4NXVVFsP++gYHlMHXrqJBN7kEo3KjXJmECcq8bzjirhAjXvMONEPMIzTaORb2PWfL3XbkLxDEA0ynJDukYaqazUquW/hJF0uCt+OYvUukoYH3ra+CmsvcP8BYsrAWWBkc7heJ1xxGwa0Zny1o=
+  - secure: P/dpTw2KO7GJlAFyuE2vMsUU/n4u++/pRFnlhPuUiNZ0KBddrfH/5LxLYe1Om4kXoigutL/vTR7rq379Nw9rlI4dDO60tlvRrjSCdeKdgkpEnLWu9FOVRvU4p613g10P+n+o0vEHbwF4wcKvpb8vQSZ7zgYI/bnQqoq6FNL2x5opYr8DiV9M9MA8TyhqSYJ0ZoMkr/TmQoHODmVKuCTCwBhF4doBZgEKjG6enmGzhDo4E/cV72Ul79WQvtL2L8cK/2BJaDSHQkNzWwyGgUATG4gX8JKvydTFbR1il7pbfFIfHwu6vHJx3254mVb53q7hAm988fsu2uzakIEBL8+NS8HheVBCpLnccFF9Ps/3RERMushLoSQJrePzvl0Qu4XsFMLp6CBSdPFbu+AZNGXvNQOznSXVNaswvOsi5If94Dj6GmwqImEThXh7hr6UEGTnBKm5JySx2NW02mhCtsLuADUm8nyMQ+TOVCA9iB+DeSqcLPeGHcGNho93lnCA7Iu8QbYMhk7qbxn5u7LXyAIJSLP6pJspCs3PhcGSXGBMduucdejU+L3NMr51GqRhw+VBTbOs1GqlAKVZ3fRRNszUuxvimqntYfqjNepD1wTHCyZW1rsnI24B4puusVZwpachWgGCexL4D+dzdefA0coygjjc2ccrQ+1YlYK0c7bYGdE=
