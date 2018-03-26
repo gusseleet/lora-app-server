@@ -19,6 +19,13 @@ env:
         -
             secure: ZAAMmXdzS3wykJYf2oPOFOeIcgmbscabHBm14BcE4xluHdqH5n6qqtw2sVWWxg8lrRGHgBk+9jYLkWRBg1qNJ2o7goiKNMFaiR3/6a5YGJXS8YyB70A2RgOPMqjSnT8lDOtccO7cNdVOYFerWRfOLkbRjCroXtfP80nZd/miOTHJKsPvQP6f36uZqlr4tu1hsXNcbV4eJH8zxBq8n/ZRLelB+iglrhI51fC6CscOBuPoB/BHVUsd697pNXDlsrp4UMqw2Nc9jLz4GKozwfrEp6Dpz0zTPowfEtimnXHcegoSSs5DzBjao0rNvlgsxs0EjNmfxf2PUbOdHllFjgptJyO9WPVDPND3n7wxC4YOJZ/7jWB1eRreKejrRYnOOc2Vs76S75VsnkkDbyFDjsnlM+cL5NlzSNiVsDGvPEGStvm2OMVimCeVrFRrG81grzOMFucu9R+uK1yIhAWa+eqZfya7RDUPpRwR4fxVWnC3AA/nSYCGsNIdTnNV4RYZstsflw7uSpTQLxzAxHDIJzepB0FewG4rRrMtebjjsH8le7/v+8irz4KSlCGgIB7xQ4K/d1OegHy+ITqwQZsD/UXjlkmzXknI5jqQwODmlMO6VoHoj8GXUNNhfNiMMXzj6CoLXNZTZb9pS0mUzWt/EhX2fsllPXGXvvco5m0QjFaRSy0=
 
+
+install:
+  - echo "install nothing!" # put your normal pre-testing installs here
+
+script:
+  - echo "no tests!" # put your normal testing scripts here
+
 deploy:
     provider: elasticbeanstalk
     access_key_id: AKIAJL2ERUB644Z3MALA
