@@ -26,8 +26,7 @@ before_install:
     - 'make requirements'
 before_script:
     - 'psql -c ''create database loraserver;'' -U postgres'
-script:
-    - 'make run-compose-test'
+
 deploy:
     provider: elasticbeanstalk
     access_key_id: AKIAJL2ERUB644Z3MALA
