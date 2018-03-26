@@ -27,4 +27,7 @@ deploy:
   env: appserver-backend-dev
   on:
     branch: post_user
+  zip-file: Dockerrun.aws.json
+  bucket_name: elasticbeanstalk-eu-central-1-228684700718
+  bucket_path: appserver-backend
 
