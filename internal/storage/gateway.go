@@ -18,6 +18,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/lib/pq"
 )
 
 var gatewayNameRegexp = regexp.MustCompile(`^[\w-]+$`)
@@ -34,6 +35,8 @@ type Gateway struct {
 	LastPingID      *int64        `db:"last_ping_id"`
 	LastPingSentAt  *time.Time    `db:"last_ping_sent_at"`
 	NetworkServerID int64         `db:"network_server_id"`
+	Tags		pq.StringArray	  `db:"tags"`
+	MaxNodes		int64		  `db:"maxnodes"`
 }
 
 // GatewayPing represents a gateway ping.
@@ -109,8 +112,10 @@ func CreateGateway(db sqlx.Execer, gw *Gateway) error {
 			ping,
 			last_ping_id,
 			last_ping_sent_at,
-			network_server_id
-		) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+			network_server_id,
+			tags,
+			maxnodes
+		) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
 		gw.MAC[:],
 		gw.CreatedAt,
 		gw.UpdatedAt,
@@ -121,6 +126,8 @@ func CreateGateway(db sqlx.Execer, gw *Gateway) error {
 		gw.LastPingID,
 		gw.LastPingSentAt,
 		gw.NetworkServerID,
+		gw.Tags,
+		gw.MaxNodes,
 	)
 	if err != nil {
 		return handlePSQLError(Insert, err, "insert error")
