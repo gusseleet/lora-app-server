@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	//"database/sql"
 )
 
 var organizationNameRegexp = regexp.MustCompile(`^[\w-]+$`)
@@ -19,6 +20,7 @@ type Organization struct {
 	Name            string    `db:"name"`
 	DisplayName     string    `db:"display_name"`
 	CanHaveGateways bool      `db:"can_have_gateways"`
+	OrgNr			string	  `db:"org_nr"`
 }
 
 // Validate validates the data of the Organization.
@@ -52,13 +54,15 @@ func CreateOrganization(db sqlx.Queryer, org *Organization) error {
 			updated_at,
 			name,
 			display_name,
-			can_have_gateways
-		) values ($1, $2, $3, $4, $5) returning id`,
+			can_have_gateways,
+			org_nr
+		) values ($1, $2, $3, $4, $5, $6) returning id`,
 		now,
 		now,
 		org.Name,
 		org.DisplayName,
 		org.CanHaveGateways,
+		org.OrgNr,
 	)
 	if err != nil {
 		return handlePSQLError(Insert, err, "insert error")

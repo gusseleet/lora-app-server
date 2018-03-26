@@ -27,6 +27,7 @@ func TestOrganization(t *testing.T) {
 			org := Organization{
 				Name:        "invalid name",
 				DisplayName: "invalid organization",
+				OrgNr:       "1",
 			}
 			err := CreateOrganization(db, &org)
 
@@ -40,6 +41,7 @@ func TestOrganization(t *testing.T) {
 			org := Organization{
 				Name:        "test-organization",
 				DisplayName: "test organization",
+				OrgNr:		 "1",
 			}
 			So(CreateOrganization(db, &org), ShouldBeNil)
 			org.CreatedAt = org.CreatedAt.Truncate(time.Millisecond).UTC()

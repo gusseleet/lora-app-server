@@ -32,6 +32,8 @@ func TestOrganizationAPI(t *testing.T) {
 				Name:            "organization name",
 				DisplayName:     "Display Name",
 				CanHaveGateways: true,
+				OrgNr:			 "1",
+				UserID:			 1,
 			}
 			createResp, err := api.Create(ctx, createReq)
 			So(err, ShouldNotBeNil)
@@ -45,6 +47,8 @@ func TestOrganizationAPI(t *testing.T) {
 				Name:            "orgName",
 				DisplayName:     "Display Name",
 				CanHaveGateways: true,
+				OrgNr: 			 "1",
+				UserID: 		 1,
 			}
 			createResp, err := api.Create(ctx, createReq)
 			So(err, ShouldBeNil)
