@@ -18,19 +18,13 @@ script:
 - echo "no tests!"
 deploy:
   provider: elasticbeanstalk
-  access_key_id: "$AWS_ACCESS_KEY_ID"
+  access_key_id: "AKIAJL2ERUB644Z3MALA"
   secret_access_key:
-    secure: "$AWS_SECRET_ACCESS_KEY"
+    secure: "bEVyF2vdGZI3D8O/93C5DMV++PJ7BkA89fsB8QVAt132v2KS0ZxxDjBhPshlNvfQAlR9zszsew13+mzgmUIa9pB9PQi54cFZhAb7Yh16/t+tgniQ+y95wkfMVC+AMkO728+nOtrB8nIdzkEjHekI/GEZ/TRqqaWvzmHS24LRw5fKEjeULv+BriQ0mJwkXOIwW5969lWlI+CTL6dx47Oc3NCVerw8Gg+njHSYFW0N86h7sAp0xjQNJ5e9676NM5MoLA7MSpZUNMkvVOVm/2YHy6ZoEcybgiK3rH+HdQMwLzLXYjvX93mbxRK8ov3lgW0UaL1pFSQlRDSwjvTiDAaiGkUuc7jitJKSs39fkxucTuRn9xhLYwmioVeTjDW1qt02W7OmZ0so353n0bOM95Ryiw3O5qb65adAHIZuj2OxAvByGVA6GiZX9cSO+3TWz0Non9qVp+W6d6MGjEgNceAGR8ShFzouoMth0/jS4jZuUv9y5WAJGbmawIzg4JohvoGH+YBmwSsALM/lz7PjCvtyLXtBANpALhzBV5R2CC4h2hdnvqwtj7lWbtyIqXkw9NusOSSHgzik9umcsCKn0eovUUcGGWMXhw+038WKrTaCflwYv9wluQ6HW5gRBycxTSPorkSkQByur4O1EGAfhNMT6kPg7GsOQ5Js2KFBtpghgU8="
+
   region: eu-central-1
   app: appserver-backend
   env: appserver-backend-dev
   on:
     branch: post_user
-after_sucess:
-- docker --version
-- pip install --user awscli
-- export PATH=$PATH:$HOME/.local/bin
-- eval $(aws ecr get-login --region eu-central-1)
-- docker build -t maliot .
-- docker tag maliot:latest 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
-- docker push 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
+
