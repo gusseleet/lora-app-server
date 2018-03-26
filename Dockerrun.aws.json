@@ -1,0 +1,154 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "appserver",
+      "host": {
+        "sourcePath": "current-appserver"
+      }
+    },
+    {
+      "name": "postgres",
+      "host": {
+        "sourcePath": "current-postgres"
+      }
+    },
+    {
+      "name": "redis",
+      "host": {
+        "sourcePath": "current-redis"
+      }
+    },
+    {
+      "name": "mosquitto",
+      "host": {
+        "sourcePath": "current-mosquitto"
+      }
+    }
+  ],
+  "containerDefinitions": [
+
+    {
+      "name": "appserver",
+      "image": "228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest",
+      "essential": true,
+      "memory": 256,
+      "links": [
+        "redis",
+        "mosquitto",
+        "postgres"
+      ],
+      "environment": [
+        {
+          "name": "POSTGRES_DSN",
+          "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
+        },
+        {
+          "name": "REDIS_URL",
+          "value": "redis://redis:6379"
+        },
+        {
+          "name": "MQTT_SERVER",
+          "value": "tcp://mosquitto:1883"
+        },
+        {
+          "name": "TEST_POSTGRES_DSN",
+          "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
+        },
+        {
+          "name": "TEST_REDIS_URL",
+          "value": "redis://redis:6379"
+        },
+        {
+          "name": "TEST_MQTT_SERVER",
+          "value": "tcp://mosquitto:1883"
+        },
+        {
+          "name": "JWT_SECRET",
+          "value": "verysecret"
+        },
+        {
+          "name": "HTTP_TLS_CERT",
+          "value": "/etc/lora-app-server/certs/http.pem"
+        },
+        {
+          "name": "HTTP_TLS_KEY",
+          "value": "/etc/lora-app-server/certs/http-key.pem"
+        },
+        {
+          "name": "AS_PUBLIC_SERVER",
+          "value": "appserver:8001"
+        },
+        {
+          "name": "DB_AUTOMIGRATE",
+          "value": "true"
+        }
+      ],
+      "command": [
+        "make",
+        "serve"
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "appserver",
+          "containerPath": "/go/src/github.com/gusseleet/lora-app-server"
+        }
+      ],
+      "portMappings": [
+        {
+          "hostPort": 8080,
+          "containerPort": 8080
+        }
+      ]
+    },
+
+    {
+      "name": "postgres",
+      "image": "postgres:9.5",
+      "essential": true,
+      "memory": 512,
+      "environment": [
+        {
+          "name": "POSTGRES_PASSWORD",
+          "value": "loraserver"
+        },
+        {
+          "name": "POSTGRES_USER",
+          "value": "loraserver"
+        },
+        {
+          "name": "POSTGRES_DB",
+          "value": "loraserver"
+        }
+      ],
+      "command": [],
+      "portMappings": [
+        {
+          "hostPort": 5432,
+          "containerPort": 5432
+        }
+      ],
+      "mountPoints": []
+    },
+
+    {
+      "name": "redis",
+      "image": "redis:3.0.7-alpine",
+      "essential": true,
+      "memory": 128,
+      "portMappings": [],
+      "links": [],
+      "mountPoints": []
+    },
+    {
+      "name": "mosquitto",
+      "image": "ansi/mosquitto",
+      "essential": true,
+      "memory": 128,
+      "portMappings": [],
+      "links": [],
+      "mountPoints": []
+    }
+
+  ]
+}

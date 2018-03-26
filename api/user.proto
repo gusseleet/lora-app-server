@@ -215,9 +215,6 @@ message GetUserResponse {
 
 	// Optional note to store with the user.
 	string note = 9;
-
-	// testing
-	//bool working = 10;
 }
 
 // Add a new user. Not quite the UserSettings data as it includes a password
