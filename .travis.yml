@@ -1,91 +1,43 @@
 language: go
 sudo: required
 dist: trusty
-
 go:
-  - 1.9.x
-
+- 1.9.x
 services:
-  - redis-server
-  - postgresql
-
+- redis-server
+- postgresql
+- docker
 addons:
-  postgresql: "9.5"
-
+  postgresql: '9.5'
 env:
+  matrix:
   - TEST_POSTGRES_DSN=postgres://postgres@localhost/loraserver?sslmode=disable
-
+  - secure: Gk66YzaLfif4DVyXiCsbzPhWFvrb99Mz1WAQc2jUwIdke/eGy+CmdiUg4W6AkTKumanRuiRaWb7hKLpQKRzWdJC/23ra5NrlmI1lX4OLW5yKdFhHxkuvU6q2LtSIOngAgJLD5kzCbsG1YyFIom5dyANjS33Wkbl5a5/V0yDjXF+MGqYuPHAkGxBR3+GDZCHZ72YFLaXfYYGSn0j7zac85QI/unL2tOfZz0VABioISSTuMrxDoa6AMDDaizmf6IOAgz6SuDzYZVtPeCmDxRVn7kV+xrgKkQ4rUHm/oULa1dEBbZFsIGpqI2SBG8gfoJR+aP0gdzJhFfL0JVFX7mGoYp3A5iVdbeyxj3Of9itt4AtAgHUYlZtZzDVjtXP5AHM7qTWJ/49c8U2SQVBnLK8J92uIgL7C/wwr5kynxJK5pSFNMHV1LJ+803HkqejdwQuqSYSZGz6K0VcgWGMj5sSWz8gBcKp+/xImesnXHiMXZ0A38B2JWGW2mWqVTgFgaHomQyjnL8j+m26/mF1S2cwnCBkAnb1D3cLZIBHahy66QXNEWD5J+OeDDuu8LahNIoXuaeesMY1k1S3PIFPu5o9TpNE0/eAWAb79GsqFhZAXxvHWTHNsSN9L4O6LUv/3bahAAbzT9KhYuMpTiq8ZO7fKisV9SvLuXMOsEzl543mbco4=
+  - secure: yIpETbO89KIlyYsarKaNg4ruuqJcK1B8sRCMEso6G/FNYZ+x8WkWUhN8CzN6vL7PSl0Ex3xvxrpli34QuNfaBlPipGYnErXpKPWqBXtqVFozb4PZm2CQDwEiiVUAqPRnVqdMygQkEqdGwzb9f5MOuI2H+swlzJKpsEGN1QEc4q68BajGrnxZkrxmunKxR9dSapUbM+Nz4MYjrjZrRk2bloMlK9Uzot+bCLtW8yWl9G6GHpex3EfpMzAFpfWA+KhJXTqRaSja8PH59aMf0Q4qvRRaQJjvm9ozzOZ9jckrx9W6Th3qcw7oOtvBK+WXvBqOr6/kyfdaGrPhfhqaK4VVwWp1xqGALUaazn/RmJiPebTaN/Evtrl932MNeIepNcOE5B+XWbwqNHXn2xWFgxAMuJAr0wrHUupq/43sc/KDDwD5SlOI0n18PBPyHriX0Hb0UMO+CzkZDeuWivRVZNpE+l3ABecV/OmS7sLrqUMTD1hXGsewJLLgl1xx11mH37CNDDZAYWclrajE6nqvKATTyyIxFBgXiA3rs8hb7p9y763xwsNxKPbXoshcvc5lwqUP4B00SP6sz88/2L0PvoMwwgfPFumRmfxuqxH3gekA45uTQe9ULx/lIJLNVRBZO3q21+cPdtV57mTu6zhywkZI0dIrOJlIFUEHHRc7SFUdWmg=
+  - secure: ZAAMmXdzS3wykJYf2oPOFOeIcgmbscabHBm14BcE4xluHdqH5n6qqtw2sVWWxg8lrRGHgBk+9jYLkWRBg1qNJ2o7goiKNMFaiR3/6a5YGJXS8YyB70A2RgOPMqjSnT8lDOtccO7cNdVOYFerWRfOLkbRjCroXtfP80nZd/miOTHJKsPvQP6f36uZqlr4tu1hsXNcbV4eJH8zxBq8n/ZRLelB+iglrhI51fC6CscOBuPoB/BHVUsd697pNXDlsrp4UMqw2Nc9jLz4GKozwfrEp6Dpz0zTPowfEtimnXHcegoSSs5DzBjao0rNvlgsxs0EjNmfxf2PUbOdHllFjgptJyO9WPVDPND3n7wxC4YOJZ/7jWB1eRreKejrRYnOOc2Vs76S75VsnkkDbyFDjsnlM+cL5NlzSNiVsDGvPEGStvm2OMVimCeVrFRrG81grzOMFucu9R+uK1yIhAWa+eqZfya7RDUPpRwR4fxVWnC3AA/nSYCGsNIdTnNV4RYZstsflw7uSpTQLxzAxHDIJzepB0FewG4rRrMtebjjsH8le7/v+8irz4KSlCGgIB7xQ4K/d1OegHy+ITqwQZsD/UXjlkmzXknI5jqQwODmlMO6VoHoj8GXUNNhfNiMMXzj6CoLXNZTZb9pS0mUzWt/EhX2fsllPXGXvvco5m0QjFaRSy0=
 before_install:
-  - sudo apt-add-repository -y ppa:mosquitto-dev/mosquitto-ppa
-  - sudo apt-get -qq update
-  - sudo apt-get install -y mosquitto
-  - nvm install node
-  - make requirements
-
+- sudo apt-add-repository -y ppa:mosquitto-dev/mosquitto-ppa
+- sudo apt-get -qq update
+- sudo apt-get install -y mosquitto
+- nvm install node
+- make requirements
 before_script:
-  - psql -c 'create database loraserver;' -U postgres
-
+- psql -c 'create database loraserver;' -U postgres
 script:
-  - make test
-
-before_deploy:
-  - >
-    if ! [ "$BEFORE_DEPLOY_RUN" ]; then
-      export BEFORE_DEPLOY_RUN=1;
-
-      make ui-requirements;
-
-      rvm --default use system;
-      wget https://github.com/spf13/hugo/releases/download/v0.20.7/hugo_0.20.7_Linux-64bit.deb;
-      sudo dpkg -i hugo_0.20.7_Linux-64bit.deb;
-      rm *.deb;
-      sudo apt-get install -y ruby ruby-dev;
-      sudo gem install --no-ri --no-rdoc fpm;
-      make documentation;
-
-      GOOS=linux GOARCH=amd64 make package package-deb;
-      GOOS=linux GOARCH=386 make package package-deb;
-      GOOS=linux GOARCH=arm make package package-deb;
-      GOOS=linux GOARCH=arm64 make package package-deb;
-      GOOS=darwin GOARCH=amd64 make package;
-      GOOS=windows BINEXT=.exe GOARCH=386 make package;
-      GOOS=windows BINEXT=.exe GOARCH=amd64 make package;
-    fi
-
+- make test
 deploy:
-  - provider: releases
-    skip_cleanup: true
-    api_key:
-      secure: rggSlEFkyknTCEUpyQuePLke1pjhq33+O2BHpgOjf1BzHZvxdb3Qyshnb7TaTUnCADXg0WAXCiBrmL6PoOorcX8LZqz4+gwSByJDq4ouG+FwYPMwf1JwJgsBlotLtAg2F3/fMkpkwct1yQ5dAxaJfUwMSWLIKn2CRRDEWGUsHkZnh0M4Uf8t8aeJEftCPXncaLbozoDSJnP55jIgV6jh8E0FV+u+3P7Rx0s1g3aYwHBLwFnDvTIAVgAwLfJvBEaKfhJjGpssIrHgqyPl1OKTnGMyPq+bt4n5hKtTaDsVgWAONsSL+pbklR/8qMum47Vm+tSelsMJ6txSY42fQ1KEGwTp7tyGE7zT5AbMMPTVcK8p41nkI2gdIESKJEgifDTw9J5WLEHrwXCwpFzJ0DpVsBOoRzPdK/YNXsPDw4W2zmLYPKxoeKKtDnOH8dBRPXkqEUJStnM9dhNQOWGMPbBVwyU7f/EA/1jgqyTB0ZqlMS+xnCxsLIU6DXEBUc7n/yAu9SVTyIGl5X2Gu0ErCp3grh9vxaNDhWJcw/Hs6DHnegTAlvY9VV8uF45WOe81SojEMvOOznOFMZJEhBC3RygK8TgHOUuszUAppdqUED1mn9blnI2JOfe+NZxhclDMkJhOgIZ/ZPiq1mn0QWFkyviViQpz2M/wdTsyh/c1tDzW5A8=
-    file_glob: true
-    file: "dist/tar/*.tar.gz"
-    on:
-      tags: true
-      repo: brocaar/lora-app-server
-
-  - provider: s3
-    skip_cleanup: true
-    access_key_id: AKIAJRLX7TQLGT6NN7WQ
-    secret_access_key:
-      secure: qbLEMCnp3toWem+FCqX/M1+FBcRQuv8kQ7In83s9xILQxwOMYc3mBdqUd5Jdgb761drQD07Kc5bTPwOYFiadr0BiK5I5RZY0hSNjapmlD78pEIo4ew7WkHDH74ZzLXGFhECehI1709EUQK9Kb3b3PcAhG2k6E3A+CeNwN5ryvK2EiLSW2Wu8Bq9o7BdGEqT7BmKhBAU7ge/2Ohap1zCIX3Y85SWSm6EP2gf7nfr5v2XEj2PFcmW0n3W0I6/f+AlUX8MyvoQU431bWS3OVtjkjabzFlAFVbO2EBp0H2NF6NT2jRVHTCQ8wgP0zdsvOV2fnSBMgcZqZx6BLkBmev/OYRi2Z26cnMU1Ksly0frCBiDr+RbTC890wJwrOI+Z2oKRlvlz+cRI4xQ/ndt83HL34pBvYNFTVU6VVrzSnCrWDXRveoBILo5Rnec56UwXhWefXmdGWIBxavdGpW0kAIyZXrgbKc23+RE++StEa84Ryy9zgIpBBfpHTf+ny6Q7Kr/VoG2wmoQT2pylMtUWuUe+O4UW0IBXdAdmY9YzYgeyF1bNsDCwt3zlBV8R+zm8mep9ZfCIWNNurIHN0n3oGHjfgDUV0xg6Uui/clc4Ub2B3UgGaznKhdBkKVD25oK1KtjRFEeoSByXQ6RB6VvyKyGLUZzUwiUqnOZqD84LyzIHG1Y=
-    bucket: builds.loraserver.io
-    local-dir: dist
-    acl: private
-    region: eu-west-1
-    on:
-      tags: true
-      repo: brocaar/lora-app-server
-
-  - provider: s3
-    skip_cleanup: true
-    access_key_id: AKIAJRLX7TQLGT6NN7WQ
-    secret_access_key:
-      secure: qbLEMCnp3toWem+FCqX/M1+FBcRQuv8kQ7In83s9xILQxwOMYc3mBdqUd5Jdgb761drQD07Kc5bTPwOYFiadr0BiK5I5RZY0hSNjapmlD78pEIo4ew7WkHDH74ZzLXGFhECehI1709EUQK9Kb3b3PcAhG2k6E3A+CeNwN5ryvK2EiLSW2Wu8Bq9o7BdGEqT7BmKhBAU7ge/2Ohap1zCIX3Y85SWSm6EP2gf7nfr5v2XEj2PFcmW0n3W0I6/f+AlUX8MyvoQU431bWS3OVtjkjabzFlAFVbO2EBp0H2NF6NT2jRVHTCQ8wgP0zdsvOV2fnSBMgcZqZx6BLkBmev/OYRi2Z26cnMU1Ksly0frCBiDr+RbTC890wJwrOI+Z2oKRlvlz+cRI4xQ/ndt83HL34pBvYNFTVU6VVrzSnCrWDXRveoBILo5Rnec56UwXhWefXmdGWIBxavdGpW0kAIyZXrgbKc23+RE++StEa84Ryy9zgIpBBfpHTf+ny6Q7Kr/VoG2wmoQT2pylMtUWuUe+O4UW0IBXdAdmY9YzYgeyF1bNsDCwt3zlBV8R+zm8mep9ZfCIWNNurIHN0n3oGHjfgDUV0xg6Uui/clc4Ub2B3UgGaznKhdBkKVD25oK1KtjRFEeoSByXQ6RB6VvyKyGLUZzUwiUqnOZqD84LyzIHG1Y=
-    bucket: builds.loraserver.io
-    local-dir: dist/docs
-    upload-dir: docs
-    acl: private
-    region: eu-west-1
-    on:
-      branch: master
-      repo: brocaar/lora-app-server
+  provider: elasticbeanstalk
+  access_key_id: AKIAJL2ERUB644Z3MALA
+  secret_access_key:
+    secure: $AWS_SECRET_ACCESS_KEY
+  region: eu-central-1
+  app: appserver-backend
+  env: appserver-backend-dev
+after_sucess:
+- docker --version
+- pip install --user awscli
+- export PATH=$PATH:$HOME/.local/bin
+- eval $(aws ecr get-login --region eu-central-1)
+- docker build -t maliot .
+- docker tag maliot:latest 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
+- docker push 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
