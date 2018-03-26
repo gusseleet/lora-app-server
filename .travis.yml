@@ -27,7 +27,7 @@ deploy:
   bucket: elasticbeanstalk-eu-central-1-228684700718
   upload-dir: appserver-backend
   acl: private
-  file: "dist/tar/*.tar.gz"
+  zip_file: "dist/tar/*.tar.gz"
   on:
     repo: gusseleet/lora-app-server
     branch: post_user
