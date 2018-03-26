@@ -18,14 +18,6 @@ env:
             secure: yIpETbO89KIlyYsarKaNg4ruuqJcK1B8sRCMEso6G/FNYZ+x8WkWUhN8CzN6vL7PSl0Ex3xvxrpli34QuNfaBlPipGYnErXpKPWqBXtqVFozb4PZm2CQDwEiiVUAqPRnVqdMygQkEqdGwzb9f5MOuI2H+swlzJKpsEGN1QEc4q68BajGrnxZkrxmunKxR9dSapUbM+Nz4MYjrjZrRk2bloMlK9Uzot+bCLtW8yWl9G6GHpex3EfpMzAFpfWA+KhJXTqRaSja8PH59aMf0Q4qvRRaQJjvm9ozzOZ9jckrx9W6Th3qcw7oOtvBK+WXvBqOr6/kyfdaGrPhfhqaK4VVwWp1xqGALUaazn/RmJiPebTaN/Evtrl932MNeIepNcOE5B+XWbwqNHXn2xWFgxAMuJAr0wrHUupq/43sc/KDDwD5SlOI0n18PBPyHriX0Hb0UMO+CzkZDeuWivRVZNpE+l3ABecV/OmS7sLrqUMTD1hXGsewJLLgl1xx11mH37CNDDZAYWclrajE6nqvKATTyyIxFBgXiA3rs8hb7p9y763xwsNxKPbXoshcvc5lwqUP4B00SP6sz88/2L0PvoMwwgfPFumRmfxuqxH3gekA45uTQe9ULx/lIJLNVRBZO3q21+cPdtV57mTu6zhywkZI0dIrOJlIFUEHHRc7SFUdWmg=
         -
             secure: ZAAMmXdzS3wykJYf2oPOFOeIcgmbscabHBm14BcE4xluHdqH5n6qqtw2sVWWxg8lrRGHgBk+9jYLkWRBg1qNJ2o7goiKNMFaiR3/6a5YGJXS8YyB70A2RgOPMqjSnT8lDOtccO7cNdVOYFerWRfOLkbRjCroXtfP80nZd/miOTHJKsPvQP6f36uZqlr4tu1hsXNcbV4eJH8zxBq8n/ZRLelB+iglrhI51fC6CscOBuPoB/BHVUsd697pNXDlsrp4UMqw2Nc9jLz4GKozwfrEp6Dpz0zTPowfEtimnXHcegoSSs5DzBjao0rNvlgsxs0EjNmfxf2PUbOdHllFjgptJyO9WPVDPND3n7wxC4YOJZ/7jWB1eRreKejrRYnOOc2Vs76S75VsnkkDbyFDjsnlM+cL5NlzSNiVsDGvPEGStvm2OMVimCeVrFRrG81grzOMFucu9R+uK1yIhAWa+eqZfya7RDUPpRwR4fxVWnC3AA/nSYCGsNIdTnNV4RYZstsflw7uSpTQLxzAxHDIJzepB0FewG4rRrMtebjjsH8le7/v+8irz4KSlCGgIB7xQ4K/d1OegHy+ITqwQZsD/UXjlkmzXknI5jqQwODmlMO6VoHoj8GXUNNhfNiMMXzj6CoLXNZTZb9pS0mUzWt/EhX2fsllPXGXvvco5m0QjFaRSy0=
-before_install:
-    - 'sudo apt-add-repository -y ppa:mosquitto-dev/mosquitto-ppa'
-    - 'sudo apt-get -qq update'
-    - 'sudo apt-get install -y mosquitto'
-    - 'nvm install node'
-    - 'make requirements ui-requirements'
-before_script:
-    - 'psql -c ''create database loraserver;'' -U postgres'
 
 deploy:
     provider: elasticbeanstalk
