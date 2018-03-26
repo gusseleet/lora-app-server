@@ -9,6 +9,7 @@ import (
 	"github.com/brocaar/lorawan"
 	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/lib/pq"
 )
 
 func TestGateway(t *testing.T) {
@@ -54,6 +55,8 @@ func TestGateway(t *testing.T) {
 				OrganizationID:  org.ID,
 				Ping:            true,
 				NetworkServerID: n.ID,
+				Tags:			 pq.StringArray{"Test","Test2"},
+				MaxNodes:        64,
 			}
 			So(CreateGateway(db, &gw), ShouldBeNil)
 			gw.CreatedAt = gw.CreatedAt.Truncate(time.Millisecond).UTC()
@@ -74,6 +77,8 @@ func TestGateway(t *testing.T) {
 				So(UpdateGateway(db, &gw), ShouldBeNil)
 				gw.CreatedAt = gw.CreatedAt.Truncate(time.Millisecond).UTC()
 				gw.UpdatedAt = gw.UpdatedAt.Truncate(time.Millisecond).UTC()
+				//gw.MaxNodes = 12
+				//gw.Tags = pq.StringArray{"Test", "Tag", "1"}
 
 				gw2, err := GetGateway(db, gw.MAC, false)
 				So(err, ShouldBeNil)

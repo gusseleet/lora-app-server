@@ -183,6 +183,12 @@ message CreateGatewayRequest {
 
 	// ID of the network-server to which the gateway is connected.
 	int64 networkServerID = 10;
+
+	// Tags
+	repeated string tags = 11;
+
+	// Max Nodes
+	int64 maxNodes = 12;
 }
 
 message CreateGatewayResponse {}
@@ -234,6 +240,12 @@ message GetGatewayResponse {
 
 	// ID of the network-server to which the gateway is connected.
 	int64 networkServerID = 14;
+
+	// Tags
+	repeated string tags = 15;
+
+	// Max Nodes
+	int64 maxNodes = 16;
 };
 
 message DeleteGatewayRequest {
@@ -286,6 +298,12 @@ message ListGatewayItem {
 
 	// ID of the network-server to which the gateway is connected.
 	int64 networkServerID = 7;
+
+	// Tags
+	repeated string tags = 8;
+
+	// Max Nodes
+	int64 maxNodes = 9;
 }
 
 message ListGatewayResponse {
@@ -324,6 +342,12 @@ message UpdateGatewayRequest {
 
 	// Gateway sends out a periodic ping.
 	bool ping = 9;
+
+	// Tags
+	repeated string tags = 10;
+
+	// Max Nodes
+	int64 maxNodes = 11;
 }
 
 message UpdateGatewayResponse {}
