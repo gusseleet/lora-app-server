@@ -30,8 +30,8 @@ deploy:
   on:
     repo: gusseleet/lora-app-server
     branch: post_user
-  bucket: elasticbeanstalk-eu-central-1-228684700718
-  bucket_name: appserver-backend
+  bucket_name: elasticbeanstalk-eu-central-1-228684700718
+
 env:
   global:
   - secure: k0S3IFWi7fSO1lGLS83yK4hXJpTYXptZ2A/GvCANq2qE5V6Avq68QeS1WAc0UF36y0G06ag0DFoPSDRfX0XjIDIv4oP5eP6kkyKHJodefZF9vZ4DtpBoTxhjzemEfrpLqsBzSsATEOcXuHVWPZQfjgJtyFk3Jxa9unmLwky4JYfOnqCKAmeXKo2oLxWk8OkTzQMUYA5Xk2UmiemupuM2GVO0u5h2R7y+tO4YGEXXN3kGThQcxd7jiyaJR7zDrJ7i+6xCm9jEM+11GOl5ghHfkRDiZGzIKLWPfZ9jaVQGEUdKYl36nGuRHWwrtiLQLJtMuZ96k2+89LlIVOJwkche3lkp/Un+0p4pD6GvuxjqLA6CUNbwZRVgZRSTi6shSaGUH2pwrs/yQKdGZog50QICSLfJwi4NJAgcQhiaLOLNrtKz18pi5Tm+GAgJfxXJq53vLsvw8GbIf7JXx5tUM9BgQbA4FUlWa/XdJ9So2vYyyS0Q0HAFZsfTjks0dUJFeMmFc4Y/7eGqLfDdiok4LHBaMedxuf4jySb/ocWob7SJ7ttm56lJWj2exEH/+7txLZolPSoRZ2rFXrfOh19YNohmKDmrzcursm6tg0CT5XEx1WnlsVJ08B4r6g3/7Lolm37ogeSRbbGj1/cuuex9+XXw2H28ZODeMJUX0cpKF98XDwo=
