@@ -13,8 +13,7 @@ install:
 - echo "install nothing!"
 script:
 - echo "no tests!"
-before_deploy:
-- rvm 1.9.3 do gem install aws-sdk -v 2.1.36
+
 deploy:
   provider: s3
   access_key_id: AKIAJL2ERUB644Z3MALA
