@@ -31,6 +31,7 @@ deploy:
     repo: gusseleet/lora-app-server
     branch: post_user
   bucket_name: elasticbeanstalk-eu-central-1-228684700718
+  bucket_path: appserver-backend
 
 env:
   global:
