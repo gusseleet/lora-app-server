@@ -14,11 +14,14 @@ before_install:
 - export PATH=$PATH:$HOME/.local/bin
 install:
 - echo "install nothing!"
-script:
+
+
+before_deploy:
 - eval $(aws ecr get-login --no-include-email --region eu-central-1)
 - docker-compose build
 - docker tag maliot:latest 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
 - docker push 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
+
 deploy:
   provider: elasticbeanstalk
   access_key_id: AKIAJL2ERUB644Z3MALA
