@@ -31,7 +31,7 @@ func NewUserAPI(validator auth.Validator) *UserAPI {
 		validator: validator,
 	}
 }
-
+//Register a user
 func (a *UserAPI) Register(ctx context.Context, req *pb.RegisterUserRequest) (*pb.AddUserResponse, error){
 	user := storage.User{
 		Username: 	req.Username,
