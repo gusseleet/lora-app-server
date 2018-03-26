@@ -34,6 +34,14 @@ deploy:
     region: eu-central-1
     app: appserver-backend
     env: appserver-backend-dev
+    on:
+      repo: gusseleet/lora-app-server
+      branches:    # ← new!
+        only:      # ← new!
+          - master # ← new!
+          - post_user
+
+
 after_sucess:
     - 'docker --version'
     - 'pip install --user awscli'
