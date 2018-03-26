@@ -5,7 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile-devel
     command: make serve
-    image: maliot
     volumes:
     - ./:/go/src/github.com/gusseleet/lora-app-server
     - /go/src/github.com/gusseleet/lora-app-server/vendor
