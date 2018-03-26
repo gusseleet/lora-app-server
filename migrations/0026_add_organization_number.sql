@@ -2,7 +2,7 @@ delete from organization where id=1;
 
 -- +migrate Up
 alter table organization
-    add column org_nr character varying (100) not null default='';
+    add column org_nr character varying (100) not null default '';
 
 insert into organization (
 	created_at,
