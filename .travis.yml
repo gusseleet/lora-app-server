@@ -2,41 +2,39 @@ language: go
 sudo: required
 dist: trusty
 go:
-- 1.9.x
+    - 1.9.x
 services:
-- redis-server
-- postgresql
-- docker
+    - redis-server
+    - postgresql
+    - docker
 addons:
-  postgresql: '9.5'
+    postgresql: '9.5'
 before_install:
-- pip install --user awscli
-- export PATH=$PATH:$HOME/.local/bin
+    - 'pip install --user awscli'
+    - 'export PATH=$PATH:$HOME/.local/bin'
 install:
-- echo "install nothing!"
-
-
+    - 'echo "install nothing!"'
 before_deploy:
-- eval $(aws ecr get-login --no-include-email --region eu-central-1)
-- docker-compose build
-- docker tag maliot:latest 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
-- docker push 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest
-
+    - 'eval $(aws ecr get-login --no-include-email --region eu-central-1)'
+    - 'docker-compose build'
+    - 'docker tag maliot:latest 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest'
+    - 'docker push 228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest'
 deploy:
-  provider: elasticbeanstalk
-  access_key_id: AKIAJL2ERUB644Z3MALA
-  secret_access_key:
-    secure: K7MEzLTAZ0ChG3I64xELERgM6KRaF7INCP//H/ETPbzawDje6/Wt9wtZjamIUcsL+H8RxVjW7fFIf0zV0BIGfX/uP5TcL5vFEIyQhVYKhp0sNvlAq8p2f57WVpvae5UKCV1qPJYMa3Q9NP3KwHSIazLAciwX3Kuk9J+LQaCayQjB29Q0/bw6Y7un9twXWd0Zm69ArmqnnJ5uBUl30bSksnBHvCUFXz9idufQXepkS4u3iAewNLVpOTn8uEKlNpZUaHOhAuN8WQxbhyREK4gmmauVw5+w1iK8+4harQSnztNN8gple+QYtht4PaXqDTT8/VtY3hYMfauXLFwcidOmtp5f2c7Nik4CQumGunpaFh9zBFGnq/CE/YqJZG8UpWNqwOKkl8NgHZbVyJmPcU42i3tdoM/8+3AvS2DjhJol7dcxCb9kWtlsG4Gzr8VkQfVefyYGg6CpBcYKdXHJOaZKM4keMfPvoILjzeRdRexZwF+LW8c/RtSQsnbgF8jTX9FG69V8bY02vSOeAFJxYNZ7lrQZQXRMwkQKXoHNiLMX6JW8WGQ0vz+zTzHe+zUbMLncvPG9N8rYT3HFbOk6u5u5x7eR6qyj+rg+S+uts9w9qilsIrEBuPtQqecYJFu29iIJYo0KDLdo5nRzeNKsCvv/w4t59V4ySGcskI7gyfX6wns=
-  region: eu-central-1
-  app: appserver-backend
-  env: appserver-backend-dev
-  on:
-    repo: gusseleet/lora-app-server
-    branch: post_user
-  bucket_name: elasticbeanstalk-eu-central-1-228684700718
-  bucket_path: appserver-backend
-
+    provider: elasticbeanstalk
+    access_key_id: AKIAJL2ERUB644Z3MALA
+    secret_access_key:
+        secure: K7MEzLTAZ0ChG3I64xELERgM6KRaF7INCP//H/ETPbzawDje6/Wt9wtZjamIUcsL+H8RxVjW7fFIf0zV0BIGfX/uP5TcL5vFEIyQhVYKhp0sNvlAq8p2f57WVpvae5UKCV1qPJYMa3Q9NP3KwHSIazLAciwX3Kuk9J+LQaCayQjB29Q0/bw6Y7un9twXWd0Zm69ArmqnnJ5uBUl30bSksnBHvCUFXz9idufQXepkS4u3iAewNLVpOTn8uEKlNpZUaHOhAuN8WQxbhyREK4gmmauVw5+w1iK8+4harQSnztNN8gple+QYtht4PaXqDTT8/VtY3hYMfauXLFwcidOmtp5f2c7Nik4CQumGunpaFh9zBFGnq/CE/YqJZG8UpWNqwOKkl8NgHZbVyJmPcU42i3tdoM/8+3AvS2DjhJol7dcxCb9kWtlsG4Gzr8VkQfVefyYGg6CpBcYKdXHJOaZKM4keMfPvoILjzeRdRexZwF+LW8c/RtSQsnbgF8jTX9FG69V8bY02vSOeAFJxYNZ7lrQZQXRMwkQKXoHNiLMX6JW8WGQ0vz+zTzHe+zUbMLncvPG9N8rYT3HFbOk6u5u5x7eR6qyj+rg+S+uts9w9qilsIrEBuPtQqecYJFu29iIJYo0KDLdo5nRzeNKsCvv/w4t59V4ySGcskI7gyfX6wns=
+    region: eu-central-1
+    app: appserver-backend
+    env: appserver-backend-dev
+    on:
+        repo: gusseleet/lora-app-server
+        branch: post_user
+    bucket_name: elasticbeanstalk-eu-central-1-228684700718
+    bucket_path: appserver-backend
 env:
-  global:
-  - secure: k0S3IFWi7fSO1lGLS83yK4hXJpTYXptZ2A/GvCANq2qE5V6Avq68QeS1WAc0UF36y0G06ag0DFoPSDRfX0XjIDIv4oP5eP6kkyKHJodefZF9vZ4DtpBoTxhjzemEfrpLqsBzSsATEOcXuHVWPZQfjgJtyFk3Jxa9unmLwky4JYfOnqCKAmeXKo2oLxWk8OkTzQMUYA5Xk2UmiemupuM2GVO0u5h2R7y+tO4YGEXXN3kGThQcxd7jiyaJR7zDrJ7i+6xCm9jEM+11GOl5ghHfkRDiZGzIKLWPfZ9jaVQGEUdKYl36nGuRHWwrtiLQLJtMuZ96k2+89LlIVOJwkche3lkp/Un+0p4pD6GvuxjqLA6CUNbwZRVgZRSTi6shSaGUH2pwrs/yQKdGZog50QICSLfJwi4NJAgcQhiaLOLNrtKz18pi5Tm+GAgJfxXJq53vLsvw8GbIf7JXx5tUM9BgQbA4FUlWa/XdJ9So2vYyyS0Q0HAFZsfTjks0dUJFeMmFc4Y/7eGqLfDdiok4LHBaMedxuf4jySb/ocWob7SJ7ttm56lJWj2exEH/+7txLZolPSoRZ2rFXrfOh19YNohmKDmrzcursm6tg0CT5XEx1WnlsVJ08B4r6g3/7Lolm37ogeSRbbGj1/cuuex9+XXw2H28ZODeMJUX0cpKF98XDwo=
-  - secure: eTIN5o/8Z+DX67ZMZzixI4v9Yf4KZPEasE/qMd+GhdWYpkoVkU/pYHY22Q3p3rCQ1UGxo2WddfW+dbQwPIBVxkOkcycybp5kiTOs+TBldmnRZ/Ns7vXL0+oqhjN2SMs6nlTNMetpn8fhp4yqYFo56H5DIvIsvFQ+RRRir1dVQjwTyiTSalzBTTxDGqpQoHkBAiTC8ZqQLySkZAaY2o9BAiozzTC8RkE+tkEKlXF+AKmd8FZRClTclaWfdlJD/lj5zGAgRD5iUW1R0EnZsD2Je2Zwo0Cri4q8fuG0WpBa3Inh/lp/0y8TJ4rxxFpnHYfIfPiST9DTCIi1npaOsc7roFosCpRnGSRE3DWHg4VSwq+So41olb4ar9dS9K68x2Eb+XH6OAqa6ItM/qCkok7U688IOHjklv1Z+sefNGWxMtsX87djTRyCke7flJcVhWH72MP7dmUpTBrtEYSeOuLYjy8om5dsD62g/u7QoNF2EkACKYxz1tSOSubE6URwAUnRqwcYxX/UsnDfX7RGnaowWoKpuU0vGmo1lN/Q+8ZBu+Rgp4K9Faxz5UsPAW7Y7HInz0w93utjq8d5zRhf3mLXDlxyYY9AGgbo+uwmfqf3nTe3qfGwivh/JOeG3lMkNesJsvYnwN4VksfB+cfAc6AaAzFLhgU/Qlp3owfPokANvd8=
+    global:
+        -
+            secure: k0S3IFWi7fSO1lGLS83yK4hXJpTYXptZ2A/GvCANq2qE5V6Avq68QeS1WAc0UF36y0G06ag0DFoPSDRfX0XjIDIv4oP5eP6kkyKHJodefZF9vZ4DtpBoTxhjzemEfrpLqsBzSsATEOcXuHVWPZQfjgJtyFk3Jxa9unmLwky4JYfOnqCKAmeXKo2oLxWk8OkTzQMUYA5Xk2UmiemupuM2GVO0u5h2R7y+tO4YGEXXN3kGThQcxd7jiyaJR7zDrJ7i+6xCm9jEM+11GOl5ghHfkRDiZGzIKLWPfZ9jaVQGEUdKYl36nGuRHWwrtiLQLJtMuZ96k2+89LlIVOJwkche3lkp/Un+0p4pD6GvuxjqLA6CUNbwZRVgZRSTi6shSaGUH2pwrs/yQKdGZog50QICSLfJwi4NJAgcQhiaLOLNrtKz18pi5Tm+GAgJfxXJq53vLsvw8GbIf7JXx5tUM9BgQbA4FUlWa/XdJ9So2vYyyS0Q0HAFZsfTjks0dUJFeMmFc4Y/7eGqLfDdiok4LHBaMedxuf4jySb/ocWob7SJ7ttm56lJWj2exEH/+7txLZolPSoRZ2rFXrfOh19YNohmKDmrzcursm6tg0CT5XEx1WnlsVJ08B4r6g3/7Lolm37ogeSRbbGj1/cuuex9+XXw2H28ZODeMJUX0cpKF98XDwo=
+        -
+            secure: eTIN5o/8Z+DX67ZMZzixI4v9Yf4KZPEasE/qMd+GhdWYpkoVkU/pYHY22Q3p3rCQ1UGxo2WddfW+dbQwPIBVxkOkcycybp5kiTOs+TBldmnRZ/Ns7vXL0+oqhjN2SMs6nlTNMetpn8fhp4yqYFo56H5DIvIsvFQ+RRRir1dVQjwTyiTSalzBTTxDGqpQoHkBAiTC8ZqQLySkZAaY2o9BAiozzTC8RkE+tkEKlXF+AKmd8FZRClTclaWfdlJD/lj5zGAgRD5iUW1R0EnZsD2Je2Zwo0Cri4q8fuG0WpBa3Inh/lp/0y8TJ4rxxFpnHYfIfPiST9DTCIi1npaOsc7roFosCpRnGSRE3DWHg4VSwq+So41olb4ar9dS9K68x2Eb+XH6OAqa6ItM/qCkok7U688IOHjklv1Z+sefNGWxMtsX87djTRyCke7flJcVhWH72MP7dmUpTBrtEYSeOuLYjy8om5dsD62g/u7QoNF2EkACKYxz1tSOSubE6URwAUnRqwcYxX/UsnDfX7RGnaowWoKpuU0vGmo1lN/Q+8ZBu+Rgp4K9Faxz5UsPAW7Y7HInz0w93utjq8d5zRhf3mLXDlxyYY9AGgbo+uwmfqf3nTe3qfGwivh/JOeG3lMkNesJsvYnwN4VksfB+cfAc6AaAzFLhgU/Qlp3owfPokANvd8=
