@@ -38,6 +38,12 @@
         "mosquitto",
         "postgres"
       ],
+      "mountPoints": [
+        {
+          "sourceVolume": "client",
+          "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client-test"
+        }
+      ],
       "environment": [
         {
           "name": "POSTGRES_DSN",
