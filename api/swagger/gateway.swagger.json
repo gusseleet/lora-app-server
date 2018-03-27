@@ -679,6 +679,18 @@
           "type": "string",
           "format": "int64",
           "description": "ID of the network-server to which the gateway is connected."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags"
+        },
+        "maxNodes": {
+          "type": "string",
+          "format": "int64",
+          "title": "Max Nodes"
         }
       }
     },
@@ -987,6 +999,18 @@
           "type": "string",
           "format": "int64",
           "description": "ID of the network-server to which the gateway is connected."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags"
+        },
+        "maxNodes": {
+          "type": "string",
+          "format": "int64",
+          "title": "Max Nodes"
         }
       }
     },
@@ -1071,6 +1095,18 @@
           "type": "string",
           "format": "int64",
           "description": "ID of the network-server to which the gateway is connected."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags"
+        },
+        "maxNodes": {
+          "type": "string",
+          "format": "int64",
+          "title": "Max Nodes"
         }
       }
     },
@@ -1277,6 +1313,18 @@
           "type": "boolean",
           "format": "boolean",
           "description": "Gateway sends out a periodic ping."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags"
+        },
+        "maxNodes": {
+          "type": "string",
+          "format": "int64",
+          "title": "Max Nodes"
         }
       }
     },
