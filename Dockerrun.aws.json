@@ -24,6 +24,12 @@
       "host": {
         "sourcePath": "current-mosquitto"
       }
+    },
+    {
+      "name": "client-ui",
+      "host": {
+        "sourcePath": "/home/ec2-user/client"
+      }
     }
   ],
   "containerDefinitions": [
@@ -33,24 +39,16 @@
       "image": "228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest",
       "essential": true,
       "memory": 256,
-      "links": [
-        "redis",
-        "mosquitto",
-        "postgres"
-      ],
-      "volumes": [
-        {
-          "name": "client-ui",
-          "host": {
-            "sourcePath": "/home/ec2-user/client"
-          }
-        }
-      ],
       "mountPoints": [
         {
           "sourceVolume": "client-ui",
           "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client-test"
         }
+      ],
+      "links": [
+        "redis",
+        "mosquitto",
+        "postgres"
       ],
       "environment": [
         {
