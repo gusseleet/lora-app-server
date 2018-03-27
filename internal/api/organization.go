@@ -47,7 +47,6 @@ func (a *OrganizationAPI) Create(ctx context.Context, req *pb.CreateOrganization
 	return &pb.CreateOrganizationResponse{
 		Id: org.ID,
 	}, nil
-
 }
 
 // Get returns the organization matching the given ID.

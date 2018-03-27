@@ -15,14 +15,6 @@ service User {
 		};
 	}
 
-	// Register a user
-	rpc Register(RegisterUserRequest) returns (AddUserResponse) {
-		option(google.api.http) = {
-			post: "/api/register"
-			body: "*"
-		};
-	}
-
 	// Get data for a particular user.
 	rpc Get(UserRequest) returns (GetUserResponse) {
 		option(google.api.http) = {
@@ -158,12 +150,6 @@ message AddUserResponse {
 	int64 id = 1;
 }
 
-message RegisterUserRequest {
-	string username = 1;
-	string password = 2;
-	string email = 3;
-}
-
 // User data not including the data access profile.
 message UserSettings {
 	// ID of the user.
@@ -215,9 +201,6 @@ message GetUserResponse {
 
 	// Optional note to store with the user.
 	string note = 9;
-
-	// testing
-	//bool working = 10;
 }
 
 // Add a new user. Not quite the UserSettings data as it includes a password

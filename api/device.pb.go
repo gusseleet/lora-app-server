@@ -86,7 +86,6 @@ It has these top-level messages:
 	ListUserRequest
 	UserRequest
 	AddUserResponse
-	RegisterUserRequest
 	UserSettings
 	GetUserResponse
 	AddUserRequest
