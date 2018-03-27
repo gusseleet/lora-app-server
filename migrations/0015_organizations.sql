@@ -64,8 +64,6 @@ create table gateway (
 	name varchar(100) not null,
 	description text not null,
 	organization_id bigint not null references organization on delete cascade,
-	tags text[],
-	maxnodes bigint not null,
 
 	constraint gateway_name_organization_id_key unique (name, organization_id)
 );
