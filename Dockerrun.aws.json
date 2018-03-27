@@ -40,10 +40,10 @@
       ],
       "volumes": [
         {
-         "host": {
-           "sourcePath": "/home/ec2-user/client",
-           "name": "client-ui"
-         }
+          "name": "client-ui",
+          "host": {
+            "sourcePath": "/home/ec2-user/client"
+          }
         }
       ],
       "mountPoints": [
