@@ -38,9 +38,17 @@
         "mosquitto",
         "postgres"
       ],
+      "volumes": [
+        {
+         "host": {
+           "sourcePath": "/home/ec2-user/client",
+           "name": "client-ui"
+         }
+        }
+      ],
       "mountPoints": [
         {
-          "sourceVolume": "/home/ec2-user/client",
+          "sourceVolume": "client-ui",
           "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client-test"
         }
       ],
