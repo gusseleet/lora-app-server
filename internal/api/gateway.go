@@ -145,8 +145,8 @@ func (a *GatewayAPI) Get(ctx context.Context, req *pb.GetGatewayRequest) (*pb.Ge
 		LastSeenAt:             getResp.LastSeenAt,
 		ChannelConfigurationID: getResp.ChannelConfigurationID,
 		NetworkServerID:        gw.NetworkServerID,
-		Tags: 					gw.Tags,
-		MaxNodes: 				gw.MaxNodes,
+		Tags:					gw.Tags,
+		MaxNodes:				gw.MaxNodes,
 	}
 	return ret, err
 }

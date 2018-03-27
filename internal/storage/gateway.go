@@ -36,7 +36,7 @@ type Gateway struct {
 	LastPingSentAt  *time.Time    `db:"last_ping_sent_at"`
 	NetworkServerID int64         `db:"network_server_id"`
 	Tags		pq.StringArray	  `db:"tags"`
-	MaxNodes		int64		  `db:"maxnodes"`
+	MaxNodes	int64			  `db:"maxnodes"`
 }
 
 // GatewayPing represents a gateway ping.
