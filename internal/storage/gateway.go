@@ -23,7 +23,7 @@ import (
 
 var gatewayNameRegexp = regexp.MustCompile(`^[\w-]+$`)
 
-// Gateway represents a gateway.
+// Gateway represents a gateway. --Updated with columns Tags and MaxNodes
 type Gateway struct {
 	MAC             lorawan.EUI64 `db:"mac"`
 	CreatedAt       time.Time     `db:"created_at"`

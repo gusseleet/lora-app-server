@@ -88,7 +88,7 @@ update-vendor:
 	@govendor update +external
 
 run-compose-test:
-	docker-compose -f docker-compose-test.yml run --rm appserver make test
+	docker-compose run appserver make test
 
 local-stack:
 	docker-compose up

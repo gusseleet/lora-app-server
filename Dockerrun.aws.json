@@ -88,12 +88,6 @@
         "make",
         "serve"
       ],
-      "mountPoints": [
-        {
-          "sourceVolume": "appserver",
-          "containerPath": "/go/src/github.com/gusseleet/lora-app-server"
-        }
-      ],
       "portMappings": [
         {
           "hostPort": 8080,
