@@ -40,7 +40,7 @@
       ],
       "mountPoints": [
         {
-          "sourceVolume": "client",
+          "sourceVolume": "/home/ec2-user/client",
           "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client-test"
         }
       ],
