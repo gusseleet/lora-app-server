@@ -142,6 +142,8 @@ type CreateOrganizationRequest struct {
 	DisplayName string `protobuf:"bytes,2,opt,name=displayName" json:"displayName,omitempty"`
 	// Can the organization create and "own" Gateways?
 	CanHaveGateways bool `protobuf:"varint,3,opt,name=canHaveGateways" json:"canHaveGateways,omitempty"`
+
+	test123 bool
 }
 
 func (m *CreateOrganizationRequest) Reset()                    { *m = CreateOrganizationRequest{} }

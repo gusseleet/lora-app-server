@@ -63,6 +63,7 @@ func (m *CreateApplicationRequest) GetName() string {
 		return m.Name
 	}
 	return ""
+
 }
 
 func (m *CreateApplicationRequest) GetDescription() string {

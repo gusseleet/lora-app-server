@@ -14,6 +14,7 @@ import (
 	"github.com/gusseleet/lora-app-server/internal/migrations"
 	"github.com/gusseleet/lora-app-server/internal/nsclient"
 	"github.com/brocaar/loraserver/api/ns"
+	"fmt"
 )
 
 // Config contains the test configuration.
@@ -70,6 +71,10 @@ func MustResetDB(db *common.DBLogger) {
 		AssetDir: migrations.AssetDir,
 		Dir:      "",
 	}
+
+	fmt.Println(migrations.Asset);
+	fmt.Println(migrations.AssetDir);
+
 	if _, err := migrate.Exec(db.DB.DB, "postgres", m, migrate.Down); err != nil {
 		log.Fatal(err)
 	}
