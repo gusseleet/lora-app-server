@@ -452,7 +452,7 @@ func ValidateOrganizationsAccess(flag Flag) ValidatorFunc {
 	case Create:
 		// global admin
 		where = [][]string{
-			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true"},
 		}
 	case List:
 		// any active user (results are filtered by the api)

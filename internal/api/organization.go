@@ -37,9 +37,15 @@ func (a *OrganizationAPI) Create(ctx context.Context, req *pb.CreateOrganization
 		Name:            req.Name,
 		DisplayName:     req.DisplayName,
 		CanHaveGateways: req.CanHaveGateways,
+		OrgNr:			 req.OrgNr,
 	}
 
 	err := storage.CreateOrganization(config.C.PostgreSQL.DB, &org)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	err = storage.CreateOrganizationUser(config.C.PostgreSQL.DB, org.ID, req.UserID, true)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
@@ -67,6 +73,7 @@ func (a *OrganizationAPI) Get(ctx context.Context, req *pb.OrganizationRequest) 
 		Name:            org.Name,
 		DisplayName:     org.DisplayName,
 		CanHaveGateways: org.CanHaveGateways,
+		OrgNr:			 org.OrgNr,
 		CreatedAt:       org.CreatedAt.Format(time.RFC3339Nano),
 		UpdatedAt:       org.UpdatedAt.Format(time.RFC3339Nano),
 	}, nil
@@ -119,6 +126,7 @@ func (a *OrganizationAPI) List(ctx context.Context, req *pb.ListOrganizationRequ
 			Name:            org.Name,
 			DisplayName:     org.DisplayName,
 			CanHaveGateways: org.CanHaveGateways,
+			OrgNr:			 org.OrgNr,
 			CreatedAt:       org.CreatedAt.Format(time.RFC3339Nano),
 			UpdatedAt:       org.UpdatedAt.Format(time.RFC3339Nano),
 		}

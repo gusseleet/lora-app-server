@@ -76,6 +76,8 @@ func TestGatewayAPI(t *testing.T) {
 			OrganizationID:  org.ID,
 			Ping:            true,
 			NetworkServerID: n.ID,
+			Tags : []string{"Test","Tag"},
+			MaxNodes: 3,
 		}
 
 		Convey("When calling create", func() {
@@ -89,6 +91,8 @@ func TestGatewayAPI(t *testing.T) {
 				OrganizationID:  org.ID,
 				Ping:            true,
 				NetworkServerID: n.ID,
+				Tags : []string{"Test","Tag"},
+				MaxNodes: 3,
 			})
 			So(err, ShouldBeNil)
 			So(validator.ctx, ShouldResemble, ctx)
@@ -146,6 +150,7 @@ func TestGatewayAPI(t *testing.T) {
 					MAC:             lorawan.EUI64{8, 7, 6, 5, 4, 3, 2, 1},
 					OrganizationID:  org2.ID,
 					NetworkServerID: n.ID,
+					MaxNodes: 3,
 				}
 				So(storage.CreateGateway(config.C.PostgreSQL.DB, &gw2), ShouldBeNil)
 
@@ -387,6 +392,7 @@ func TestGatewayAPI(t *testing.T) {
 					Name:            "test-gw-2",
 					Description:     "test gw 2",
 					NetworkServerID: n.ID,
+					MaxNodes: 3,
 				}
 				So(storage.CreateGateway(config.C.PostgreSQL.DB, &gw2), ShouldBeNil)
 
@@ -396,6 +402,7 @@ func TestGatewayAPI(t *testing.T) {
 					Name:            "test-gw-3",
 					Description:     "test gw 3",
 					NetworkServerID: n.ID,
+					MaxNodes: 4,
 				}
 				So(storage.CreateGateway(config.C.PostgreSQL.DB, &gw3), ShouldBeNil)
 

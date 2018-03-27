@@ -119,6 +119,9 @@ message GetOrganizationResponse {
 
 	// When the user was last updated (excludes changes in application access).
 	string updatedAt = 6;
+
+	// Organization Number.
+	string orgNr = 7;
 }
 
 // Add a new organization. 
@@ -131,6 +134,12 @@ message CreateOrganizationRequest {
 
 	// Can the organization create and "own" Gateways?
 	bool canHaveGateways = 3;
+
+	// The Organization number
+	string orgNr = 4;
+
+	// The ID of the user that creates the organization
+	int64 userID = 5;
 }
 
 message CreateOrganizationResponse {
@@ -151,6 +160,9 @@ message UpdateOrganizationRequest {
 
 	// Can the organization create and "own" Gateways?
 	bool canHaveGateways = 4;
+
+	// The new org number
+	string orgNr = 5;
 }
 
 message ListOrganizationResponse {

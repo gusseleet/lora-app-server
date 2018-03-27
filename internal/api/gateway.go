@@ -65,6 +65,8 @@ func (a *GatewayAPI) Create(ctx context.Context, req *pb.CreateGatewayRequest) (
 			OrganizationID:  req.OrganizationID,
 			Ping:            req.Ping,
 			NetworkServerID: req.NetworkServerID,
+			Tags: 			 req.Tags,
+			MaxNodes: 		 req.MaxNodes,
 		})
 		if err != nil {
 			return errToRPCError(err)
@@ -212,6 +214,8 @@ func (a *GatewayAPI) List(ctx context.Context, req *pb.ListGatewayRequest) (*pb.
 			UpdatedAt:       gws[i].UpdatedAt.Format(time.RFC3339Nano),
 			OrganizationID:  gws[i].OrganizationID,
 			NetworkServerID: gws[i].NetworkServerID,
+			Tags:			 gws[i].Tags,
+			MaxNodes:		 gws[i].MaxNodes,
 		})
 	}
 
