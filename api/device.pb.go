@@ -11,6 +11,7 @@ It is generated from these files:
 	common.proto
 	user.proto
 	gateway.proto
+	gatewayNetwork.proto
 	organization.proto
 	profiles.proto
 	networkServer.proto
@@ -137,6 +138,14 @@ It has these top-level messages:
 	GetLastPingResponse
 	StreamGatewayFrameLogsRequest
 	StreamGatewayFrameLogsResponse
+	ListGatewayNetworksRequest
+	GatewayNetworkRequest
+	GetGatewayNetworkResponse
+	CreateGatewayNetworkRequest
+	CreateGatewayNetworkResponse
+	ListGatewayNetworksResponse
+	GatewayNetworkEmptyResponse
+	GatewayNetworkGatewayRequest
 	ListOrganizationRequest
 	OrganizationRequest
 	GetOrganizationResponse

@@ -518,7 +518,8 @@
         "email": {
           "type": "string"
         }
-      }
+      },
+      "title": "Request for register"
     },
     "apiUpdateUserPasswordRequest": {
       "type": "object",

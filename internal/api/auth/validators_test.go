@@ -536,6 +536,32 @@ func TestValidators(t *testing.T) {
 			runTests(tests, db)
 		})
 
+		Convey("When testing ValidateGatewayNetworksAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "normal users can fetch list",
+					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(List)},
+					Claims:     Claims{Username: "user4"},
+					ExpectedOK: true,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidateGatewayNetworkAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "normal users can create and read",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Create), ValidateGatewayNetworkAccess(Read)},
+					Claims:     Claims{Username: "user4"},
+					ExpectedOK: true,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
 		Convey("When testing ValidateIsOrganizationAdmin", func() {
 			tests := []validatorTest{
 				{
@@ -588,16 +614,16 @@ func TestValidators(t *testing.T) {
 					ExpectedOK: true,
 				},
 				{
-					Name:       "organization admin users can not create",
+					Name:       "organization admin users can create",
 					Validators: []ValidatorFunc{ValidateOrganizationsAccess(Create)},
 					Claims:     Claims{Username: "user10"},
-					ExpectedOK: false,
+					ExpectedOK: true,
 				},
 				{
-					Name:       "normal users can not create",
+					Name:       "normal users can create",
 					Validators: []ValidatorFunc{ValidateOrganizationsAccess(Create)},
 					Claims:     Claims{Username: "user4"},
-					ExpectedOK: false,
+					ExpectedOK: true,
 				},
 				{
 					Name:       "inactive global admin users can not create and list",
