@@ -175,7 +175,9 @@
       "memory": 128,
       "portMappings": [],
       "links": [],
-      "mountPoints": []
+      "mountPoints": [
+
+      ]
     },
     {
       "name": "loraserver",
