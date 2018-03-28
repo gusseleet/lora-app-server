@@ -8,9 +8,9 @@
       }
     },
     {
-      "name": "postgres",
+      "name": "db",
       "host": {
-        "sourcePath": "current-postgres"
+        "sourcePath": "/home/ec2-user/db"
       }
     },
     {
@@ -128,15 +128,37 @@
         }
       ],
       "command": [],
-      "portMappings": [
+      "portMappings": [],
+      "mountPoints": [
         {
-          "hostPort": 5432,
-          "containerPort": 5432
+          "sourceVolume": "db",
+          "containerPath": "/var/lib/postgresql/data"
+        }
+      ]
+    },
+    {
+      "name": "postgres_ns",
+      "image": "postgres:9.5",
+      "essential": true,
+      "memory": 512,
+      "environment": [
+        {
+          "name": "POSTGRES_PASSWORD",
+          "value": "loraserver_ns"
+        },
+        {
+          "name": "POSTGRES_USER",
+          "value": "loraserver_ns"
+        },
+        {
+          "name": "POSTGRES_DB",
+          "value": "loraserver_ns"
         }
       ],
+      "command": [],
+      "portMappings": [],
       "mountPoints": []
     },
-
     {
       "name": "redis",
       "image": "redis:3.0.7-alpine",
@@ -154,6 +176,58 @@
       "portMappings": [],
       "links": [],
       "mountPoints": []
+    },
+    {
+      "name": "loraserver",
+      "image": "loraserver/loraserver",
+      "essential": true,
+      "memory": 128,
+      "portMappings": [
+        {
+          "hostPort": 8080,
+          "containerPort": 8080
+        }
+      ],
+      "links": [],
+      "mountPoints": [],
+      "environment": [
+        {
+          "name": "DB_AUTOMIGRAT",
+          "value": "true"
+        },
+        {
+          "name": "LOG_NODE_FRAMES",
+          "value": "true"
+        },
+        {
+          "name": "NET_ID",
+          "value": "010203"
+        },
+        {
+          "name": "BAND",
+          "value": "EU_863_870"
+        },
+        {
+          "name": "REDIS_URL",
+          "value": "redis://redis:6379"
+        },
+        {
+          "name": "GW_MQTT_SERVER",
+          "value": "tcp://mosquitto:1883"
+        },
+        {
+          "name": "GW_SERVER_JWT_SECRET",
+          "value": "verysecret"
+        },
+        {
+          "name": "POSTGRES_DSN",
+          "value": "postgres://loraserver_ns:loraserver_ns@postgresql_ns/loraserver_ns?sslmode=disable"
+        },
+        {
+          "name": "JS_SERVER",
+          "value": "http://appserver:8003"
+        }
+      ]
     }
 
   ]
