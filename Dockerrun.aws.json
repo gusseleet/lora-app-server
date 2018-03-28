@@ -184,8 +184,8 @@
       "memory": 128,
       "portMappings": [
         {
-          "hostPort": 8080,
-          "containerPort": 8080
+          "hostPort": 8000,
+          "containerPort": 8000
         }
       ],
       "links": [],
