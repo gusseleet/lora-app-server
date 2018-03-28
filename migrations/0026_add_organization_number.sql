@@ -23,5 +23,3 @@ insert into organization (
 -- +migrate Down
 alter table organization
     drop column org_nr;
-
--- +migrate StatementEnd

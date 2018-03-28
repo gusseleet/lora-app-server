@@ -31,7 +31,7 @@ type CreateServiceProfileRequest struct {
 func (m *CreateServiceProfileRequest) Reset()                    { *m = CreateServiceProfileRequest{} }
 func (m *CreateServiceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*CreateServiceProfileRequest) ProtoMessage()               {}
-func (*CreateServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{0} }
+func (*CreateServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
 
 func (m *CreateServiceProfileRequest) GetServiceProfile() *ServiceProfile {
 	if m != nil {
@@ -69,7 +69,7 @@ type CreateServiceProfileResponse struct {
 func (m *CreateServiceProfileResponse) Reset()                    { *m = CreateServiceProfileResponse{} }
 func (m *CreateServiceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*CreateServiceProfileResponse) ProtoMessage()               {}
-func (*CreateServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{1} }
+func (*CreateServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
 
 func (m *CreateServiceProfileResponse) GetServiceProfileID() string {
 	if m != nil {
@@ -86,7 +86,7 @@ type GetServiceProfileRequest struct {
 func (m *GetServiceProfileRequest) Reset()                    { *m = GetServiceProfileRequest{} }
 func (m *GetServiceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetServiceProfileRequest) ProtoMessage()               {}
-func (*GetServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{2} }
+func (*GetServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{2} }
 
 func (m *GetServiceProfileRequest) GetServiceProfileID() string {
 	if m != nil {
@@ -112,7 +112,7 @@ type GetServiceProfileResponse struct {
 func (m *GetServiceProfileResponse) Reset()                    { *m = GetServiceProfileResponse{} }
 func (m *GetServiceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*GetServiceProfileResponse) ProtoMessage()               {}
-func (*GetServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{3} }
+func (*GetServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
 
 func (m *GetServiceProfileResponse) GetServiceProfile() *ServiceProfile {
 	if m != nil {
@@ -165,7 +165,7 @@ type UpdateServiceProfileRequest struct {
 func (m *UpdateServiceProfileRequest) Reset()                    { *m = UpdateServiceProfileRequest{} }
 func (m *UpdateServiceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*UpdateServiceProfileRequest) ProtoMessage()               {}
-func (*UpdateServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{4} }
+func (*UpdateServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{4} }
 
 func (m *UpdateServiceProfileRequest) GetServiceProfile() *ServiceProfile {
 	if m != nil {
@@ -187,7 +187,7 @@ type UpdateServiceProfileResponse struct {
 func (m *UpdateServiceProfileResponse) Reset()                    { *m = UpdateServiceProfileResponse{} }
 func (m *UpdateServiceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*UpdateServiceProfileResponse) ProtoMessage()               {}
-func (*UpdateServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{5} }
+func (*UpdateServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{5} }
 
 type DeleteServiceProfileRequest struct {
 	// ID of the service-profile.
@@ -197,7 +197,7 @@ type DeleteServiceProfileRequest struct {
 func (m *DeleteServiceProfileRequest) Reset()                    { *m = DeleteServiceProfileRequest{} }
 func (m *DeleteServiceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeleteServiceProfileRequest) ProtoMessage()               {}
-func (*DeleteServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{6} }
+func (*DeleteServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{6} }
 
 func (m *DeleteServiceProfileRequest) GetServiceProfileID() string {
 	if m != nil {
@@ -212,7 +212,7 @@ type DeleteServiceProfileResponse struct {
 func (m *DeleteServiceProfileResponse) Reset()                    { *m = DeleteServiceProfileResponse{} }
 func (m *DeleteServiceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*DeleteServiceProfileResponse) ProtoMessage()               {}
-func (*DeleteServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{7} }
+func (*DeleteServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{7} }
 
 type ListServiceProfileRequest struct {
 	// Max number of items to return.
@@ -226,7 +226,7 @@ type ListServiceProfileRequest struct {
 func (m *ListServiceProfileRequest) Reset()                    { *m = ListServiceProfileRequest{} }
 func (m *ListServiceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*ListServiceProfileRequest) ProtoMessage()               {}
-func (*ListServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{8} }
+func (*ListServiceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{8} }
 
 func (m *ListServiceProfileRequest) GetLimit() int64 {
 	if m != nil {
@@ -267,7 +267,7 @@ type ServiceProfileMeta struct {
 func (m *ServiceProfileMeta) Reset()                    { *m = ServiceProfileMeta{} }
 func (m *ServiceProfileMeta) String() string            { return proto.CompactTextString(m) }
 func (*ServiceProfileMeta) ProtoMessage()               {}
-func (*ServiceProfileMeta) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{9} }
+func (*ServiceProfileMeta) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{9} }
 
 func (m *ServiceProfileMeta) GetServiceProfileID() string {
 	if m != nil {
@@ -320,7 +320,7 @@ type ListServiceProfileResponse struct {
 func (m *ListServiceProfileResponse) Reset()                    { *m = ListServiceProfileResponse{} }
 func (m *ListServiceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*ListServiceProfileResponse) ProtoMessage()               {}
-func (*ListServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{10} }
+func (*ListServiceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{10} }
 
 func (m *ListServiceProfileResponse) GetTotalCount() int64 {
 	if m != nil {
@@ -564,9 +564,9 @@ var _ServiceProfileService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "serviceProfile.proto",
 }
 
-func init() { proto.RegisterFile("serviceProfile.proto", fileDescriptor9) }
+func init() { proto.RegisterFile("serviceProfile.proto", fileDescriptor10) }
 
-var fileDescriptor9 = []byte{
+var fileDescriptor10 = []byte{
 	// 560 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x55, 0xdd, 0x8a, 0xd3, 0x50,
 	0x10, 0x26, 0x9b, 0x6e, 0x60, 0x67, 0xa1, 0xca, 0xb8, 0xeb, 0x66, 0xd3, 0x6c, 0x8d, 0xb9, 0x90,

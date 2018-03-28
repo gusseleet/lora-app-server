@@ -23,6 +23,7 @@ protoc  -I/usr/local/include -I. ${GOPATHLIST} --go_out=plugins=grpc:. \
     common.proto \
     user.proto \
     gateway.proto \
+    gatewayNetwork.proto \
     organization.proto \
     profiles.proto \
     networkServer.proto \
@@ -37,6 +38,7 @@ protoc -I/usr/local/include -I. ${GOPATHLIST} --grpc-gateway_out=logtostderr=tru
     common.proto \
     user.proto \
     gateway.proto \
+    gatewayNetwork.proto \
     organization.proto \
     profiles.proto \
     networkServer.proto \
@@ -51,6 +53,7 @@ protoc -I/usr/local/include -I. ${GOPATHLIST} --swagger_out=logtostderr=true:./s
     common.proto \
     user.proto \
     gateway.proto \
+    gatewayNetwork.proto \
     organization.proto \
     profiles.proto \
     networkServer.proto \
