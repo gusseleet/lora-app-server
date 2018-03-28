@@ -290,6 +290,7 @@ func startClientAPI(ctx context.Context) func() error {
 		pb.RegisterUserServer(clientAPIHandler, api.NewUserAPI(validator))
 		pb.RegisterInternalServer(clientAPIHandler, api.NewInternalUserAPI(validator))
 		pb.RegisterGatewayServer(clientAPIHandler, api.NewGatewayAPI(validator))
+		pb.RegisterGatewayNetworkServer(clientAPIHandler, api.NewGatewayNetworkAPI(validator))
 		pb.RegisterOrganizationServer(clientAPIHandler, api.NewOrganizationAPI(validator))
 		pb.RegisterNetworkServerServer(clientAPIHandler, api.NewNetworkServerAPI(validator))
 		pb.RegisterServiceProfileServiceServer(clientAPIHandler, api.NewServiceProfileServiceAPI(validator))
@@ -452,6 +453,9 @@ func getJSONGateway(ctx context.Context) (http.Handler, error) {
 	}
 	if err := pb.RegisterGatewayHandlerFromEndpoint(ctx, mux, apiEndpoint, grpcDialOpts); err != nil {
 		return nil, errors.Wrap(err, "register gateway handler error")
+	}
+	if err := pb.RegisterGatewayNetworkHandlerFromEndpoint(ctx, mux, apiEndpoint, grpcDialOpts); err != nil {
+		return nil, errors.Wrap(err, "register gateway network handler error")
 	}
 	if err := pb.RegisterOrganizationHandlerFromEndpoint(ctx, mux, apiEndpoint, grpcDialOpts); err != nil {
 		return nil, errors.Wrap(err, "register organization handler error")

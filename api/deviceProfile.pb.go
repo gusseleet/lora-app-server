@@ -31,7 +31,7 @@ type CreateDeviceProfileRequest struct {
 func (m *CreateDeviceProfileRequest) Reset()                    { *m = CreateDeviceProfileRequest{} }
 func (m *CreateDeviceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*CreateDeviceProfileRequest) ProtoMessage()               {}
-func (*CreateDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
+func (*CreateDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{0} }
 
 func (m *CreateDeviceProfileRequest) GetDeviceProfile() *DeviceProfile {
 	if m != nil {
@@ -69,7 +69,7 @@ type CreateDeviceProfileResponse struct {
 func (m *CreateDeviceProfileResponse) Reset()                    { *m = CreateDeviceProfileResponse{} }
 func (m *CreateDeviceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*CreateDeviceProfileResponse) ProtoMessage()               {}
-func (*CreateDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
+func (*CreateDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{1} }
 
 func (m *CreateDeviceProfileResponse) GetDeviceProfileID() string {
 	if m != nil {
@@ -86,7 +86,7 @@ type GetDeviceProfileRequest struct {
 func (m *GetDeviceProfileRequest) Reset()                    { *m = GetDeviceProfileRequest{} }
 func (m *GetDeviceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetDeviceProfileRequest) ProtoMessage()               {}
-func (*GetDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{2} }
+func (*GetDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{2} }
 
 func (m *GetDeviceProfileRequest) GetDeviceProfileID() string {
 	if m != nil {
@@ -112,7 +112,7 @@ type GetDeviceProfileResponse struct {
 func (m *GetDeviceProfileResponse) Reset()                    { *m = GetDeviceProfileResponse{} }
 func (m *GetDeviceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*GetDeviceProfileResponse) ProtoMessage()               {}
-func (*GetDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
+func (*GetDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{3} }
 
 func (m *GetDeviceProfileResponse) GetDeviceProfile() *DeviceProfile {
 	if m != nil {
@@ -165,7 +165,7 @@ type UpdateDeviceProfileRequest struct {
 func (m *UpdateDeviceProfileRequest) Reset()                    { *m = UpdateDeviceProfileRequest{} }
 func (m *UpdateDeviceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*UpdateDeviceProfileRequest) ProtoMessage()               {}
-func (*UpdateDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{4} }
+func (*UpdateDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{4} }
 
 func (m *UpdateDeviceProfileRequest) GetDeviceProfile() *DeviceProfile {
 	if m != nil {
@@ -187,7 +187,7 @@ type UpdateDeviceProfileResponse struct {
 func (m *UpdateDeviceProfileResponse) Reset()                    { *m = UpdateDeviceProfileResponse{} }
 func (m *UpdateDeviceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*UpdateDeviceProfileResponse) ProtoMessage()               {}
-func (*UpdateDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{5} }
+func (*UpdateDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{5} }
 
 type DeleteDeviceProfileRequest struct {
 	// ID of the device-profile.
@@ -197,7 +197,7 @@ type DeleteDeviceProfileRequest struct {
 func (m *DeleteDeviceProfileRequest) Reset()                    { *m = DeleteDeviceProfileRequest{} }
 func (m *DeleteDeviceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeleteDeviceProfileRequest) ProtoMessage()               {}
-func (*DeleteDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{6} }
+func (*DeleteDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{6} }
 
 func (m *DeleteDeviceProfileRequest) GetDeviceProfileID() string {
 	if m != nil {
@@ -212,7 +212,7 @@ type DeleteDeviceProfileResponse struct {
 func (m *DeleteDeviceProfileResponse) Reset()                    { *m = DeleteDeviceProfileResponse{} }
 func (m *DeleteDeviceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*DeleteDeviceProfileResponse) ProtoMessage()               {}
-func (*DeleteDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{7} }
+func (*DeleteDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{7} }
 
 type ListDeviceProfileRequest struct {
 	// Max number of items to return.
@@ -228,7 +228,7 @@ type ListDeviceProfileRequest struct {
 func (m *ListDeviceProfileRequest) Reset()                    { *m = ListDeviceProfileRequest{} }
 func (m *ListDeviceProfileRequest) String() string            { return proto.CompactTextString(m) }
 func (*ListDeviceProfileRequest) ProtoMessage()               {}
-func (*ListDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{8} }
+func (*ListDeviceProfileRequest) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{8} }
 
 func (m *ListDeviceProfileRequest) GetLimit() int64 {
 	if m != nil {
@@ -276,7 +276,7 @@ type DeviceProfileMeta struct {
 func (m *DeviceProfileMeta) Reset()                    { *m = DeviceProfileMeta{} }
 func (m *DeviceProfileMeta) String() string            { return proto.CompactTextString(m) }
 func (*DeviceProfileMeta) ProtoMessage()               {}
-func (*DeviceProfileMeta) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{9} }
+func (*DeviceProfileMeta) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{9} }
 
 func (m *DeviceProfileMeta) GetDeviceProfileID() string {
 	if m != nil {
@@ -329,7 +329,7 @@ type ListDeviceProfileResponse struct {
 func (m *ListDeviceProfileResponse) Reset()                    { *m = ListDeviceProfileResponse{} }
 func (m *ListDeviceProfileResponse) String() string            { return proto.CompactTextString(m) }
 func (*ListDeviceProfileResponse) ProtoMessage()               {}
-func (*ListDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{10} }
+func (*ListDeviceProfileResponse) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{10} }
 
 func (m *ListDeviceProfileResponse) GetTotalCount() int64 {
 	if m != nil {
@@ -573,9 +573,9 @@ var _DeviceProfileService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "deviceProfile.proto",
 }
 
-func init() { proto.RegisterFile("deviceProfile.proto", fileDescriptor10) }
+func init() { proto.RegisterFile("deviceProfile.proto", fileDescriptor11) }
 
-var fileDescriptor10 = []byte{
+var fileDescriptor11 = []byte{
 	// 577 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x55, 0x4f, 0x8b, 0xd3, 0x40,
 	0x14, 0x67, 0x36, 0xdd, 0x40, 0xdf, 0xb2, 0x2b, 0x8e, 0xa5, 0x66, 0xd3, 0x76, 0xb7, 0x04, 0x59,

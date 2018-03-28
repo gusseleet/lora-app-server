@@ -428,6 +428,78 @@ func ValidateGatewayAccess(flag Flag, mac lorawan.EUI64) ValidatorFunc {
 	}
 }
 
+// ValidateGatewayNetworksAccess validates if the client has access to the given gateway network.
+func ValidateGatewayNetworksAccess(flag Flag) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case List:
+		// any active user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, userQuery, where, claims.Username)
+	}
+}
+
+// ValidateGatewayNetworkAccess validates if the client has access to the given gateway network.
+func ValidateGatewayNetworkAccess(flag Flag) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Create:
+		// any active user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
+	case Read:
+		// any active user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, userQuery, where, claims.Username)
+	}
+}
+
+// ValidateGatewayNetworkGatewayAccess validates if the client has access to the given gateway network gateway.
+func ValidateGatewayNetworkGatewayAccess(flag Flag, organizationID int64) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Create:
+		// any active user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "ou.is_admin = true", "o.id = $2"},
+		}
+	case Read:
+		// any active user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, userQuery, where, claims.Username)
+	}
+}
+
 // ValidateIsOrganizationAdmin validates if the client has access to
 // administrate the given organization.
 func ValidateIsOrganizationAdmin(organizationID int64) ValidatorFunc {
