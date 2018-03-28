@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package api;
+
+// for grpc-gateway
+import "google/api/annotations.proto";
+
+// GatewayNetwork is the service managing the gateway network access.
+service GatewayNetwork {
+    // Get gateway network list.
+    rpc List(ListGatewayNetworksRequest) returns (ListGatewayNetworksResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks"
+		};
+    }
+
+    // Get data for a particular organization.
+    rpc Get(GatewayNetworkRequest) returns (GetGatewayNetworkResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks/{id}"
+		};
+    }
+
+    // Create a new gateway network.
+    rpc Create(CreateGatewayNetworkRequest) returns (CreateGatewayNetworkResponse) {
+        option(google.api.http) = {
+			post: "/api/gatewaynetworks"
+			body: "*"
+		};
+    }
+
+    // Add a new gateway to a gateway network
+    rpc AddGateway(GatewayNetworkGatewayRequest) returns (GatewayNetworkEmptyResponse) {
+        option(google.api.http) = {
+            post: "/api/gatewaynetworks/{id}/gateways"
+            body: "*"
+        };
+    }
+
+}
+
+// Request the gateway networks defined in the system.
+message ListGatewayNetworksRequest {
+    // Max number of gateway networks to return in the result-set.
+    int32 limit = 1;
+
+    // Offset in the result-set (for pagination).
+    int32 offset = 2;
+
+    // When provided, the given string will be used to search on
+    // Name.
+    string search = 3;
+}
+
+// Request the gateway network information.
+message GatewayNetworkRequest {
+    int64 id = 1;
+}
+
+message GetGatewayNetworkResponse {
+    // ID of the Gateway Network.
+    int64 id = 1;
+
+    // When the gateway network was created.
+    string createdAt = 2;
+
+    // When the gateway network was last updated.
+    string updatedAt = 3;
+
+    // Gateway Network name.
+    string name = 4;
+
+    // Tags with specification data.
+    repeated string tags = 5;
+
+    // Price of the gateway network.
+    int64 price = 6;
+
+    // Is the network private or not.
+    bool privateNetwork = 7;
+
+    // Organization the gateway network belongs to.
+    int64 organizationID = 8;
+
+}
+
+// Add a new organization.
+message CreateGatewayNetworkRequest {
+    // Gateway network name.
+    string name = 1;
+
+    // Tags with specification data.
+    repeated string tags = 2;
+
+    // Price of the gateway network.
+    int64 price = 3;
+
+    // Is the network private or not.
+    bool privateNetwork = 4;
+
+    // Organization the gateway network belongs to.
+    int64 organizationID = 5;
+}
+
+message CreateGatewayNetworkResponse {
+    // ID of the gateway network.
+    int64 id = 1;
+}
+
+message ListGatewayNetworksResponse {
+    int32 totalCount = 1;
+    repeated GetGatewayNetworkResponse result = 2;
+}
+
+message GatewayNetworkEmptyResponse {
+    // Nothing to return on update, delete.
+}
+
+message GatewayNetworkGatewayRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // The gateway MAC.
+    int64 gatewayMAC = 2;
+}

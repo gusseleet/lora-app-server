@@ -166,10 +166,10 @@ func TestOrganizationAPI(t *testing.T) {
 								Offset: 0,
 							})
 							So(err, ShouldBeNil)
-							So(orgUsers.Result, ShouldHaveLength, 1)
-							So(orgUsers.Result[0].Id, ShouldEqual, userResp.Id)
-							So(orgUsers.Result[0].Username, ShouldEqual, userReq.Username)
-							So(orgUsers.Result[0].IsAdmin, ShouldEqual, addOrgUser.IsAdmin)
+							So(orgUsers.Result, ShouldHaveLength, 2)
+							So(orgUsers.Result[1].Id, ShouldEqual, userResp.Id)
+							So(orgUsers.Result[1].Username, ShouldEqual, userReq.Username)
+							So(orgUsers.Result[1].IsAdmin, ShouldEqual, addOrgUser.IsAdmin)
 						})
 
 						Convey("When updating the user in the organization", func() {
@@ -190,7 +190,7 @@ func TestOrganizationAPI(t *testing.T) {
 								So(err, ShouldBeNil)
 								So(orgUsers, ShouldNotBeNil)
 								if nil != orgUsers {
-									So(orgUsers.Result, ShouldHaveLength, 1)
+									So(orgUsers.Result, ShouldHaveLength, 2)
 									if 1 == len(orgUsers.Result) {
 										So(orgUsers.Result[0].Id, ShouldEqual, userResp.Id)
 										So(orgUsers.Result[0].Username, ShouldEqual, userReq.Username)
@@ -217,7 +217,7 @@ func TestOrganizationAPI(t *testing.T) {
 								})
 								So(err, ShouldBeNil)
 								So(orgUsers, ShouldNotBeNil)
-								So(orgUsers.Result, ShouldHaveLength, 0)
+								So(orgUsers.Result, ShouldHaveLength, 1)
 							})
 						})
 					})

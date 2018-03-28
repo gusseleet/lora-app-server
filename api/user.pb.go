@@ -248,6 +248,7 @@ func (m *AddUserResponse) GetId() int64 {
 	return 0
 }
 
+// Request for register
 type RegisterUserRequest struct {
 	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
 	Password string `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`

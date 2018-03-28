@@ -33,7 +33,7 @@ var RatePolicy_value = map[string]int32{
 func (x RatePolicy) String() string {
 	return proto.EnumName(RatePolicy_name, int32(x))
 }
-func (RatePolicy) EnumDescriptor() ([]byte, []int) { return fileDescriptor7, []int{0} }
+func (RatePolicy) EnumDescriptor() ([]byte, []int) { return fileDescriptor8, []int{0} }
 
 type ServiceProfile struct {
 	ServiceProfileID       string     `protobuf:"bytes,1,opt,name=serviceProfileID" json:"serviceProfileID,omitempty"`
@@ -61,7 +61,7 @@ type ServiceProfile struct {
 func (m *ServiceProfile) Reset()                    { *m = ServiceProfile{} }
 func (m *ServiceProfile) String() string            { return proto.CompactTextString(m) }
 func (*ServiceProfile) ProtoMessage()               {}
-func (*ServiceProfile) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{0} }
+func (*ServiceProfile) Descriptor() ([]byte, []int) { return fileDescriptor8, []int{0} }
 
 func (m *ServiceProfile) GetServiceProfileID() string {
 	if m != nil {
@@ -229,7 +229,7 @@ type DeviceProfile struct {
 func (m *DeviceProfile) Reset()                    { *m = DeviceProfile{} }
 func (m *DeviceProfile) String() string            { return proto.CompactTextString(m) }
 func (*DeviceProfile) ProtoMessage()               {}
-func (*DeviceProfile) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{1} }
+func (*DeviceProfile) Descriptor() ([]byte, []int) { return fileDescriptor8, []int{1} }
 
 func (m *DeviceProfile) GetDeviceProfileID() string {
 	if m != nil {
@@ -377,9 +377,9 @@ func init() {
 	proto.RegisterEnum("api.RatePolicy", RatePolicy_name, RatePolicy_value)
 }
 
-func init() { proto.RegisterFile("profiles.proto", fileDescriptor7) }
+func init() { proto.RegisterFile("profiles.proto", fileDescriptor8) }
 
-var fileDescriptor7 = []byte{
+var fileDescriptor8 = []byte{
 	// 688 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x95, 0xdf, 0x4f, 0xdb, 0x30,
 	0x10, 0xc7, 0xd7, 0x41, 0xa1, 0x35, 0xa4, 0x2d, 0x86, 0x21, 0x6b, 0x9a, 0xa6, 0x08, 0x4d, 0x53,
