@@ -14,6 +14,12 @@
       }
     },
     {
+      "name": "db_ns",
+      "host": {
+        "sourcePath": "/home/ec2-user/db_ns"
+      }
+    },
+    {
       "name": "redis",
       "host": {
         "sourcePath": "current-redis"
@@ -157,7 +163,12 @@
       ],
       "command": [],
       "portMappings": [],
-      "mountPoints": []
+      "mountPoints": [
+        {
+          "sourceVolume": "db_ns",
+          "containerPath": "/var/lib/postgresql/data"
+        }
+      ]
     },
     {
       "name": "redis",
