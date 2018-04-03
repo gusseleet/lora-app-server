@@ -225,7 +225,7 @@
         },
         {
           "name": "POSTGRES_DSN",
-          "value": "postgres://loraserver_ns:loraserver_ns@postgres/loraserver_ns?sslmode=disable"
+          "value": "postgres://loraserver_ns:loraserver_ns@postgres_ns/loraserver_ns?sslmode=disable"
         },
         {
           "name": "JS_SERVER",
