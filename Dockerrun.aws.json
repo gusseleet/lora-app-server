@@ -54,7 +54,8 @@
       "links": [
         "redis",
         "mosquitto",
-        "postgres"
+        "postgres",
+        "loraserver"
       ],
       "environment": [
         {
@@ -203,7 +204,8 @@
       ],
       "links": [
         "postgres_ns",
-        "mosquitto"
+        "mosquitto",
+        "redis"
       ],
       "mountPoints": [],
       "environment": [
@@ -243,6 +245,24 @@
           "name": "JS_SERVER",
           "value": "http://appserver:8003"
         }
+      ]
+    },
+    {
+      "name": "gateway_bridge",
+      "image": "loraserver/lora-gateway-bridge",
+      "essential": true,
+      "memory": 256,
+      "environment": [
+        {
+          "name": "MQTT_SERVER",
+          "value": "tcp://mosquitto:1883"
+        }
+      ],
+      "command": [],
+      "portMappings": [],
+      "mountPoints": [],
+      "links": [
+        "mosquitto"
       ]
     }
 
