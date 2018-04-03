@@ -191,7 +191,8 @@
         }
       ],
       "links": [
-        "postgres_ns"
+        "postgres_ns",
+        "mosquitto"
       ],
       "mountPoints": [],
       "environment": [
