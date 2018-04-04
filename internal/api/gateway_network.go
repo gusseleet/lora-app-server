@@ -3,6 +3,7 @@ package api
 import (
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -11,6 +12,7 @@ import (
 	"github.com/gusseleet/lora-app-server/internal/api/auth"
 	"github.com/gusseleet/lora-app-server/internal/config"
 	"github.com/gusseleet/lora-app-server/internal/storage"
+	"github.com/brocaar/lorawan"
 )
 
 // GatewayNetworkAPI exports the gateway network related functions.
@@ -28,7 +30,7 @@ func NewGatewayNetworkAPI(validator auth.Validator) *GatewayNetworkAPI {
 // Create creates the given gateway network.
 func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNetworkRequest) (*pb.CreateGatewayNetworkResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkAccess(auth.Create)); err != nil {
+		auth.ValidateGatewayNetworksAccess(auth.Create)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -115,17 +117,127 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 	}, nil
 }
 
-// Create creates the given gateway network-gateway link.
-func (a *GatewayNetworkAPI) AddGateway(ctx context.Context, req *pb.GatewayNetworkGatewayRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+// Update updates the given gateway network.
+func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNetworkRequest) (*pb.GatewayNetworkEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkGatewayAccess(auth.Create, req.Id)); err != nil {
+		auth.ValidateGatewayNetworkAccess(auth.Update)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
-	err := storage.CreateGatewayNetworkGateway(config.C.PostgreSQL.DB, req.Id, req.GatewayMAC)
+	gn, err := storage.GetGatewayNetwork(config.C.PostgreSQL.DB, req.Id)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	gn.Name = req.Name
+	gn.Tags = req.Tags
+	gn.Price = req.Price
+	gn.PrivateNetwork = req.PrivateNetwork
+	gn.Tags = req.Tags
+	gn.OrganizationID = req.OrganizationID
+
+	err = storage.UpdateGatewayNetwork(config.C.PostgreSQL.DB, &gn)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
 
 	return &pb.GatewayNetworkEmptyResponse{}, nil
+}
+
+// Delete deletes the gateway network matching the given ID.
+func (a *GatewayNetworkAPI) Delete(ctx context.Context, req *pb.GatewayNetworkRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkAccess(auth.Delete)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	err := storage.Transaction(config.C.PostgreSQL.DB, func(tx sqlx.Ext) error {
+		if err := storage.DeleteGatewayNetwork(tx, req.Id); err != nil {
+			return errToRPCError(err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GatewayNetworkEmptyResponse{}, nil
+}
+
+func (a *GatewayNetworkAPI) ListGateways(ctx context.Context, req *pb.ListGatewayNetworkGatewaysRequest) (*pb.ListGatewayNetworkGatewaysResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkGatewaysAccess(auth.List, req.Id)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	gateways, err := storage.GetGatewayNetworkGateways(config.C.PostgreSQL.DB, req.Id, int(req.Limit), int(req.Offset))
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	gatewayCount, err := storage.GetGatewayNetworkGatewayCount(config.C.PostgreSQL.DB, req.Id)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	result := make([]*pb.GetGatewayNetworkGatewayResponse, len(gateways))
+	for i, gateway := range gateways {
+		result[i] = &pb.GetGatewayNetworkGatewayResponse{
+			Mac:        gateway.GatewayMAC.String(),
+			Name:  		gateway.Name,
+			CreatedAt: 	gateway.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt: 	gateway.UpdatedAt.Format(time.RFC3339Nano),
+		}
+	}
+
+	return &pb.ListGatewayNetworkGatewaysResponse{
+		TotalCount: int32(gatewayCount),
+		Result:     result,
+	}, nil
+}
+
+// Create creates the given gateway network-gateway link.
+func (a *GatewayNetworkAPI) AddGateway(ctx context.Context, req *pb.GatewayNetworkGatewayRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkGatewaysAccess(auth.Create, req.Id)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	var mac lorawan.EUI64
+	if err := mac.UnmarshalText([]byte(req.GatewayMAC)); err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "bad gateway mac: %s", err)
+	}
+
+	err := storage.CreateGatewayNetworkGateway(config.C.PostgreSQL.DB, req.Id, mac)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	return &pb.GatewayNetworkEmptyResponse{}, nil
+}
+
+// GetGateway returns the gateway details for the given gateway MAC.
+func (a *GatewayNetworkAPI) GetGateway(ctx context.Context, req *pb.GetGatewayNetworkGatewayRequest) (*pb.GetGatewayNetworkGatewayResponse, error) {
+	var mac lorawan.EUI64
+	if err := mac.UnmarshalText([]byte(req.GatewayMAC)); err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "bad gateway mac: %s", err)
+	}
+
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkGatewayAccess(auth.Read, req.Id, mac)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	gateway, err := storage.GetGatewayNetworkGateway(config.C.PostgreSQL.DB, req.Id, mac)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	return &pb.GetGatewayNetworkGatewayResponse{
+		Mac:        mac.String(),
+		Name:  		gateway.Name,
+		CreatedAt: 	gateway.CreatedAt.Format(time.RFC3339Nano),
+		UpdatedAt: 	gateway.UpdatedAt.Format(time.RFC3339Nano),
+	}, nil
 }

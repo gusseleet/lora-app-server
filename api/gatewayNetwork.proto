@@ -14,7 +14,7 @@ service GatewayNetwork {
 		};
     }
 
-    // Get data for a particular organization.
+    // Get data for a particular gateway network.
     rpc Get(GatewayNetworkRequest) returns (GetGatewayNetworkResponse) {
         option(google.api.http) = {
 			get: "/api/gatewaynetworks/{id}"
@@ -26,6 +26,35 @@ service GatewayNetwork {
         option(google.api.http) = {
 			post: "/api/gatewaynetworks"
 			body: "*"
+		};
+    }
+
+    // Update an existing gateway network.
+    rpc Update(UpdateGatewayNetworkRequest) returns (GatewayNetworkEmptyResponse) {
+        option(google.api.http) = {
+			put: "/api/organizations/{id}"
+			body: "*"
+		};
+    }
+
+    // Delete a gateway network.
+    rpc Delete(GatewayNetworkRequest) returns (GatewayNetworkEmptyResponse) {
+        option(google.api.http) = {
+			delete: "/api/organizations/{id}"
+		};
+    }
+
+    // Get gateway networks's gateway list.
+    rpc ListGateways(ListGatewayNetworkGatewaysRequest) returns (ListGatewayNetworkGatewaysResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks/{id}/gateways"
+		};
+    }
+
+    // Get data for a particular gateway network gateway.
+    rpc GetGateway(GetGatewayNetworkGatewayRequest) returns (GetGatewayNetworkGatewayResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks/{id}/gateways/{gatewayMAC}"
 		};
     }
 
@@ -107,6 +136,27 @@ message CreateGatewayNetworkResponse {
     int64 id = 1;
 }
 
+// Update existing gateway network.
+message UpdateGatewayNetworkRequest {
+    // The ID of the gateway network to be updated.
+    int64 id = 1;
+
+    // The new name.
+    string name = 2;
+
+    // Tags with specification data.
+    repeated string tags = 3;
+
+    // Price of the gateway network.
+    int64 price = 4;
+
+    // Is the network private or not.
+    bool privateNetwork = 5;
+
+    // Organization the gateway network belongs to.
+    int64 organizationID = 6;
+}
+
 message ListGatewayNetworksResponse {
     int32 totalCount = 1;
     repeated GetGatewayNetworkResponse result = 2;
@@ -120,6 +170,50 @@ message GatewayNetworkGatewayRequest {
     // The gateway network id.
     int64 id = 1;
 
-    // The gateway MAC.
-    int64 gatewayMAC = 2;
+    // Hex encoded gateway MAC.
+    string gatewayMAC = 2;
+}
+
+// Request the gateways in a gateway network.
+message ListGatewayNetworkGatewaysRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // Max number of gateways to return in the result-set.
+    int32 limit = 2;
+
+    // Offset in the result-set (for pagination).
+    int32 offset = 3;
+}
+
+message GetGatewayNetworkGatewayRequest {
+    // ID of the gateway network.
+    int64 id = 1;
+
+    // Hex encoded MAC of the gateway.
+    string gatewayMAC = 2;
+}
+
+// Response for a gateway in the gateway network
+message GetGatewayNetworkGatewayResponse {
+    // Hex encoded mac of the gateway.
+    string mac = 1;
+
+    // Name of the gateway.
+    string name = 2;
+
+    // When the gatewayy was created.
+    string createdAt = 3;
+
+    // When the gateway was last updated.
+    string updatedAt = 4;
+}
+
+// Response for the gateways in a gateway network.
+message ListGatewayNetworkGatewaysResponse {
+    // The total number of gateways in the gateway network.
+    int32 totalCount = 1;
+
+    // The gateways in the requested limit, offset range.
+    repeated GetGatewayNetworkGatewayResponse result = 2;
 }

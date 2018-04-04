@@ -223,6 +223,69 @@ func (m *CreateGatewayNetworkResponse) GetId() int64 {
 	return 0
 }
 
+// Update existing gateway network.
+type UpdateGatewayNetworkRequest struct {
+	// The ID of the gateway network to be updated.
+	Id int64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	// The new name.
+	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	// Tags with specification data.
+	Tags []string `protobuf:"bytes,3,rep,name=tags" json:"tags,omitempty"`
+	// Price of the gateway network.
+	Price int64 `protobuf:"varint,4,opt,name=price" json:"price,omitempty"`
+	// Is the network private or not.
+	PrivateNetwork bool `protobuf:"varint,5,opt,name=privateNetwork" json:"privateNetwork,omitempty"`
+	// Organization the gateway network belongs to.
+	OrganizationID int64 `protobuf:"varint,6,opt,name=organizationID" json:"organizationID,omitempty"`
+}
+
+func (m *UpdateGatewayNetworkRequest) Reset()                    { *m = UpdateGatewayNetworkRequest{} }
+func (m *UpdateGatewayNetworkRequest) String() string            { return proto.CompactTextString(m) }
+func (*UpdateGatewayNetworkRequest) ProtoMessage()               {}
+func (*UpdateGatewayNetworkRequest) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{5} }
+
+func (m *UpdateGatewayNetworkRequest) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *UpdateGatewayNetworkRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *UpdateGatewayNetworkRequest) GetTags() []string {
+	if m != nil {
+		return m.Tags
+	}
+	return nil
+}
+
+func (m *UpdateGatewayNetworkRequest) GetPrice() int64 {
+	if m != nil {
+		return m.Price
+	}
+	return 0
+}
+
+func (m *UpdateGatewayNetworkRequest) GetPrivateNetwork() bool {
+	if m != nil {
+		return m.PrivateNetwork
+	}
+	return false
+}
+
+func (m *UpdateGatewayNetworkRequest) GetOrganizationID() int64 {
+	if m != nil {
+		return m.OrganizationID
+	}
+	return 0
+}
+
 type ListGatewayNetworksResponse struct {
 	TotalCount int32                        `protobuf:"varint,1,opt,name=totalCount" json:"totalCount,omitempty"`
 	Result     []*GetGatewayNetworkResponse `protobuf:"bytes,2,rep,name=result" json:"result,omitempty"`
@@ -231,7 +294,7 @@ type ListGatewayNetworksResponse struct {
 func (m *ListGatewayNetworksResponse) Reset()                    { *m = ListGatewayNetworksResponse{} }
 func (m *ListGatewayNetworksResponse) String() string            { return proto.CompactTextString(m) }
 func (*ListGatewayNetworksResponse) ProtoMessage()               {}
-func (*ListGatewayNetworksResponse) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{5} }
+func (*ListGatewayNetworksResponse) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{6} }
 
 func (m *ListGatewayNetworksResponse) GetTotalCount() int32 {
 	if m != nil {
@@ -253,19 +316,19 @@ type GatewayNetworkEmptyResponse struct {
 func (m *GatewayNetworkEmptyResponse) Reset()                    { *m = GatewayNetworkEmptyResponse{} }
 func (m *GatewayNetworkEmptyResponse) String() string            { return proto.CompactTextString(m) }
 func (*GatewayNetworkEmptyResponse) ProtoMessage()               {}
-func (*GatewayNetworkEmptyResponse) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{6} }
+func (*GatewayNetworkEmptyResponse) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{7} }
 
 type GatewayNetworkGatewayRequest struct {
 	// The gateway network id.
 	Id int64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
-	// The gateway MAC.
-	GatewayMAC int64 `protobuf:"varint,2,opt,name=gatewayMAC" json:"gatewayMAC,omitempty"`
+	// Hex encoded gateway MAC.
+	GatewayMAC string `protobuf:"bytes,2,opt,name=gatewayMAC" json:"gatewayMAC,omitempty"`
 }
 
 func (m *GatewayNetworkGatewayRequest) Reset()                    { *m = GatewayNetworkGatewayRequest{} }
 func (m *GatewayNetworkGatewayRequest) String() string            { return proto.CompactTextString(m) }
 func (*GatewayNetworkGatewayRequest) ProtoMessage()               {}
-func (*GatewayNetworkGatewayRequest) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{7} }
+func (*GatewayNetworkGatewayRequest) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{8} }
 
 func (m *GatewayNetworkGatewayRequest) GetId() int64 {
 	if m != nil {
@@ -274,11 +337,153 @@ func (m *GatewayNetworkGatewayRequest) GetId() int64 {
 	return 0
 }
 
-func (m *GatewayNetworkGatewayRequest) GetGatewayMAC() int64 {
+func (m *GatewayNetworkGatewayRequest) GetGatewayMAC() string {
 	if m != nil {
 		return m.GatewayMAC
 	}
+	return ""
+}
+
+// Request the gateways in a gateway network.
+type ListGatewayNetworkGatewaysRequest struct {
+	// The gateway network id.
+	Id int64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	// Max number of gateways to return in the result-set.
+	Limit int32 `protobuf:"varint,2,opt,name=limit" json:"limit,omitempty"`
+	// Offset in the result-set (for pagination).
+	Offset int32 `protobuf:"varint,3,opt,name=offset" json:"offset,omitempty"`
+}
+
+func (m *ListGatewayNetworkGatewaysRequest) Reset()         { *m = ListGatewayNetworkGatewaysRequest{} }
+func (m *ListGatewayNetworkGatewaysRequest) String() string { return proto.CompactTextString(m) }
+func (*ListGatewayNetworkGatewaysRequest) ProtoMessage()    {}
+func (*ListGatewayNetworkGatewaysRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{9}
+}
+
+func (m *ListGatewayNetworkGatewaysRequest) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
 	return 0
+}
+
+func (m *ListGatewayNetworkGatewaysRequest) GetLimit() int32 {
+	if m != nil {
+		return m.Limit
+	}
+	return 0
+}
+
+func (m *ListGatewayNetworkGatewaysRequest) GetOffset() int32 {
+	if m != nil {
+		return m.Offset
+	}
+	return 0
+}
+
+type GetGatewayNetworkGatewayRequest struct {
+	// ID of the gateway network.
+	Id int64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	// Hex encoded MAC of the gateway.
+	GatewayMAC string `protobuf:"bytes,2,opt,name=gatewayMAC" json:"gatewayMAC,omitempty"`
+}
+
+func (m *GetGatewayNetworkGatewayRequest) Reset()         { *m = GetGatewayNetworkGatewayRequest{} }
+func (m *GetGatewayNetworkGatewayRequest) String() string { return proto.CompactTextString(m) }
+func (*GetGatewayNetworkGatewayRequest) ProtoMessage()    {}
+func (*GetGatewayNetworkGatewayRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{10}
+}
+
+func (m *GetGatewayNetworkGatewayRequest) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *GetGatewayNetworkGatewayRequest) GetGatewayMAC() string {
+	if m != nil {
+		return m.GatewayMAC
+	}
+	return ""
+}
+
+// Response for a gateway in the gateway network
+type GetGatewayNetworkGatewayResponse struct {
+	// Hex encoded mac of the gateway.
+	Mac string `protobuf:"bytes,1,opt,name=mac" json:"mac,omitempty"`
+	// Name of the gateway.
+	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	// When the gatewayy was created.
+	CreatedAt string `protobuf:"bytes,3,opt,name=createdAt" json:"createdAt,omitempty"`
+	// When the gateway was last updated.
+	UpdatedAt string `protobuf:"bytes,4,opt,name=updatedAt" json:"updatedAt,omitempty"`
+}
+
+func (m *GetGatewayNetworkGatewayResponse) Reset()         { *m = GetGatewayNetworkGatewayResponse{} }
+func (m *GetGatewayNetworkGatewayResponse) String() string { return proto.CompactTextString(m) }
+func (*GetGatewayNetworkGatewayResponse) ProtoMessage()    {}
+func (*GetGatewayNetworkGatewayResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{11}
+}
+
+func (m *GetGatewayNetworkGatewayResponse) GetMac() string {
+	if m != nil {
+		return m.Mac
+	}
+	return ""
+}
+
+func (m *GetGatewayNetworkGatewayResponse) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *GetGatewayNetworkGatewayResponse) GetCreatedAt() string {
+	if m != nil {
+		return m.CreatedAt
+	}
+	return ""
+}
+
+func (m *GetGatewayNetworkGatewayResponse) GetUpdatedAt() string {
+	if m != nil {
+		return m.UpdatedAt
+	}
+	return ""
+}
+
+// Response for the gateways in a gateway network.
+type ListGatewayNetworkGatewaysResponse struct {
+	// The total number of gateways in the gateway network.
+	TotalCount int32 `protobuf:"varint,1,opt,name=totalCount" json:"totalCount,omitempty"`
+	// The gateways in the requested limit, offset range.
+	Result []*GetGatewayNetworkGatewayResponse `protobuf:"bytes,2,rep,name=result" json:"result,omitempty"`
+}
+
+func (m *ListGatewayNetworkGatewaysResponse) Reset()         { *m = ListGatewayNetworkGatewaysResponse{} }
+func (m *ListGatewayNetworkGatewaysResponse) String() string { return proto.CompactTextString(m) }
+func (*ListGatewayNetworkGatewaysResponse) ProtoMessage()    {}
+func (*ListGatewayNetworkGatewaysResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{12}
+}
+
+func (m *ListGatewayNetworkGatewaysResponse) GetTotalCount() int32 {
+	if m != nil {
+		return m.TotalCount
+	}
+	return 0
+}
+
+func (m *ListGatewayNetworkGatewaysResponse) GetResult() []*GetGatewayNetworkGatewayResponse {
+	if m != nil {
+		return m.Result
+	}
+	return nil
 }
 
 func init() {
@@ -287,9 +492,14 @@ func init() {
 	proto.RegisterType((*GetGatewayNetworkResponse)(nil), "api.GetGatewayNetworkResponse")
 	proto.RegisterType((*CreateGatewayNetworkRequest)(nil), "api.CreateGatewayNetworkRequest")
 	proto.RegisterType((*CreateGatewayNetworkResponse)(nil), "api.CreateGatewayNetworkResponse")
+	proto.RegisterType((*UpdateGatewayNetworkRequest)(nil), "api.UpdateGatewayNetworkRequest")
 	proto.RegisterType((*ListGatewayNetworksResponse)(nil), "api.ListGatewayNetworksResponse")
 	proto.RegisterType((*GatewayNetworkEmptyResponse)(nil), "api.GatewayNetworkEmptyResponse")
 	proto.RegisterType((*GatewayNetworkGatewayRequest)(nil), "api.GatewayNetworkGatewayRequest")
+	proto.RegisterType((*ListGatewayNetworkGatewaysRequest)(nil), "api.ListGatewayNetworkGatewaysRequest")
+	proto.RegisterType((*GetGatewayNetworkGatewayRequest)(nil), "api.GetGatewayNetworkGatewayRequest")
+	proto.RegisterType((*GetGatewayNetworkGatewayResponse)(nil), "api.GetGatewayNetworkGatewayResponse")
+	proto.RegisterType((*ListGatewayNetworkGatewaysResponse)(nil), "api.ListGatewayNetworkGatewaysResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -305,10 +515,18 @@ const _ = grpc.SupportPackageIsVersion4
 type GatewayNetworkClient interface {
 	// Get gateway network list.
 	List(ctx context.Context, in *ListGatewayNetworksRequest, opts ...grpc.CallOption) (*ListGatewayNetworksResponse, error)
-	// Get data for a particular organization.
+	// Get data for a particular gateway network.
 	Get(ctx context.Context, in *GatewayNetworkRequest, opts ...grpc.CallOption) (*GetGatewayNetworkResponse, error)
 	// Create a new gateway network.
 	Create(ctx context.Context, in *CreateGatewayNetworkRequest, opts ...grpc.CallOption) (*CreateGatewayNetworkResponse, error)
+	// Update an existing gateway network.
+	Update(ctx context.Context, in *UpdateGatewayNetworkRequest, opts ...grpc.CallOption) (*GatewayNetworkEmptyResponse, error)
+	// Delete a gateway network.
+	Delete(ctx context.Context, in *GatewayNetworkRequest, opts ...grpc.CallOption) (*GatewayNetworkEmptyResponse, error)
+	// Get gateway networks's gateway list.
+	ListGateways(ctx context.Context, in *ListGatewayNetworkGatewaysRequest, opts ...grpc.CallOption) (*ListGatewayNetworkGatewaysResponse, error)
+	// Get data for a particular gateway network gateway.
+	GetGateway(ctx context.Context, in *GetGatewayNetworkGatewayRequest, opts ...grpc.CallOption) (*GetGatewayNetworkGatewayResponse, error)
 	// Add a new gateway to a gateway network
 	AddGateway(ctx context.Context, in *GatewayNetworkGatewayRequest, opts ...grpc.CallOption) (*GatewayNetworkEmptyResponse, error)
 }
@@ -348,6 +566,42 @@ func (c *gatewayNetworkClient) Create(ctx context.Context, in *CreateGatewayNetw
 	return out, nil
 }
 
+func (c *gatewayNetworkClient) Update(ctx context.Context, in *UpdateGatewayNetworkRequest, opts ...grpc.CallOption) (*GatewayNetworkEmptyResponse, error) {
+	out := new(GatewayNetworkEmptyResponse)
+	err := grpc.Invoke(ctx, "/api.GatewayNetwork/Update", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayNetworkClient) Delete(ctx context.Context, in *GatewayNetworkRequest, opts ...grpc.CallOption) (*GatewayNetworkEmptyResponse, error) {
+	out := new(GatewayNetworkEmptyResponse)
+	err := grpc.Invoke(ctx, "/api.GatewayNetwork/Delete", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayNetworkClient) ListGateways(ctx context.Context, in *ListGatewayNetworkGatewaysRequest, opts ...grpc.CallOption) (*ListGatewayNetworkGatewaysResponse, error) {
+	out := new(ListGatewayNetworkGatewaysResponse)
+	err := grpc.Invoke(ctx, "/api.GatewayNetwork/ListGateways", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayNetworkClient) GetGateway(ctx context.Context, in *GetGatewayNetworkGatewayRequest, opts ...grpc.CallOption) (*GetGatewayNetworkGatewayResponse, error) {
+	out := new(GetGatewayNetworkGatewayResponse)
+	err := grpc.Invoke(ctx, "/api.GatewayNetwork/GetGateway", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *gatewayNetworkClient) AddGateway(ctx context.Context, in *GatewayNetworkGatewayRequest, opts ...grpc.CallOption) (*GatewayNetworkEmptyResponse, error) {
 	out := new(GatewayNetworkEmptyResponse)
 	err := grpc.Invoke(ctx, "/api.GatewayNetwork/AddGateway", in, out, c.cc, opts...)
@@ -362,10 +616,18 @@ func (c *gatewayNetworkClient) AddGateway(ctx context.Context, in *GatewayNetwor
 type GatewayNetworkServer interface {
 	// Get gateway network list.
 	List(context.Context, *ListGatewayNetworksRequest) (*ListGatewayNetworksResponse, error)
-	// Get data for a particular organization.
+	// Get data for a particular gateway network.
 	Get(context.Context, *GatewayNetworkRequest) (*GetGatewayNetworkResponse, error)
 	// Create a new gateway network.
 	Create(context.Context, *CreateGatewayNetworkRequest) (*CreateGatewayNetworkResponse, error)
+	// Update an existing gateway network.
+	Update(context.Context, *UpdateGatewayNetworkRequest) (*GatewayNetworkEmptyResponse, error)
+	// Delete a gateway network.
+	Delete(context.Context, *GatewayNetworkRequest) (*GatewayNetworkEmptyResponse, error)
+	// Get gateway networks's gateway list.
+	ListGateways(context.Context, *ListGatewayNetworkGatewaysRequest) (*ListGatewayNetworkGatewaysResponse, error)
+	// Get data for a particular gateway network gateway.
+	GetGateway(context.Context, *GetGatewayNetworkGatewayRequest) (*GetGatewayNetworkGatewayResponse, error)
 	// Add a new gateway to a gateway network
 	AddGateway(context.Context, *GatewayNetworkGatewayRequest) (*GatewayNetworkEmptyResponse, error)
 }
@@ -428,6 +690,78 @@ func _GatewayNetwork_Create_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GatewayNetwork_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateGatewayNetworkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayNetworkServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.GatewayNetwork/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayNetworkServer).Update(ctx, req.(*UpdateGatewayNetworkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GatewayNetwork_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GatewayNetworkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayNetworkServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.GatewayNetwork/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayNetworkServer).Delete(ctx, req.(*GatewayNetworkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GatewayNetwork_ListGateways_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListGatewayNetworkGatewaysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayNetworkServer).ListGateways(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.GatewayNetwork/ListGateways",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayNetworkServer).ListGateways(ctx, req.(*ListGatewayNetworkGatewaysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GatewayNetwork_GetGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGatewayNetworkGatewayRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayNetworkServer).GetGateway(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.GatewayNetwork/GetGateway",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayNetworkServer).GetGateway(ctx, req.(*GetGatewayNetworkGatewayRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _GatewayNetwork_AddGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GatewayNetworkGatewayRequest)
 	if err := dec(in); err != nil {
@@ -463,6 +797,22 @@ var _GatewayNetwork_serviceDesc = grpc.ServiceDesc{
 			Handler:    _GatewayNetwork_Create_Handler,
 		},
 		{
+			MethodName: "Update",
+			Handler:    _GatewayNetwork_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _GatewayNetwork_Delete_Handler,
+		},
+		{
+			MethodName: "ListGateways",
+			Handler:    _GatewayNetwork_ListGateways_Handler,
+		},
+		{
+			MethodName: "GetGateway",
+			Handler:    _GatewayNetwork_GetGateway_Handler,
+		},
+		{
 			MethodName: "AddGateway",
 			Handler:    _GatewayNetwork_AddGateway_Handler,
 		},
@@ -474,39 +824,52 @@ var _GatewayNetwork_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("gatewayNetwork.proto", fileDescriptor6) }
 
 var fileDescriptor6 = []byte{
-	// 531 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x94, 0xd1, 0x6e, 0xd3, 0x30,
-	0x14, 0x86, 0x95, 0xa4, 0x0d, 0xeb, 0x41, 0xea, 0x85, 0x55, 0xa6, 0x34, 0x0d, 0x5b, 0xea, 0x0b,
-	0x56, 0x21, 0xd1, 0x4a, 0x43, 0xe2, 0x82, 0xbb, 0xaa, 0xa0, 0x0a, 0x09, 0x76, 0x91, 0x37, 0xf0,
-	0x1a, 0x2f, 0x58, 0xb4, 0x71, 0x88, 0x1d, 0xa6, 0x81, 0x90, 0x10, 0xaf, 0xc0, 0x63, 0xf0, 0x36,
-	0xf0, 0x0a, 0xbc, 0x02, 0xf7, 0xc8, 0x8e, 0xa3, 0x2d, 0x95, 0x53, 0x76, 0xd7, 0xf3, 0xfb, 0xcf,
-	0x39, 0xdf, 0x39, 0x3e, 0x2e, 0x8c, 0x32, 0x22, 0xe9, 0x35, 0xb9, 0xb9, 0xa0, 0xf2, 0x9a, 0x97,
-	0x1f, 0xe6, 0x45, 0xc9, 0x25, 0x47, 0x1e, 0x29, 0x58, 0x18, 0x65, 0x9c, 0x67, 0x5b, 0xba, 0x20,
-	0x05, 0x5b, 0x90, 0x3c, 0xe7, 0x92, 0x48, 0xc6, 0x73, 0x51, 0x5b, 0xf0, 0x25, 0x84, 0x6f, 0x99,
-	0x90, 0xeb, 0xd6, 0xe7, 0x22, 0xa1, 0x1f, 0x2b, 0x2a, 0x24, 0x1a, 0x41, 0x7f, 0xcb, 0x76, 0x4c,
-	0x06, 0x4e, 0xec, 0xcc, 0xfa, 0x49, 0x1d, 0xa0, 0x63, 0xf0, 0xf9, 0xd5, 0x95, 0xa0, 0x32, 0x70,
-	0xb5, 0x6c, 0x22, 0xa5, 0x0b, 0x4a, 0xca, 0xcd, 0xfb, 0xc0, 0x8b, 0x9d, 0xd9, 0x20, 0x31, 0x11,
-	0x3e, 0x83, 0x47, 0xed, 0xfc, 0x4d, 0xfa, 0x21, 0xb8, 0x2c, 0xd5, 0xb9, 0xbd, 0xc4, 0x65, 0x29,
-	0xfe, 0xeb, 0xc0, 0x78, 0x4d, 0xe5, 0xbe, 0x59, 0x14, 0x3c, 0x17, 0x74, 0xdf, 0x8d, 0x22, 0x18,
-	0x6c, 0x4a, 0x4a, 0x24, 0x4d, 0x97, 0x35, 0xc9, 0x20, 0xb9, 0x15, 0xd4, 0x69, 0x55, 0xa4, 0xe6,
-	0xb4, 0xe6, 0xb9, 0x15, 0x10, 0x82, 0x5e, 0x4e, 0x76, 0x34, 0xe8, 0xe9, 0x03, 0xfd, 0x5b, 0x69,
-	0x92, 0x64, 0x22, 0xe8, 0xc7, 0x9e, 0xd2, 0xd4, 0x6f, 0x35, 0x80, 0xa2, 0x64, 0x1b, 0x1a, 0xf8,
-	0xba, 0x6c, 0x1d, 0xa0, 0x27, 0x30, 0x2c, 0x4a, 0xf6, 0x89, 0x48, 0x6a, 0x18, 0x83, 0x07, 0xb1,
-	0x33, 0x3b, 0x4a, 0xf6, 0x54, 0xe5, 0xe3, 0x65, 0x46, 0x72, 0xf6, 0x59, 0xcf, 0xfc, 0xcd, 0xab,
-	0xe0, 0x48, 0xa7, 0xd9, 0x53, 0xf1, 0x4f, 0x07, 0x26, 0x2b, 0x4d, 0x6e, 0x9f, 0x53, 0x43, 0xeb,
-	0x58, 0x68, 0x5d, 0x1b, 0xad, 0x77, 0x98, 0xb6, 0x77, 0x4f, 0xda, 0xbe, 0x95, 0x76, 0x0e, 0x91,
-	0x1d, 0xd6, 0x7e, 0x4f, 0xb8, 0x82, 0x89, 0x75, 0xc5, 0x8c, 0xfd, 0x04, 0x40, 0x72, 0x49, 0xb6,
-	0x2b, 0x5e, 0xe5, 0xcd, 0xa2, 0xdd, 0x51, 0xd0, 0x0b, 0xf0, 0x4b, 0x2a, 0xaa, 0xad, 0xd4, 0xad,
-	0x3e, 0x3c, 0x3f, 0x99, 0x93, 0x82, 0xcd, 0x3b, 0xd7, 0x24, 0x31, 0x6e, 0xfc, 0x18, 0x26, 0x6d,
-	0xc7, 0xeb, 0x5d, 0x21, 0x6f, 0x1a, 0x1b, 0xbe, 0x80, 0xa8, 0x7d, 0x6c, 0xa2, 0x8e, 0xdd, 0x54,
-	0x98, 0xe6, 0x8d, 0xbd, 0x5b, 0xae, 0xf4, 0xba, 0x79, 0xc9, 0x1d, 0xe5, 0xfc, 0x97, 0x07, 0xc3,
-	0x76, 0x42, 0x94, 0x41, 0x4f, 0x35, 0x8e, 0x4e, 0x35, 0x71, 0xf7, 0x33, 0x0b, 0xe3, 0x6e, 0x83,
-	0xa1, 0x8d, 0xbe, 0xff, 0xfe, 0xf3, 0xc3, 0x3d, 0x46, 0x23, 0xfd, 0x8c, 0x4d, 0xd9, 0xdc, 0xb8,
-	0x50, 0x0a, 0xde, 0x9a, 0x4a, 0x14, 0xd6, 0x93, 0xb1, 0xad, 0x50, 0xf8, 0x9f, 0xa9, 0xe1, 0xa9,
-	0x2e, 0x30, 0x41, 0x63, 0x5b, 0x81, 0xc5, 0x17, 0x96, 0x7e, 0x45, 0x39, 0xf8, 0xf5, 0xbd, 0xa3,
-	0x9a, 0xf7, 0xc0, 0xc6, 0x86, 0xd3, 0x03, 0x0e, 0x53, 0xf1, 0x54, 0x57, 0x1c, 0x63, 0x6b, 0x4b,
-	0x2f, 0x9d, 0xa7, 0xe8, 0x9b, 0x03, 0xb0, 0x4c, 0x53, 0xf3, 0x39, 0x9a, 0x5a, 0xba, 0x6b, 0xdf,
-	0x99, 0x99, 0xe3, 0xa1, 0x5b, 0x7f, 0xa6, 0x8b, 0x9e, 0x61, 0xdc, 0xd9, 0x66, 0x23, 0x2a, 0x84,
-	0x4b, 0x5f, 0xff, 0x49, 0x3e, 0xff, 0x17, 0x00, 0x00, 0xff, 0xff, 0x27, 0xcf, 0x2e, 0xd9, 0x5f,
-	0x05, 0x00, 0x00,
+	// 744 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0xd1, 0x6a, 0x13, 0x4d,
+	0x14, 0x66, 0x76, 0x93, 0x6d, 0x7b, 0xfe, 0x9f, 0x22, 0x43, 0xad, 0xdb, 0x4d, 0x6c, 0x93, 0xa1,
+	0xb6, 0x25, 0x60, 0x82, 0x15, 0x14, 0x0a, 0x5e, 0x94, 0x56, 0x82, 0xa0, 0x05, 0x17, 0x7c, 0x80,
+	0x69, 0x76, 0xba, 0x2e, 0x26, 0xbb, 0xeb, 0xce, 0xc4, 0x52, 0x4b, 0x41, 0xd4, 0x3b, 0xef, 0xf4,
+	0x31, 0x7c, 0x04, 0x5f, 0x42, 0xf0, 0x15, 0x7c, 0x05, 0xef, 0x65, 0x67, 0x67, 0x9b, 0x64, 0x3b,
+	0xbb, 0x09, 0x78, 0xb7, 0x73, 0xe6, 0xf4, 0x9c, 0xef, 0x3b, 0xe7, 0x9b, 0xaf, 0x81, 0x35, 0x9f,
+	0x0a, 0x76, 0x4e, 0x2f, 0x4e, 0x98, 0x38, 0x8f, 0x92, 0x37, 0xdd, 0x38, 0x89, 0x44, 0x84, 0x4d,
+	0x1a, 0x07, 0x4e, 0xd3, 0x8f, 0x22, 0x7f, 0xc8, 0x7a, 0x34, 0x0e, 0x7a, 0x34, 0x0c, 0x23, 0x41,
+	0x45, 0x10, 0x85, 0x3c, 0x4b, 0x21, 0xa7, 0xe0, 0x3c, 0x0f, 0xb8, 0xe8, 0xcf, 0xfc, 0x39, 0x77,
+	0xd9, 0xdb, 0x31, 0xe3, 0x02, 0xaf, 0x41, 0x7d, 0x18, 0x8c, 0x02, 0x61, 0xa3, 0x16, 0xda, 0xab,
+	0xbb, 0xd9, 0x01, 0xaf, 0x83, 0x15, 0x9d, 0x9d, 0x71, 0x26, 0x6c, 0x43, 0x86, 0xd5, 0x29, 0x8d,
+	0x73, 0x46, 0x93, 0xc1, 0x6b, 0xdb, 0x6c, 0xa1, 0xbd, 0x15, 0x57, 0x9d, 0xc8, 0x2e, 0xdc, 0x9e,
+	0xad, 0x9f, 0x97, 0x5f, 0x05, 0x23, 0xf0, 0x64, 0x6d, 0xd3, 0x35, 0x02, 0x8f, 0xfc, 0x41, 0xb0,
+	0xd1, 0x67, 0xa2, 0x98, 0xcc, 0xe3, 0x28, 0xe4, 0xac, 0x98, 0x8d, 0x9b, 0xb0, 0x32, 0x48, 0x18,
+	0x15, 0xcc, 0x3b, 0xcc, 0x90, 0xac, 0xb8, 0x93, 0x40, 0x7a, 0x3b, 0x8e, 0x3d, 0x75, 0x9b, 0xe1,
+	0x99, 0x04, 0x30, 0x86, 0x5a, 0x48, 0x47, 0xcc, 0xae, 0xc9, 0x0b, 0xf9, 0x9d, 0xc6, 0x04, 0xf5,
+	0xb9, 0x5d, 0x6f, 0x99, 0x69, 0x2c, 0xfd, 0x4e, 0x07, 0x10, 0x27, 0xc1, 0x80, 0xd9, 0x96, 0x6c,
+	0x9b, 0x1d, 0xf0, 0x0e, 0xac, 0xc6, 0x49, 0xf0, 0x8e, 0x0a, 0xa6, 0x30, 0xda, 0x4b, 0x2d, 0xb4,
+	0xb7, 0xec, 0x16, 0xa2, 0x69, 0x5e, 0x94, 0xf8, 0x34, 0x0c, 0xde, 0xcb, 0x99, 0x3f, 0x3b, 0xb6,
+	0x97, 0x65, 0x99, 0x42, 0x94, 0x7c, 0x47, 0xd0, 0x38, 0x92, 0xc8, 0xf5, 0x73, 0xca, 0xd1, 0x22,
+	0x0d, 0x5a, 0x43, 0x87, 0xd6, 0xac, 0x46, 0x5b, 0x5b, 0x10, 0x6d, 0x5d, 0x8b, 0xb6, 0x0b, 0x4d,
+	0x3d, 0x58, 0xfd, 0x9e, 0xc8, 0x0f, 0x04, 0x8d, 0x57, 0x72, 0xf2, 0x0b, 0xa9, 0xe0, 0x9a, 0xad,
+	0xa1, 0x61, 0x6b, 0xea, 0xd8, 0xd6, 0xaa, 0xd9, 0xd6, 0x17, 0x64, 0x6b, 0x69, 0xd9, 0x8e, 0xa1,
+	0xa1, 0x7d, 0x20, 0x8a, 0xec, 0x26, 0x80, 0x88, 0x04, 0x1d, 0x1e, 0x45, 0xe3, 0x30, 0x7f, 0x26,
+	0x53, 0x11, 0xfc, 0x08, 0xac, 0x84, 0xf1, 0xf1, 0x50, 0xc8, 0x45, 0xfd, 0xb7, 0xbf, 0xd9, 0xa5,
+	0x71, 0xd0, 0x2d, 0x15, 0xb9, 0xab, 0xb2, 0xc9, 0x5d, 0x68, 0xcc, 0x66, 0x3c, 0x1d, 0xc5, 0xe2,
+	0x22, 0x4f, 0x23, 0x27, 0xd0, 0x9c, 0xbd, 0x56, 0xa7, 0xb2, 0x99, 0x6e, 0x02, 0x28, 0x87, 0x78,
+	0x71, 0x78, 0xa4, 0x26, 0x3b, 0x15, 0x21, 0x14, 0xda, 0x37, 0x59, 0xaa, 0x13, 0x2f, 0x2b, 0x7a,
+	0xed, 0x0e, 0x86, 0xde, 0x1d, 0xcc, 0x69, 0x77, 0x20, 0x2f, 0x61, 0xeb, 0x06, 0xed, 0x7f, 0x44,
+	0xfd, 0x19, 0x41, 0xab, 0xbc, 0xa6, 0xda, 0xd0, 0x2d, 0x30, 0x47, 0x74, 0xa0, 0xde, 0x4e, 0xfa,
+	0xa9, 0x15, 0xd8, 0x8c, 0x99, 0x98, 0x95, 0x66, 0x52, 0x2b, 0x98, 0x09, 0xf9, 0x84, 0x80, 0x54,
+	0x4d, 0x6f, 0x41, 0xa9, 0x3c, 0x29, 0x48, 0xe5, 0x9e, 0x5e, 0x2a, 0x05, 0x7e, 0xb9, 0x62, 0xf6,
+	0x7f, 0x2e, 0xc1, 0xea, 0x6c, 0x26, 0xf6, 0xa1, 0x96, 0xe2, 0xc2, 0x5b, 0xb2, 0x52, 0xb9, 0xcf,
+	0x3b, 0xad, 0xf2, 0x04, 0x25, 0xb8, 0xe6, 0xc7, 0x5f, 0xbf, 0xbf, 0x19, 0xeb, 0x78, 0x4d, 0xfe,
+	0x1f, 0x51, 0x3b, 0x08, 0x55, 0x16, 0xf6, 0xc0, 0xec, 0x33, 0x81, 0x9d, 0x0c, 0xb1, 0xee, 0x95,
+	0x3b, 0x73, 0x84, 0x4f, 0xda, 0xb2, 0x41, 0x03, 0x6f, 0xe8, 0x1a, 0xf4, 0x2e, 0x03, 0xef, 0x0a,
+	0x87, 0x60, 0x65, 0xc6, 0x83, 0x33, 0xbc, 0x15, 0x96, 0xe9, 0xb4, 0x2b, 0x32, 0x54, 0xc7, 0x2d,
+	0xd9, 0x71, 0x83, 0x68, 0x29, 0x1d, 0xa0, 0x0e, 0x8e, 0xc1, 0xca, 0x7c, 0x4b, 0xf5, 0xab, 0x30,
+	0x31, 0x35, 0xc1, 0xaa, 0x27, 0x4b, 0x64, 0xbb, 0xa6, 0x73, 0x47, 0xb6, 0x9b, 0x76, 0x99, 0x8c,
+	0x5e, 0xda, 0xd1, 0x07, 0xeb, 0x98, 0x0d, 0x99, 0x60, 0x95, 0xa3, 0x9c, 0xdf, 0x4b, 0x51, 0xeb,
+	0x94, 0xf5, 0xc2, 0x5f, 0x10, 0xfc, 0x3f, 0xb5, 0x6e, 0x8e, 0x77, 0x4a, 0x14, 0x50, 0xf0, 0x00,
+	0x67, 0x77, 0x6e, 0x9e, 0x82, 0xd0, 0x91, 0x10, 0xb6, 0x31, 0x29, 0xdd, 0x67, 0x1e, 0xe4, 0xf8,
+	0x2b, 0x02, 0x98, 0x28, 0x03, 0x6f, 0xcf, 0x11, 0x7e, 0x86, 0x64, 0xb1, 0xe7, 0x41, 0x1e, 0x4b,
+	0x1c, 0x0f, 0x70, 0x6f, 0x3e, 0x8e, 0xde, 0xe5, 0xc4, 0x5b, 0xae, 0xf0, 0x07, 0x04, 0x70, 0xe8,
+	0x79, 0x39, 0xa8, 0xb6, 0x66, 0xe8, 0x05, 0x44, 0xf3, 0xf7, 0x72, 0x5f, 0x82, 0xd9, 0x25, 0x0b,
+	0x0c, 0xe5, 0x00, 0x75, 0x4e, 0x2d, 0xf9, 0x1b, 0xed, 0xe1, 0xdf, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0x5a, 0x5f, 0x08, 0x3b, 0xde, 0x09, 0x00, 0x00,
 }

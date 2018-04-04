@@ -34,11 +34,11 @@ func (gn GatewayNetwork) Validate() error {
 
 // GatewayNetworkGateway represents a gateway network gateway
 type GatewayNetworkGateway struct {
-	ID           		int64     			  	`db:"id"`
+	ID					int64					`db:"id"`
+	GatewayMAC       	lorawan.EUI64           `db:"gateway_mac"`
+	Name				string					`db:"name"`
 	CreatedAt       	time.Time             	`db:"created_at"`
 	UpdatedAt       	time.Time             	`db:"updated_at"`
-	GatewayMAC       	lorawan.EUI64           `db:"gateway_mac"`
-	GatewayNetworkId	int64					`db:"gateway_network_id"`
 }
 
 // CreateDeviceProfile creates the given device-profile.
@@ -118,8 +118,76 @@ func GetGatewayNetworks(db sqlx.Queryer, limit, offset int) ([]GatewayNetwork, e
 	return gns, nil
 }
 
+// UpdateGatewayNetwork updates the given gateway network.
+func UpdateGatewayNetwork(db sqlx.Execer, gn *GatewayNetwork) error {
+	if err := gn.Validate(); err != nil {
+		return errors.Wrap(err, "validation error")
+	}
+
+	now := time.Now()
+	res, err := db.Exec(`
+		update gateway_network
+		set
+			name = $2,
+			tags = $3,
+			price = $4,
+			private_network = $5,
+			organization_id = $6,
+			updated_at = $7
+		where id = $1`,
+		gn.ID,
+		gn.Name,
+		gn.Tags,
+		gn.Price,
+		gn.PrivateNetwork,
+		gn.OrganizationID,
+		now,
+	)
+
+	if err != nil {
+		return handlePSQLError(Update, err, "update error")
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		return errors.Wrap(err, "get rows affected error")
+	}
+	if ra == 0 {
+		return ErrDoesNotExist
+	}
+
+	gn.UpdatedAt = now
+	log.WithFields(log.Fields{
+		"name": gn.Name,
+		"id":   gn.ID,
+	}).Info("gateway_network updated")
+	return nil
+}
+
+// DeleteGatewayNetwork deletes the gateway network matching the given id.
+func DeleteGatewayNetwork(db sqlx.Ext, id int64) error {
+	err := DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db, id)
+	if err != nil {
+		return errors.Wrap(err, "delete all gateway network gateways error")
+	}
+
+	res, err := db.Exec("delete from gateway_network where id = $1", id)
+	if err != nil {
+		return handlePSQLError(Delete, err, "delete error")
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		return errors.Wrap(err, "get rows affected error")
+	}
+	if ra == 0 {
+		return ErrDoesNotExist
+	}
+
+	log.WithField("id", id).Info("gateway_network deleted")
+	return nil
+}
+
 // CreateGatewayNetworkGateway adds the given gateway to the gatewayNetwork.
-func CreateGatewayNetworkGateway(db sqlx.Execer, gatewayNetworkID, gatewayMAC int64) error {
+func CreateGatewayNetworkGateway(db sqlx.Execer, gatewayNetworkID int64, gatewayMAC lorawan.EUI64) error {
 	_, err := db.Exec(`
 		insert into gateway_network_gateway (	
 			gateway_network_id,
@@ -128,7 +196,7 @@ func CreateGatewayNetworkGateway(db sqlx.Execer, gatewayNetworkID, gatewayMAC in
 			updated_at
 		) values ($1, $2, now(), now())`,
 		gatewayNetworkID,
-		gatewayMAC,
+		gatewayMAC[:],
 	)
 	if err != nil {
 		return handlePSQLError(Insert, err, "insert error")
@@ -137,6 +205,112 @@ func CreateGatewayNetworkGateway(db sqlx.Execer, gatewayNetworkID, gatewayMAC in
 	log.WithFields(log.Fields{
 		"gateway_MAC":         	gatewayMAC,
 		"gateway_network_id": 	gatewayNetworkID,
-	}).Info("Gateway added to Gateway Network")
+	}).Info("gateway added to gateway network")
+	return nil
+}
+
+// GetGatewayNetworkGateway gets the information of the given gateway network-gateway.
+func GetGatewayNetworkGateway(db sqlx.Queryer, gatewayNetworkID int64, gatewayMAC lorawan.EUI64) (GatewayNetworkGateway, error) {
+	var g GatewayNetworkGateway
+	err := sqlx.Get(db, &g, `
+		select
+			g.mac as gateway_mac,
+			g.name as name,
+			gng.created_at as created_at,
+			gng.updated_at as updated_at
+		from gateway_network_gateway gng
+		inner join "gateway" g
+			on g.mac = gng.gateway_mac
+		where
+			gng.gateway_network_id = $1
+			and gng.gateway_mac = $2`,
+		gatewayNetworkID,
+		gatewayMAC[:],
+	)
+	if err != nil {
+		return g, handlePSQLError(Select, err, "select error")
+	}
+	return g, nil
+}
+
+// GetGatewayNetworkGatewayCount returns the number of gateways for the given gateway network.
+func GetGatewayNetworkGatewayCount(db sqlx.Queryer, gatewayNetworkID int64) (int, error) {
+	var count int
+	err := sqlx.Get(db, &count, `
+		select count(*)
+		from gateway_network_gateway
+		where
+			gateway_network_id = $1`,
+		gatewayNetworkID,
+	)
+	if err != nil {
+		return count, handlePSQLError(Select, err, "select error")
+	}
+	return count, nil
+}
+
+// GetGatewayNetworkGateways returns the gateways for the given gateway network.
+func GetGatewayNetworkGateways(db sqlx.Queryer, gatewayNetworkID int64, limit, offset int) ([]GatewayNetworkGateway, error) {
+	var gateways []GatewayNetworkGateway
+	err := sqlx.Select(db, &gateways, `
+		select
+			g.mac as gateway_mac,
+			g.name as name,
+			gng.created_at as created_at,
+			gng.updated_at as updated_at
+		from gateway_network_gateway gng
+		inner join "gateway" g
+			on g.mac = gng.gateway_mac
+		where
+			gng.gateway_network_id = $1
+		order by g.name
+		limit $2 offset $3`,
+		gatewayNetworkID,
+		limit,
+		offset,
+	)
+	if err != nil {
+		return nil, handlePSQLError(Select, err, "select error")
+	}
+	return gateways, nil
+}
+
+// DeleteGatewayNetworkGateway deletes the gateway network gateway matching the given ID.
+func DeleteGatewayNetworkGateway(db sqlx.Ext, id int64) error {
+	res, err := db.Exec("delete from gateway_network_gateway where id = $1", id)
+	if err != nil {
+		return handlePSQLError(Delete, err, "delete error")
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		return errors.Wrap(err, "get rows affected error")
+	}
+	if ra == 0 {
+		return ErrDoesNotExist
+	}
+
+	log.WithFields(log.Fields{
+		"id": id,
+	}).Info("gateway network gateway deleted")
+
+	return nil
+}
+
+// DeleteAllGatewayNetworkGatewaysForGatewayNetworkID deletes all gateway network- gateway links
+// given a gateway network id.
+func DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db sqlx.Ext, gatewayNetworkID int64) error {
+	var gngs []GatewayNetworkGateway
+	gngs, err := GetGatewayNetworkGateways(db, gatewayNetworkID, 0, 0 )
+	if err != nil {
+		return handlePSQLError(Select, err, "select error")
+	}
+
+	for _, gng := range gngs {
+		err = DeleteGatewayNetworkGateway(db, gng.ID)
+		if err != nil {
+			return errors.Wrap(err, "delete gateway network gateway error")
+		}
+	}
+
 	return nil
 }
