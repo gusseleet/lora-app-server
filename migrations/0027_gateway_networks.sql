@@ -9,7 +9,7 @@ create table gateway_network (
 	private_network bool not null,
 	organization_id bigserial not null references organization on delete cascade,
 
-	unique(organization_id)
+	unique(name)
 );
 
 create table gateway_network_gateway (
