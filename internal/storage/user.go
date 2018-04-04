@@ -299,6 +299,7 @@ func GetUserCount(db sqlx.Queryer, search string) (int32, error) {
 		from "user"
 		where
 			($1 != '' and username like $1)
+			or ($1 != '' and email like $1)
 			or ($1 = '')
 		`, search)
 	if err != nil {
@@ -313,7 +314,7 @@ func GetUsers(db sqlx.Queryer, limit, offset int32, search string) ([]User, erro
 	if search != "" {
 		search = search + "%"
 	}
-	err := sqlx.Select(db, &users, "select "+externalUserFields+` from "user" where ($3 != '' and username like $3) or ($3 = '') order by username limit $1 offset $2`, limit, offset, search)
+	err := sqlx.Select(db, &users, "select "+externalUserFields+` from "user" where ($3 != '' and username like $3) or ($3 != '' and email like $3) or ($3 = '') order by username limit $1 offset $2`, limit, offset, search)
 	if err != nil {
 		return nil, errors.Wrap(err, "select error")
 	}
