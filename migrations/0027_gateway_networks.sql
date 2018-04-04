@@ -33,4 +33,3 @@ drop index idx_gateway_network_gateway_gateway_network_id;
 drop table gateway_network_gateway;
 drop table gateway_network;
 
--- +migrate StatementEnd
