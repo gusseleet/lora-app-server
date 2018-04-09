@@ -197,7 +197,7 @@ func (a *GatewayNetworkAPI) ListGateways(ctx context.Context, req *pb.ListGatewa
 	}, nil
 }
 
-// Create creates the given gateway network-gateway link.
+// AddGateway creates the given gateway network-gateway link.
 func (a *GatewayNetworkAPI) AddGateway(ctx context.Context, req *pb.GatewayNetworkGatewayRequest) (*pb.GatewayNetworkEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
 		auth.ValidateGatewayNetworkGatewaysAccess(auth.Create, req.Id)); err != nil {
@@ -210,6 +210,26 @@ func (a *GatewayNetworkAPI) AddGateway(ctx context.Context, req *pb.GatewayNetwo
 	}
 
 	err := storage.CreateGatewayNetworkGateway(config.C.PostgreSQL.DB, req.Id, mac)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	return &pb.GatewayNetworkEmptyResponse{}, nil
+}
+
+// DeleteGateway deletes the given gateway from the gateway network.
+func (a *GatewayNetworkAPI) DeleteGateway(ctx context.Context, req *pb.DeleteGatewayNetworkGatewayRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+	var mac lorawan.EUI64
+	if err := mac.UnmarshalText([]byte(req.GatewayMAC)); err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "bad gateway mac: %s", err)
+	}
+
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkGatewayAccess(auth.Delete, req.Id, mac)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	err := storage.DeleteGatewayNetworkGateway(config.C.PostgreSQL.DB, req.Id, mac)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}

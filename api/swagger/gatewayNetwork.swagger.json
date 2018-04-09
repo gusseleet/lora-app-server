@@ -106,6 +106,62 @@
         "tags": [
           "GatewayNetwork"
         ]
+      },
+      "delete": {
+        "summary": "Delete a gateway network.",
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      },
+      "put": {
+        "summary": "Update an existing gateway network.",
+        "operationId": "Update",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiUpdateGatewayNetworkRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
       }
     },
     "/api/gatewaynetworks/{id}/gateways": {
@@ -212,36 +268,10 @@
         "tags": [
           "GatewayNetwork"
         ]
-      }
-    },
-    "/api/organizations/{id}": {
-      "delete": {
-        "summary": "Delete a gateway network.",
-        "operationId": "Delete",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "GatewayNetwork"
-        ]
       },
-      "put": {
-        "summary": "Update an existing gateway network.",
-        "operationId": "Update",
+      "delete": {
+        "summary": "Delete a gateway from a gateway network.",
+        "operationId": "DeleteGateway",
         "responses": {
           "200": {
             "description": "",
@@ -259,12 +289,10 @@
             "format": "int64"
           },
           {
-            "name": "body",
-            "in": "body",
+            "name": "gatewayMAC",
+            "in": "path",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/apiUpdateGatewayNetworkRequest"
-            }
+            "type": "string"
           }
         ],
         "tags": [
