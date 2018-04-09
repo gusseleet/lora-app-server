@@ -115,7 +115,7 @@
       "name": "postgres",
       "image": "postgres:9.5",
       "essential": true,
-      "memory": 512,
+      "memory": 128,
       "environment": [
         {
           "name": "POSTGRES_PASSWORD",
@@ -143,7 +143,7 @@
       "name": "postgres_ns",
       "image": "postgres:9.5",
       "essential": true,
-      "memory": 512,
+      "memory": 128,
       "environment": [
         {
           "name": "POSTGRES_PASSWORD",
@@ -190,6 +190,24 @@
       "links": [],
       "mountPoints": [
 
+      ]
+    },
+    {
+      "name": "gateway_bridge",
+      "image": "loraserver/lora-gateway-bridge",
+      "essential": true,
+      "memory": 256,
+      "environment": [
+        {
+          "name": "MQTT_SERVER",
+          "value": "tcp://mosquitto:1883"
+        }
+      ],
+      "command": [],
+      "portMappings": [],
+      "mountPoints": [],
+      "links": [
+        "mosquitto"
       ]
     }
 
