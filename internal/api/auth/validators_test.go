@@ -10,6 +10,7 @@ import (
 	"github.com/brocaar/lorawan"
 	"github.com/jmoiron/sqlx"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/lib/pq"
 )
 
 type validatorTest struct {
@@ -56,6 +57,10 @@ func TestValidators(t *testing.T) {
 	   Gateways:
 	   0101010101010101: organization 1 gw
 	   0202020202020202: organization 2 gw
+
+	   Gateway Networks:
+	   1: gatewayNetwork 1 (open network) organization 1
+	   2: gatewayNetwork 2 (private network) organization 2
 	*/
 	networkServers := []storage.NetworkServer{
 		{Name: "test-ns", Server: "test-ns:1234"},
@@ -169,6 +174,38 @@ func TestValidators(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+
+	gatewayNetworks := []storage.GatewayNetwork{
+		{Name: "gatewayNetwork1",
+			Tags: pq.StringArray{"Data1", "Data2"},
+			Price: 200,
+			PrivateNetwork: false,
+			OrganizationID: organizations[0].ID},
+		{Name: "gatewayNetwork2",
+			Tags: pq.StringArray{"Data3", "Data4"},
+			Price: 300,
+			PrivateNetwork: true,
+			OrganizationID: organizations[1].ID},
+	}
+	for i := range gatewayNetworks {
+		if err := storage.CreateGatewayNetwork(db, &gatewayNetworks[i]); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	gnGateways := []struct {
+		GatewayMAC       lorawan.EUI64
+		GatewayNetworkID int64
+	}{
+		{GatewayMAC: gateways[0].MAC, GatewayNetworkID: gatewayNetworks[0].ID},
+		{GatewayMAC: gateways[1].MAC, GatewayNetworkID: gatewayNetworks[1].ID},
+	}
+	for _, gnGateway := range gnGateways {
+		if err := storage.CreateGatewayNetworkGateway(db, gnGateway.GatewayNetworkID, gnGateway.GatewayMAC); err != nil {
+			t.Fatal(err)
+		}
+	}
+
 
 	Convey("Given a set of test users, applications and devices", t, func() {
 
@@ -540,8 +577,8 @@ func TestValidators(t *testing.T) {
 		Convey("When testing ValidateGatewayNetworksAccess", func() {
 			tests := []validatorTest{
 				{
-					Name:       "normal users can fetch list",
-					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(List)},
+					Name:       "normal users can create or fetch list",
+					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(Create), ValidateGatewayNetworksAccess(List)},
 					Claims:     Claims{Username: "user4"},
 					ExpectedOK: true,
 				},
@@ -553,8 +590,34 @@ func TestValidators(t *testing.T) {
 		Convey("When testing ValidateGatewayNetworkAccess", func() {
 			tests := []validatorTest{
 				{
-					Name:       "normal users can create and read",
-					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Create), ValidateGatewayNetworkAccess(Read)},
+					Name:       "normal users can read, update or delete",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Read), ValidateGatewayNetworkAccess(Update), ValidateGatewayNetworkAccess(Delete)},
+					Claims:     Claims{Username: "user4"},
+					ExpectedOK: true,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidateGatewayNetworkGatewaysAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "normal users can create or fetch list",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewaysAccess(Create, gatewayNetworks[0].ID), ValidateGatewayNetworkGatewaysAccess(List, gatewayNetworks[0].ID)},
+					Claims:     Claims{Username: "user4"},
+					ExpectedOK: true,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidateGatewayNetworkGatewayAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "normal users can read, update or delete",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewayAccess(Read, gatewayNetworks[0].ID, gateways[0].MAC)},
 					Claims:     Claims{Username: "user4"},
 					ExpectedOK: true,
 				},
