@@ -7,6 +7,10 @@
 # config files
 *.toml
 
+# .yml files
+docker-compose.yml
+docker-composeOld.yml
+
 # builds
 /dist
 /build
