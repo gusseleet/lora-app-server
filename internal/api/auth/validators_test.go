@@ -120,21 +120,22 @@ func TestValidators(t *testing.T) {
 	users := []struct {
 		ID       int64
 		Username string
+		Email	 string
 		IsActive bool
 		IsAdmin  bool
 	}{
-		{ID: 11, Username: "user1", IsActive: true, IsAdmin: true},
-		{ID: 12, Username: "user2", IsActive: true},
-		{ID: 13, Username: "user3", IsActive: true},
-		{ID: 14, Username: "user4", IsActive: true},
-		{ID: 15, Username: "user5", IsActive: true},
-		{ID: 16, Username: "user6", IsActive: true},
-		{ID: 17, Username: "user7", IsActive: false},
-		{ID: 18, Username: "user8", IsActive: false, IsAdmin: true},
-		{ID: 19, Username: "user9", IsActive: true},
-		{ID: 20, Username: "user10", IsActive: true},
-		{ID: 21, Username: "user11", IsActive: false},
-		{ID: 22, Username: "user12", IsActive: true},
+		{ID: 11, Username: "user1", Email: "user1@example.com", IsActive: true, IsAdmin: true},
+		{ID: 12, Username: "user2", Email: "user2@example.com", IsActive: true},
+		{ID: 13, Username: "user3", Email: "user3@example.com", IsActive: true},
+		{ID: 14, Username: "user4", Email: "user4@example.com", IsActive: true},
+		{ID: 15, Username: "user5", Email: "user5@example.com", IsActive: true},
+		{ID: 16, Username: "user6", Email: "user6@example.com", IsActive: true},
+		{ID: 17, Username: "user7", Email: "user7@example.com", IsActive: false},
+		{ID: 18, Username: "user8", Email: "user8@example.com", IsActive: false, IsAdmin: true},
+		{ID: 19, Username: "user9", Email: "user9@example.com", IsActive: true},
+		{ID: 20, Username: "user10", Email: "user10@example.com", IsActive: true},
+		{ID: 21, Username: "user11", Email: "user11@example.com", IsActive: false},
+		{ID: 22, Username: "user12", Email: "user12@example.com", IsActive: true},
 	}
 	for _, user := range users {
 		_, err = db.Exec(`insert into "user" (id, created_at, updated_at, username, password_hash, session_ttl, is_active, is_admin) values ($1, now(), now(), $2, '', 0, $3, $4)`, user.ID, user.Username, user.IsActive, user.IsAdmin)
