@@ -138,6 +138,34 @@
           "containerPath": "/var/lib/postgresql/data"
         }
       ]
+    },
+    {
+      "name": "postgres_ns",
+      "image": "postgres:9.5",
+      "essential": true,
+      "memory": 512,
+      "environment": [
+        {
+          "name": "POSTGRES_PASSWORD",
+          "value": "loraserver_ns"
+        },
+        {
+          "name": "POSTGRES_USER",
+          "value": "loraserver_ns"
+        },
+        {
+          "name": "POSTGRES_DB",
+          "value": "loraserver_ns"
+        }
+      ],
+      "command": [],
+      "portMappings": [],
+      "mountPoints": [
+        {
+          "sourceVolume": "db_ns",
+          "containerPath": "/var/lib/postgresql/data"
+        }
+      ]
     }
 
   ]
