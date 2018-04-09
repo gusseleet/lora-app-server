@@ -52,6 +52,9 @@
         }
       ],
       "links": [
+        "redis",
+        "mosquitto",
+        "postgres"
       ],
       "environment": [
         {
@@ -222,7 +225,9 @@
         }
       ],
       "links": [
-        "postgres_ns"
+        "postgres_ns",
+        "mosquitto",
+        "redis"
       ],
       "mountPoints": [],
       "environment": [
