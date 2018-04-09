@@ -63,6 +63,10 @@
           "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
         },
         {
+          "name": "LOG_LEVEL",
+          "value": "DEBUG"
+        },
+        {
           "name": "REDIS_URL",
           "value": "redis://redis:6379"
         },
@@ -217,6 +221,10 @@
         {
           "name": "DB_AUTOMIGRAT",
           "value": "true"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "value": "DEBUG"
         },
         {
           "name": "LOG_NODE_FRAMES",
