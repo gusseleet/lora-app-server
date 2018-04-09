@@ -52,7 +52,6 @@
         }
       ],
       "links": [
-
       ],
       "environment": [
         {
@@ -108,6 +107,35 @@
         {
           "hostPort": 8080,
           "containerPort": 8080
+        }
+      ]
+    },
+
+    {
+      "name": "postgres",
+      "image": "postgres:9.5",
+      "essential": true,
+      "memory": 512,
+      "environment": [
+        {
+          "name": "POSTGRES_PASSWORD",
+          "value": "loraserver"
+        },
+        {
+          "name": "POSTGRES_USER",
+          "value": "loraserver"
+        },
+        {
+          "name": "POSTGRES_DB",
+          "value": "loraserver"
+        }
+      ],
+      "command": [],
+      "portMappings": [],
+      "mountPoints": [
+        {
+          "sourceVolume": "db",
+          "containerPath": "/var/lib/postgresql/data"
         }
       ]
     }
