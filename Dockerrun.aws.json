@@ -58,6 +58,10 @@
       ],
       "environment": [
         {
+          "name": "LOG_LEVEL",
+          "value": "5"
+        },
+        {
           "name": "POSTGRES_DSN",
           "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
         },
@@ -234,6 +238,10 @@
         {
           "name": "DB_AUTOMIGRAT",
           "value": "true"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "value": "5"
         },
         {
           "name": "LOG_NODE_FRAMES",
