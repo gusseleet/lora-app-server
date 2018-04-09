@@ -98,10 +98,6 @@
           "value": "appserver:8001"
         },
         {
-          "name": "LOG_LEVEL",
-          "value": "debug"
-        },
-        {
           "name": "DB_AUTOMIGRATE",
           "value": "true"
         }
@@ -238,10 +234,6 @@
         {
           "name": "DB_AUTOMIGRAT",
           "value": "true"
-        },
-        {
-          "name": "LOG_LEVEL",
-          "value": "debug"
         },
         {
           "name": "LOG_NODE_FRAMES",
