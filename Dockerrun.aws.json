@@ -221,7 +221,9 @@
           "containerPort": 8000
         }
       ],
-      "links": [],
+      "links": [
+        "postgres_ns"
+      ],
       "mountPoints": [],
       "environment": [
         {
