@@ -522,6 +522,12 @@ func ValidateGatewayNetworkGatewayAccess(flag Flag, gatewayNetworkID int64, mac 
 			{"u.username = $1", "u.is_active = true"},
 			{"u.username = $1", "u.is_active = true"},
 		}
+	case Delete:
+		// any active user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
 	default:
 		panic("unsupported flag")
 	}
