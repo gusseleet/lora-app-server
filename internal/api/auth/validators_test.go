@@ -143,7 +143,7 @@ func TestValidators(t *testing.T) {
 		{ID: 22, Username: "user12", Email: "user12@example.com", IsActive: true},
 	}
 	for _, user := range users {
-		_, err = db.Exec(`insert into "user" (id, created_at, updated_at, username, password_hash, session_ttl, is_active, is_admin) values ($1, now(), now(), $2, '', 0, $3, $4)`, user.ID, user.Username, user.IsActive, user.IsAdmin)
+		_, err = db.Exec(`insert into "user" (id, created_at, updated_at, username, password_hash, session_ttl, is_active, is_admin, email) values ($1, now(), now(), $2, '', 0, $3, $4, $5)`, user.ID, user.Username, user.IsActive, user.IsAdmin, user.Email)
 		if err != nil {
 			t.Fatal(err)
 		}
