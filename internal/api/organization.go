@@ -304,3 +304,4 @@ func (a *OrganizationAPI) GetUser(ctx context.Context, req *pb.GetOrganizationUs
 		UpdatedAt: user.UpdatedAt.Format(time.RFC3339Nano),
 	}, nil
 }
+
