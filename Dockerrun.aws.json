@@ -166,6 +166,15 @@
           "containerPath": "/var/lib/postgresql/data"
         }
       ]
+    },
+    {
+      "name": "redis",
+      "image": "redis:3.0.7-alpine",
+      "essential": true,
+      "memory": 128,
+      "portMappings": [],
+      "links": [],
+      "mountPoints": []
     }
 
   ]
