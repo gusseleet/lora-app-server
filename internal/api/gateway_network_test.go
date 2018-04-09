@@ -205,9 +205,29 @@ func TestGatewayNetworkAPI(t *testing.T) {
 							})
 							So(err, ShouldBeNil)
 
-							Convey("Then the nr of gateways should be 1", func() {
+							Convey("Then the nr of gateways should be 0", func() {
 								So(gws.TotalCount, ShouldEqual, 1)
 								So(gws.Result, ShouldHaveLength, 1)
+							})
+						})
+
+						Convey("When removing the gateway from the gateway network", func() {
+							delGNGateway := &pb.DeleteGatewayNetworkGatewayRequest{
+								GatewayMAC:     addGNGateway.GatewayMAC,
+								Id: 			addGNGateway.Id,
+							}
+							_, err := api.DeleteGateway(ctx, delGNGateway)
+							So(err, ShouldBeNil)
+
+							Convey("Then the gateway should be removed", func() {
+								gnGateways, err := api.ListGateways(ctx, &pb.ListGatewayNetworkGatewaysRequest{
+									Id:     gnId,
+									Limit:  10,
+									Offset: 0,
+								})
+								So(err, ShouldBeNil)
+								So(gnGateways, ShouldNotBeNil)
+								So(gnGateways.Result, ShouldHaveLength, 0)
 							})
 						})
 					})
