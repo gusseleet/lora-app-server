@@ -25,6 +25,7 @@ func TestOrganizationAPI(t *testing.T) {
 		validator := &TestValidator{}
 		api := NewOrganizationAPI(validator)
 		userAPI := NewUserAPI(validator)
+		validator.returnUsername = "admin"
 
 		Convey("When creating an organization with a bad name (spaces)", func() {
 			validator.returnIsAdmin = true

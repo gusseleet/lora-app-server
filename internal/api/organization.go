@@ -33,6 +33,17 @@ func (a *OrganizationAPI) Create(ctx context.Context, req *pb.CreateOrganization
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
+	username, err := a.validator.GetUsername(ctx)
+	if nil != err {
+		return nil, errToRPCError(err)
+	}
+
+	// Get the user id based on the username.
+	user, err := storage.GetUserByUsername(config.C.PostgreSQL.DB, username)
+	if nil != err {
+		return nil, errToRPCError(err)
+	}
+
 	org := storage.Organization{
 		Name:            req.Name,
 		DisplayName:     req.DisplayName,
@@ -40,12 +51,13 @@ func (a *OrganizationAPI) Create(ctx context.Context, req *pb.CreateOrganization
 		OrgNr:			 req.OrgNr,
 	}
 
-	err := storage.CreateOrganization(config.C.PostgreSQL.DB, &org)
+	err = storage.CreateOrganization(config.C.PostgreSQL.DB, &org)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
 
-	err = storage.CreateOrganizationUser(config.C.PostgreSQL.DB, org.ID, req.UserID, true)
+	// Add user to the new organization
+	err = storage.CreateOrganizationUser(config.C.PostgreSQL.DB, org.ID, user.ID, true)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
@@ -292,3 +304,4 @@ func (a *OrganizationAPI) GetUser(ctx context.Context, req *pb.GetOrganizationUs
 		UpdatedAt: user.UpdatedAt.Format(time.RFC3339Nano),
 	}, nil
 }
+

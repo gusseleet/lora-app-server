@@ -54,17 +54,16 @@
       "links": [
         "redis",
         "mosquitto",
-        "postgres",
-        "loraserver"
+        "postgres"
       ],
       "environment": [
         {
-          "name": "POSTGRES_DSN",
-          "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
+          "name": "LOG_LEVEL",
+          "value": "5"
         },
         {
-          "name": "LOG_LEVEL",
-          "value": "DEBUG"
+          "name": "POSTGRES_DSN",
+          "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
         },
         {
           "name": "REDIS_URL",
@@ -123,7 +122,7 @@
       "name": "postgres",
       "image": "postgres:9.5",
       "essential": true,
-      "memory": 512,
+      "memory": 128,
       "environment": [
         {
           "name": "POSTGRES_PASSWORD",
@@ -151,7 +150,7 @@
       "name": "postgres_ns",
       "image": "postgres:9.5",
       "essential": true,
-      "memory": 512,
+      "memory": 128,
       "environment": [
         {
           "name": "POSTGRES_PASSWORD",
@@ -201,6 +200,24 @@
       ]
     },
     {
+      "name": "gateway_bridge",
+      "image": "loraserver/lora-gateway-bridge",
+      "essential": true,
+      "memory": 256,
+      "environment": [
+        {
+          "name": "MQTT_SERVER",
+          "value": "tcp://mosquitto:1883"
+        }
+      ],
+      "command": [],
+      "portMappings": [],
+      "mountPoints": [],
+      "links": [
+        "mosquitto"
+      ]
+    },
+    {
       "name": "loraserver",
       "image": "loraserver/loraserver",
       "essential": true,
@@ -224,7 +241,7 @@
         },
         {
           "name": "LOG_LEVEL",
-          "value": "DEBUG"
+          "value": "5"
         },
         {
           "name": "LOG_NODE_FRAMES",
@@ -258,24 +275,6 @@
           "name": "JS_SERVER",
           "value": "http://appserver:8003"
         }
-      ]
-    },
-    {
-      "name": "gateway_bridge",
-      "image": "loraserver/lora-gateway-bridge",
-      "essential": true,
-      "memory": 256,
-      "environment": [
-        {
-          "name": "MQTT_SERVER",
-          "value": "tcp://mosquitto:1883"
-        }
-      ],
-      "command": [],
-      "portMappings": [],
-      "mountPoints": [],
-      "links": [
-        "mosquitto"
       ]
     }
 

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/gusseleet/lora-app-server/internal/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/brocaar/lorawan"
@@ -32,6 +33,38 @@ func TestGatewayNetwork(t *testing.T) {
 			Server: "test-ns:1234",
 		}
 		So(CreateNetworkServer(db, &n), ShouldBeNil)
+
+		Convey("When creating a gateway network with an invalid space in the name", func() {
+			gn := GatewayNetwork{
+				Name:           "test Network",
+				Tags:           pq.StringArray{"Test", "test"},
+				Price:          200,
+				PrivateNetwork: true,
+				OrganizationID: org.ID,
+			}
+			err := CreateGatewayNetwork(db, &gn)
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldNotBeNil)
+				So(errors.Cause(err), ShouldResemble, ErrGatewayNetworkInvalidName)
+			})
+		})
+
+		Convey("When creating a gateway network with a too short name", func() {
+			gn := GatewayNetwork{
+				Name:           "test",
+				Tags:           pq.StringArray{"Test", "test"},
+				Price:          200,
+				PrivateNetwork: true,
+				OrganizationID: org.ID,
+			}
+			err := CreateGatewayNetwork(db, &gn)
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldNotBeNil)
+				So(errors.Cause(err), ShouldResemble, ErrGatewayNetworkInvalidName)
+			})
+		})
 
 		Convey("When creating a gateway network", func() {
 			gn := GatewayNetwork{

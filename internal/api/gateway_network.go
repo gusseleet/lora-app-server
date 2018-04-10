@@ -55,7 +55,7 @@ func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNet
 // Get returns the gateway network matching the given ID.
 func (a *GatewayNetworkAPI) Get(ctx context.Context, req *pb.GatewayNetworkRequest) (*pb.GetGatewayNetworkResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkAccess(auth.Read)); err != nil {
+		auth.ValidateGatewayNetworkAccess(auth.Read, req.Id)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -120,7 +120,7 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 // Update updates the given gateway network.
 func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNetworkRequest) (*pb.GatewayNetworkEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkAccess(auth.Update)); err != nil {
+		auth.ValidateGatewayNetworkAccess(auth.Update, req.Id)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -147,7 +147,7 @@ func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNet
 // Delete deletes the gateway network matching the given ID.
 func (a *GatewayNetworkAPI) Delete(ctx context.Context, req *pb.GatewayNetworkRequest) (*pb.GatewayNetworkEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkAccess(auth.Delete)); err != nil {
+		auth.ValidateGatewayNetworkAccess(auth.Delete, req.Id)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -165,6 +165,7 @@ func (a *GatewayNetworkAPI) Delete(ctx context.Context, req *pb.GatewayNetworkRe
 	return &pb.GatewayNetworkEmptyResponse{}, nil
 }
 
+// ListGateways lists the gateways linked to the gateway network.
 func (a *GatewayNetworkAPI) ListGateways(ctx context.Context, req *pb.ListGatewayNetworkGatewaysRequest) (*pb.ListGatewayNetworkGatewaysResponse, error) {
 	if err := a.validator.Validate(ctx,
 		auth.ValidateGatewayNetworkGatewaysAccess(auth.List, req.Id)); err != nil {
