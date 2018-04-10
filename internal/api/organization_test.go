@@ -26,6 +26,9 @@ func TestOrganizationAPI(t *testing.T) {
 		api := NewOrganizationAPI(validator)
 		userAPI := NewUserAPI(validator)
 
+		//We need this because the username is used when an org is created
+		validator.returnUsername = "admin"
+
 		Convey("When creating an organization with a bad name (spaces)", func() {
 			validator.returnIsAdmin = true
 			createReq := &pb.CreateOrganizationRequest{
