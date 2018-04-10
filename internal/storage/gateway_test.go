@@ -77,8 +77,6 @@ func TestGateway(t *testing.T) {
 				So(UpdateGateway(db, &gw), ShouldBeNil)
 				gw.CreatedAt = gw.CreatedAt.Truncate(time.Millisecond).UTC()
 				gw.UpdatedAt = gw.UpdatedAt.Truncate(time.Millisecond).UTC()
-				//gw.MaxNodes = 12
-				//gw.Tags = pq.StringArray{"Test", "Tag", "1"}
 
 				gw2, err := GetGateway(db, gw.MAC, false)
 				So(err, ShouldBeNil)
@@ -93,27 +91,15 @@ func TestGateway(t *testing.T) {
 				So(errors.Cause(err), ShouldResemble, ErrDoesNotExist)
 			})
 
-			Convey("Then getting the total gateway count returns 1", func() {
-				c, err := GetGatewayCount(db)
-				So(err, ShouldBeNil)
-				So(c, ShouldEqual, 1)
-			})
-
 			Convey("Then getting all gateways returns the expected gateway", func() {
-				gws, err := GetGateways(db, 10, 0)
+				gws, err := GetGateways(db)
 				So(err, ShouldBeNil)
 				So(gws, ShouldHaveLength, 1)
 				So(gws[0].MAC, ShouldEqual, gw.MAC)
 			})
 
-			Convey("Then getting the total gateway count for the organization returns 1", func() {
-				c, err := GetGatewayCountForOrganizationID(db, org.ID)
-				So(err, ShouldBeNil)
-				So(c, ShouldEqual, 1)
-			})
-
 			Convey("Then getting all gateways for the organization returns the exepected gateway", func() {
-				gws, err := GetGatewaysForOrganizationID(db, org.ID, 10, 0)
+				gws, err := GetGatewaysForOrganizationID(db, org.ID)
 				So(err, ShouldBeNil)
 				So(gws, ShouldHaveLength, 1)
 				So(gws[0].MAC, ShouldEqual, gw.MAC)
@@ -128,14 +114,8 @@ func TestGateway(t *testing.T) {
 				_, err := CreateUser(db, &user, "password123")
 				So(err, ShouldBeNil)
 
-				Convey("Getting the gateway count for this user returns 0", func() {
-					c, err := GetGatewayCountForUser(db, user.Username)
-					So(err, ShouldBeNil)
-					So(c, ShouldEqual, 0)
-				})
-
 				Convey("Then getting the gateways for this user returns 0 items", func() {
-					gws, err := GetGatewaysForUser(db, user.Username, 10, 0)
+					gws, err := GetGatewaysForUser(db, user.Username)
 					So(err, ShouldBeNil)
 					So(gws, ShouldHaveLength, 0)
 				})
@@ -143,14 +123,8 @@ func TestGateway(t *testing.T) {
 				Convey("When assigning the user to the organization", func() {
 					So(CreateOrganizationUser(db, org.ID, user.ID, false), ShouldBeNil)
 
-					Convey("Getting the gateway count for this user returns 1", func() {
-						c, err := GetGatewayCountForUser(db, user.Username)
-						So(err, ShouldBeNil)
-						So(c, ShouldEqual, 1)
-					})
-
 					Convey("Then getting the gateways for this user returns 1 item", func() {
-						gws, err := GetGatewaysForUser(db, user.Username, 10, 0)
+						gws, err := GetGatewaysForUser(db, user.Username)
 						So(err, ShouldBeNil)
 						So(gws, ShouldHaveLength, 1)
 						So(gws[0].MAC, ShouldEqual, gw.MAC)

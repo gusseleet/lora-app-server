@@ -157,7 +157,9 @@ func UpdateGateway(db sqlx.Execer, gw *Gateway) error {
 			ping = $6,
 			last_ping_id = $7,
 			last_ping_sent_at = $8,
-			network_server_id = $9
+			network_server_id = $9,
+			tags = $10,
+			maxnodes = $11
 		where
 			mac = $1`,
 		gw.MAC[:],
@@ -169,6 +171,8 @@ func UpdateGateway(db sqlx.Execer, gw *Gateway) error {
 		gw.LastPingID,
 		gw.LastPingSentAt,
 		gw.NetworkServerID,
+		gw.Tags,
+		gw.MaxNodes,
 	)
 	if err != nil {
 		return handlePSQLError(Update, err, "update error")
@@ -241,26 +245,13 @@ func GetGateway(db sqlx.Queryer, mac lorawan.EUI64, forUpdate bool) (Gateway, er
 	return gw, nil
 }
 
-// GetGatewayCount returns the total number of gateways.
-func GetGatewayCount(db sqlx.Queryer) (int, error) {
-	var count int
-	err := sqlx.Get(db, &count, "select count(*) from gateway")
-	if err != nil {
-		return 0, errors.Wrap(err, "select error")
-	}
-	return count, nil
-}
-
 // GetGateways returns a slice of gateways sorted by name.
-func GetGateways(db sqlx.Queryer, limit, offset int) ([]Gateway, error) {
+func GetGateways(db sqlx.Queryer) ([]Gateway, error) {
 	var gws []Gateway
 	err := sqlx.Select(db, &gws, `
 		select *
 		from gateway
-		order by name
-		limit $1 offset $2`,
-		limit,
-		offset,
+		order by name`,
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "select error")
@@ -268,37 +259,17 @@ func GetGateways(db sqlx.Queryer, limit, offset int) ([]Gateway, error) {
 	return gws, nil
 }
 
-// GetGatewayCountForOrganizationID returns the total number of gateways
-// given an organization ID.
-func GetGatewayCountForOrganizationID(db sqlx.Queryer, organizationID int64) (int, error) {
-	var count int
-	err := sqlx.Get(db, &count, `
-		select count(*)
-		from gateway
-		where
-			organization_id = $1`,
-		organizationID,
-	)
-	if err != nil {
-		return 0, errors.Wrap(err, "select error")
-	}
-	return count, nil
-}
-
 // GetGatewaysForOrganizationID returns a slice of gateways sorted by name
 // for the given organization ID.
-func GetGatewaysForOrganizationID(db sqlx.Queryer, organizationID int64, limit, offset int) ([]Gateway, error) {
+func GetGatewaysForOrganizationID(db sqlx.Queryer, organizationID int64) ([]Gateway, error) {
 	var gws []Gateway
 	err := sqlx.Select(db, &gws, `
 		select *
 		from gateway
 		where
 			organization_id = $1
-		order by name
-		limit $2 offset $3`,
+		order by name`,
 		organizationID,
-		limit,
-		offset,
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "select error")
@@ -306,32 +277,9 @@ func GetGatewaysForOrganizationID(db sqlx.Queryer, organizationID int64, limit, 
 	return gws, nil
 }
 
-// GetGatewayCountForUser returns the total number of gateways to which the
-// given user has access.
-func GetGatewayCountForUser(db sqlx.Queryer, username string) (int, error) {
-	var count int
-	err := sqlx.Get(db, &count, `
-		select count(g.*)
-		from gateway g
-		inner join organization o
-			on o.id = g.organization_id
-		inner join organization_user ou
-			on ou.organization_id = o.id
-		inner join "user" u
-			on u.id = ou.user_id
-		where
-			u.username = $1`,
-		username,
-	)
-	if err != nil {
-		return 0, errors.Wrap(err, "select error")
-	}
-	return count, nil
-}
-
 // GetGatewaysForUser returns a slice of gateways sorted by name to which the
 // given user has access.
-func GetGatewaysForUser(db sqlx.Queryer, username string, limit, offset int) ([]Gateway, error) {
+func GetGatewaysForUser(db sqlx.Queryer, username string) ([]Gateway, error) {
 	var gws []Gateway
 	err := sqlx.Select(db, &gws, `
 		select g.*
@@ -344,11 +292,8 @@ func GetGatewaysForUser(db sqlx.Queryer, username string, limit, offset int) ([]
 			on u.id = ou.user_id
 		where
 			u.username = $1
-		order by g.name
-		limit $2 offset $3`,
+		order by g.name`,
 		username,
-		limit,
-		offset,
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "select error")

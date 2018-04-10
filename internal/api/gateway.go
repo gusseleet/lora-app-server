@@ -168,13 +168,7 @@ func (a *GatewayAPI) List(ctx context.Context, req *pb.ListGatewayRequest) (*pb.
 		}
 
 		if isAdmin {
-			// in case of admin user list all gateways
-			count, err = storage.GetGatewayCount(config.C.PostgreSQL.DB)
-			if err != nil {
-				return nil, errToRPCError(err)
-			}
-
-			gws, err = storage.GetGateways(config.C.PostgreSQL.DB, int(req.Limit), int(req.Offset))
+			gws, err = storage.GetGateways(config.C.PostgreSQL.DB)
 			if err != nil {
 				return nil, errToRPCError(err)
 			}
@@ -184,21 +178,14 @@ func (a *GatewayAPI) List(ctx context.Context, req *pb.ListGatewayRequest) (*pb.
 			if err != nil {
 				return nil, errToRPCError(err)
 			}
-			count, err = storage.GetGatewayCountForUser(config.C.PostgreSQL.DB, username)
-			if err != nil {
-				return nil, errToRPCError(err)
-			}
-			gws, err = storage.GetGatewaysForUser(config.C.PostgreSQL.DB, username, int(req.Limit), int(req.Offset))
+			gws, err = storage.GetGatewaysForUser(config.C.PostgreSQL.DB, username)
 			if err != nil {
 				return nil, errToRPCError(err)
 			}
 		}
 	} else {
-		count, err = storage.GetGatewayCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID)
-		if err != nil {
-			return nil, errToRPCError(err)
-		}
-		gws, err = storage.GetGatewaysForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, int(req.Limit), int(req.Offset))
+		//Filter result based on organization
+		gws, err = storage.GetGatewaysForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
@@ -206,23 +193,53 @@ func (a *GatewayAPI) List(ctx context.Context, req *pb.ListGatewayRequest) (*pb.
 
 	result := make([]*pb.ListGatewayItem, 0, len(gws))
 	for i := range gws {
-		result = append(result, &pb.ListGatewayItem{
-			Mac:             gws[i].MAC.String(),
-			Name:            gws[i].Name,
-			Description:     gws[i].Description,
-			CreatedAt:       gws[i].CreatedAt.Format(time.RFC3339Nano),
-			UpdatedAt:       gws[i].UpdatedAt.Format(time.RFC3339Nano),
-			OrganizationID:  gws[i].OrganizationID,
-			NetworkServerID: gws[i].NetworkServerID,
-			Tags:			 gws[i].Tags,
-			MaxNodes:		 gws[i].MaxNodes,
-		})
+
+		//Filter by Name and Tags
+		TagMatch := CheckTagsForMatch(req.Tags, gws[i].Tags)
+		if gws[i].Name == req.Name && req.Tags == nil || req.Name == "" && req.Tags == nil ||
+			TagMatch && gws[i].Name == req.Name || TagMatch && req.Name == "" {
+				count++;
+
+				//Only return objects between offset and limit
+				if count > int(req.Offset) && count <= int(req.Offset)+int(req.Limit) {
+				result = append(result, &pb.ListGatewayItem{
+					Mac:             gws[i].MAC.String(),
+					Name:            gws[i].Name,
+					Description:     gws[i].Description,
+					CreatedAt:       gws[i].CreatedAt.Format(time.RFC3339Nano),
+					UpdatedAt:       gws[i].UpdatedAt.Format(time.RFC3339Nano),
+					OrganizationID:  gws[i].OrganizationID,
+					NetworkServerID: gws[i].NetworkServerID,
+					Tags:            gws[i].Tags,
+					MaxNodes:        gws[i].MaxNodes,
+				})
+			}
+		}
 	}
 
 	return &pb.ListGatewayResponse{
 		TotalCount: int32(count),
 		Result:     result,
 	}, nil
+}
+
+//Check if all elements in "contain" exist in "container"
+//Fails if an element in "contain" dosn't exist in "container"
+func CheckTagsForMatch (contain []string, container []string) bool {
+	exist := false
+	for i := range contain  {
+		exist = false
+		for k := range container  {
+			if (contain[i] == container[k]) { //Found match
+				exist = true
+			}
+		}
+		if !exist {
+			break
+		}
+	}
+
+	return exist;
 }
 
 // Update updates the given gateway.

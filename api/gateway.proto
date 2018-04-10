@@ -275,6 +275,12 @@ message ListGatewayRequest {
 	// ID of the organization for which to filter on, when left blank the
 	// response will return all gateways to which the user has access to.
 	int64 organizationID = 3;
+
+	// The organization for which to filter on
+	string name = 4;
+
+	// The tags for which to filter on
+	repeated string tags = 5;
 }
 
 message ListGatewayItem {
