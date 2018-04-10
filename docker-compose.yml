@@ -39,6 +39,7 @@ services:
       - HTTP_TLS_CERT=/etc/lora-app-server/certs/http.pem
       - HTTP_TLS_KEY=/etc/lora-app-server/certs/http-key.pem
       - AS_PUBLIC_SERVER=appserver:8001
+      - LOG_LEVEL=5
     ports:
       - 8080:8080
 
