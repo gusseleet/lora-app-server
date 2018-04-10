@@ -13,7 +13,8 @@ import (
 	"regexp"
 )
 
-var gatewayNetworkNameRegexp = regexp.MustCompile(`^[\w-]+$`)
+// Validate gateway network name. 6-40 characters of any letters, numbers, dashes or underscores.
+var gatewayNetworkNameRegexp = regexp.MustCompile(`^[[:word:]-]{6,40}$`)
 
 // GatewayNetwork defines the gateway-network.
 type GatewayNetwork struct {
@@ -29,6 +30,9 @@ type GatewayNetwork struct {
 
 // Validate validates the gateway network data.
 func (gn GatewayNetwork) Validate() error {
+	if !gatewayNetworkNameRegexp.MatchString(gn.Name) {
+		return ErrGatewayNetworkInvalidName
+	}
 	return nil
 }
 
@@ -41,7 +45,7 @@ type GatewayNetworkGateway struct {
 	UpdatedAt       	time.Time             	`db:"updated_at"`
 }
 
-// CreateDeviceProfile creates the given device-profile.
+// CreateGatewayNetwork creates the given gateway network.
 func CreateGatewayNetwork(db sqlx.Queryer, gn *GatewayNetwork) error {
 	if err := gn.Validate(); err != nil {
 		return errors.Wrap(err, "validate error")
