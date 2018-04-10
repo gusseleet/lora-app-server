@@ -601,7 +601,7 @@ func ValidateOrganizationAccess(flag Flag, id int64) ValidatorFunc {
 	case Delete:
 		// global admin
 		where = [][]string{
-			{"u.username = $1", "u.is_active = true", "u.is_admin = true", "$2 = $2"},
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
 			{"u.username = $1", "u.is_active = true", "o.id = $2", "ou.is_admin = true"},
 		}
 	default:
