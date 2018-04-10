@@ -51,6 +51,23 @@
             "required": false,
             "type": "string",
             "format": "int64"
+          },
+          {
+            "name": "name",
+            "description": "The organization for which to filter on.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "description": "The tags for which to filter on.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
