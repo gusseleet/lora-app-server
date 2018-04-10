@@ -209,6 +209,27 @@ func CreateGatewayNetworkGateway(db sqlx.Execer, gatewayNetworkID int64, gateway
 	return nil
 }
 
+// DeleteGatewayNetworkGateway deletes the gateway network gateway matching the given ID and MAC.
+func DeleteGatewayNetworkGateway(db sqlx.Ext, gnID int64, MAC lorawan.EUI64) error {
+	res, err := db.Exec("delete from gateway_network_gateway where gateway_network_id = $1 and gateway_mac = $2", gnID, MAC[:])
+	if err != nil {
+		return handlePSQLError(Delete, err, "delete error")
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		return errors.Wrap(err, "get rows affected error")
+	}
+	if ra == 0 {
+		return ErrDoesNotExist
+	}
+
+	log.WithFields(log.Fields{
+		"id": gnID,
+	}).Info("gateway network gateway deleted")
+
+	return nil
+}
+
 // GetGatewayNetworkGateway gets the information of the given gateway network-gateway.
 func GetGatewayNetworkGateway(db sqlx.Queryer, gatewayNetworkID int64, gatewayMAC lorawan.EUI64) (GatewayNetworkGateway, error) {
 	var g GatewayNetworkGateway
@@ -275,27 +296,6 @@ func GetGatewayNetworkGateways(db sqlx.Queryer, gatewayNetworkID int64, limit, o
 	return gateways, nil
 }
 
-// DeleteGatewayNetworkGateway deletes the gateway network gateway matching the given ID.
-func DeleteGatewayNetworkGateway(db sqlx.Ext, id int64) error {
-	res, err := db.Exec("delete from gateway_network_gateway where id = $1", id)
-	if err != nil {
-		return handlePSQLError(Delete, err, "delete error")
-	}
-	ra, err := res.RowsAffected()
-	if err != nil {
-		return errors.Wrap(err, "get rows affected error")
-	}
-	if ra == 0 {
-		return ErrDoesNotExist
-	}
-
-	log.WithFields(log.Fields{
-		"id": id,
-	}).Info("gateway network gateway deleted")
-
-	return nil
-}
-
 // DeleteAllGatewayNetworkGatewaysForGatewayNetworkID deletes all gateway network- gateway links
 // given a gateway network id.
 func DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db sqlx.Ext, gatewayNetworkID int64) error {
@@ -306,7 +306,7 @@ func DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db sqlx.Ext, gatewayNetw
 	}
 
 	for _, gng := range gngs {
-		err = DeleteGatewayNetworkGateway(db, gng.ID)
+		err = DeleteGatewayNetworkGateway(db, gatewayNetworkID, gng.GatewayMAC)
 		if err != nil {
 			return errors.Wrap(err, "delete gateway network gateway error")
 		}

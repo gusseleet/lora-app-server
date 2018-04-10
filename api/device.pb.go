@@ -147,6 +147,7 @@ It has these top-level messages:
 	ListGatewayNetworksResponse
 	GatewayNetworkEmptyResponse
 	GatewayNetworkGatewayRequest
+	DeleteGatewayNetworkGatewayRequest
 	ListGatewayNetworkGatewaysRequest
 	GetGatewayNetworkGatewayRequest
 	GetGatewayNetworkGatewayResponse

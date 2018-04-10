@@ -32,7 +32,7 @@ service GatewayNetwork {
     // Update an existing gateway network.
     rpc Update(UpdateGatewayNetworkRequest) returns (GatewayNetworkEmptyResponse) {
         option(google.api.http) = {
-			put: "/api/organizations/{id}"
+			put: "/api/gatewaynetworks/{id}"
 			body: "*"
 		};
     }
@@ -40,7 +40,7 @@ service GatewayNetwork {
     // Delete a gateway network.
     rpc Delete(GatewayNetworkRequest) returns (GatewayNetworkEmptyResponse) {
         option(google.api.http) = {
-			delete: "/api/organizations/{id}"
+			delete: "/api/gatewaynetworks/{id}"
 		};
     }
 
@@ -64,6 +64,13 @@ service GatewayNetwork {
             post: "/api/gatewaynetworks/{id}/gateways"
             body: "*"
         };
+    }
+
+    // Delete a gateway from a gateway network.
+    rpc DeleteGateway(DeleteGatewayNetworkGatewayRequest) returns (GatewayNetworkEmptyResponse) {
+        option(google.api.http) = {
+			delete: "/api/gatewaynetworks/{id}/gateways/{gatewayMAC}"
+		};
     }
 
 }
@@ -167,6 +174,14 @@ message GatewayNetworkEmptyResponse {
 }
 
 message GatewayNetworkGatewayRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // Hex encoded gateway MAC.
+    string gatewayMAC = 2;
+}
+
+message DeleteGatewayNetworkGatewayRequest {
     // The gateway network id.
     int64 id = 1;
 

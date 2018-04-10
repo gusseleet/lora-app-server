@@ -120,7 +120,7 @@ func TestGatewayNetwork(t *testing.T) {
 					})
 
 					Convey("Then it can be deleted", func() {
-						So(DeleteGatewayNetworkGateway(db, gn.ID), ShouldBeNil) // admin user
+						So(DeleteGatewayNetworkGateway(db, gn.ID, gw.MAC), ShouldBeNil) // admin user
 						c, err := GetGatewayNetworkGatewayCount(db, gn.ID)
 						So(err, ShouldBeNil)
 						So(c, ShouldEqual, 0)
