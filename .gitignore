@@ -7,6 +7,10 @@
 # config files
 *.toml
 
+# .yml files
+docker-compose.yml
+docker-composeOld.yml
+
 # builds
 /dist
 /build
@@ -19,7 +23,7 @@
 /static/service-worker.js
 /ui/build
 /docs/public
-
+c
 # dependencies
 /vendor
 

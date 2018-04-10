@@ -123,12 +123,12 @@ func TestUser(t *testing.T) {
 				So(users, ShouldHaveLength, 1)
 			})
 
-			Convey("Then searching for 'foo' returns 0 items", func() {
-				count, err := GetUserCount(db, "foo")
+			Convey("Then searching for 'food' returns 0 items", func() {
+				count, err := GetUserCount(db, "food")
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 0)
 
-				users, err := GetUsers(db, 10, 0, "foo")
+				users, err := GetUsers(db, 10, 0, "food")
 				So(err, ShouldBeNil)
 				So(users, ShouldHaveLength, 0)
 			})

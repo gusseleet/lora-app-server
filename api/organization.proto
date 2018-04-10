@@ -137,9 +137,6 @@ message CreateOrganizationRequest {
 
 	// The Organization number
 	string orgNr = 4;
-
-	// The ID of the user that creates the organization
-	int64 userID = 5;
 }
 
 message CreateOrganizationResponse {
@@ -239,4 +236,5 @@ message ListOrganizationUsersResponse {
 	// The users in the requested limit, offset range.
 	repeated GetOrganizationUserResponse result = 2;
 }
+
 

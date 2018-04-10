@@ -14,6 +14,12 @@
       }
     },
     {
+      "name": "db_ns",
+      "host": {
+        "sourcePath": "/home/ec2-user/db_ns"
+      }
+    },
+    {
       "name": "redis",
       "host": {
         "sourcePath": "current-redis"
@@ -51,6 +57,10 @@
         "postgres"
       ],
       "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "value": "5"
+        },
         {
           "name": "POSTGRES_DSN",
           "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
@@ -112,7 +122,7 @@
       "name": "postgres",
       "image": "postgres:9.5",
       "essential": true,
-      "memory": 512,
+      "memory": 128,
       "environment": [
         {
           "name": "POSTGRES_PASSWORD",
@@ -140,7 +150,7 @@
       "name": "postgres_ns",
       "image": "postgres:9.5",
       "essential": true,
-      "memory": 512,
+      "memory": 128,
       "environment": [
         {
           "name": "POSTGRES_PASSWORD",
@@ -157,7 +167,12 @@
       ],
       "command": [],
       "portMappings": [],
-      "mountPoints": []
+      "mountPoints": [
+        {
+          "sourceVolume": "db_ns",
+          "containerPath": "/var/lib/postgresql/data"
+        }
+      ]
     },
     {
       "name": "redis",
@@ -173,10 +188,33 @@
       "image": "ansi/mosquitto",
       "essential": true,
       "memory": 128,
-      "portMappings": [],
+      "portMappings": [
+        {
+          "hostPort": 1883,
+          "containerPort": 1883
+        }
+      ],
       "links": [],
       "mountPoints": [
 
+      ]
+    },
+    {
+      "name": "gateway_bridge",
+      "image": "loraserver/lora-gateway-bridge",
+      "essential": true,
+      "memory": 256,
+      "environment": [
+        {
+          "name": "MQTT_SERVER",
+          "value": "tcp://mosquitto:1883"
+        }
+      ],
+      "command": [],
+      "portMappings": [],
+      "mountPoints": [],
+      "links": [
+        "mosquitto"
       ]
     },
     {
@@ -191,13 +229,19 @@
         }
       ],
       "links": [
-        "postgres_ns"
+        "postgres_ns",
+        "mosquitto",
+        "redis"
       ],
       "mountPoints": [],
       "environment": [
         {
           "name": "DB_AUTOMIGRAT",
           "value": "true"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "value": "5"
         },
         {
           "name": "LOG_NODE_FRAMES",
@@ -225,7 +269,7 @@
         },
         {
           "name": "POSTGRES_DSN",
-          "value": "postgres://loraserver_ns:loraserver_ns@postgres/loraserver_ns?sslmode=disable"
+          "value": "postgres://loraserver_ns:loraserver_ns@postgres_ns/loraserver_ns?sslmode=disable"
         },
         {
           "name": "JS_SERVER",

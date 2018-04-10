@@ -433,6 +433,12 @@ func ValidateGatewayNetworksAccess(flag Flag) ValidatorFunc {
 	var where = [][]string{}
 
 	switch flag {
+	case Create:
+		// any active user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
 	case List:
 		// any active user
 		where = [][]string{
@@ -453,14 +459,44 @@ func ValidateGatewayNetworkAccess(flag Flag) ValidatorFunc {
 	var where = [][]string{}
 
 	switch flag {
-	case Create:
+	case Read:
 		// any active user
 		where = [][]string{
 			{"u.username = $1", "u.is_active = true"},
 			{"u.username = $1", "u.is_active = true"},
 		}
-	case Read:
-		// any active user
+	case Update, Delete:
+		where = [][]string{
+			// global admin
+			// organization admin
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, userQuery, where, claims.Username)
+	}
+}
+
+// ValidateGatewayNetworkGatewaysAccess validates if the client has access to
+// the gateway network gateways.
+func ValidateGatewayNetworkGatewaysAccess(flag Flag, gatewayNetworkID int64) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Create:
+		// global admin
+		// organization admin
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
+	case List:
+		// global admin
+		// organization user
 		where = [][]string{
 			{"u.username = $1", "u.is_active = true"},
 			{"u.username = $1", "u.is_active = true"},
@@ -474,18 +510,19 @@ func ValidateGatewayNetworkAccess(flag Flag) ValidatorFunc {
 	}
 }
 
-// ValidateGatewayNetworkGatewayAccess validates if the client has access to the given gateway network gateway.
-func ValidateGatewayNetworkGatewayAccess(flag Flag, organizationID int64) ValidatorFunc {
+// ValidateGatewayNetworkGatewayAccess validates if the client has access to the
+// given gateway of the gateway network.
+func ValidateGatewayNetworkGatewayAccess(flag Flag, gatewayNetworkID int64, mac lorawan.EUI64) ValidatorFunc {
 	var where = [][]string{}
 
 	switch flag {
-	case Create:
+	case Read:
 		// any active user
 		where = [][]string{
-			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
-			{"u.username = $1", "u.is_active = true", "ou.is_admin = true", "o.id = $2"},
+			{"u.username = $1", "u.is_active = true"},
+			{"u.username = $1", "u.is_active = true"},
 		}
-	case Read:
+	case Delete:
 		// any active user
 		where = [][]string{
 			{"u.username = $1", "u.is_active = true"},

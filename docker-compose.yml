@@ -1,47 +1,85 @@
 version: "2"
 services:
+  loraserver:
+    image: loraserver/loraserver
+    environment:
+      - DB_AUTOMIGRATE=true
+      - LOG_NODE_FRAMES=true
+      - NET_ID=010203
+      - BAND=EU_863_870
+      - REDIS_URL=redis://redis:6379
+      - GW_MQTT_SERVER=tcp://mosquitto:1883
+      - GW_SERVER_JWT_SECRET=verysecret
+      - POSTGRES_DSN=postgres://loraserver_ns:loraserver_ns@postgresql_ns/loraserver_ns?sslmode=disable
+      - JS_SERVER=http://appserver:8003
   appserver:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile-devel
     command: make serve
     image: maliot
     volumes:
-    - ./:/go/src/github.com/gusseleet/lora-app-server
-    - /go/src/github.com/gusseleet/lora-app-server/vendor
-    - /go/src/github.com/gusseleet/lora-app-server/ui/node_modules
+      - ./:/go/src/github.com/gusseleet/lora-app-server
+      - /go/src/github.com/gusseleet/lora-app-server/vendor
+      - /go/src/github.com/gusseleet/lora-app-server/ui/node_modules
     links:
-    - postgres
-    - redis
-    - mosquitto
+      - postgresql_as
+      - redis
+      - mosquitto
+      - postgresql_as_test
     environment:
-    - POSTGRES_DSN=postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable
-    - REDIS_URL=redis://redis:6379
-    - MQTT_SERVER=tcp://mosquitto:1883
-    - TEST_POSTGRES_DSN=postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable
-    - TEST_REDIS_URL=redis://redis:6379
-    - TEST_MQTT_SERVER=tcp://mosquitto:1883
-    - JWT_SECRET=verysecret
-    - HTTP_TLS_CERT=/etc/lora-app-server/certs/http.pem
-    - HTTP_TLS_KEY=/etc/lora-app-server/certs/http-key.pem
-    - AS_PUBLIC_SERVER=appserver:8001
-    - DB_AUTOMIGRATE=true
+      - DB_AUTOMIGRATE=true
+      - POSTGRES_DSN=postgres://loraserver_as:loraserver_as@postgresql_as/loraserver_as?sslmode=disable
+      - TEST_POSTGRES_DSN=postgres://loraserver_as_test:loraserver_as_test@postgresql_as_test/loraserver_as_test?sslmode=disable
+      - REDIS_URL=redis://redis:6379
+      - MQTT_SERVER=tcp://mosquitto:1883
+      - TEST_REDIS_URL=redis://redis:6379
+      - TEST_MQTT_SERVER=tcp://mosquitto:1883
+      - JWT_SECRET=verysecret
+      - HTTP_TLS_CERT=/etc/lora-app-server/certs/http.pem
+      - HTTP_TLS_KEY=/etc/lora-app-server/certs/http-key.pem
+      - AS_PUBLIC_SERVER=appserver:8001
+      - LOG_LEVEL=5
     ports:
       - 8080:8080
 
-  postgres:
-    image: postgres:9.5
+  gatewaybridge:
+    ports:
+      - 1700:1700/udp
+    image: loraserver/lora-gateway-bridge
     environment:
-      - POSTGRES_PASSWORD=loraserver
-      - POSTGRES_USER=loraserver
-      - POSTGRES_DB=loraserver
+      - MQTT_SERVER=tcp://mosquitto:1883
+
+  postgresql_ns:
+    image: postgres:9.6-alpine
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_PASSWORD=loraserver_ns
+      - POSTGRES_USER=loraserver_ns
+      - POSTGRES_DB=loraserver_ns
+
+  postgresql_as:
+    image: postgres:9.6-alpine
     ports:
       - 5432:5432
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=loraserver_as
+      - POSTGRES_USER=loraserver_as
+      - POSTGRES_DB=loraserver_as
+
+  postgresql_as_test:
+    image: postgres:9.6-alpine
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_PASSWORD=loraserver_as_test
+      - POSTGRES_USER=loraserver_as_test
+      - POSTGRES_DB=loraserver_as_test
 
   redis:
     image: redis:3.0.7-alpine
 
   mosquitto:
     image: ansi/mosquitto
+

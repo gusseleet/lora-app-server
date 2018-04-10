@@ -84,7 +84,7 @@
     },
     "/api/gatewaynetworks/{id}": {
       "get": {
-        "summary": "Get data for a particular organization.",
+        "summary": "Get data for a particular gateway network.",
         "operationId": "Get",
         "responses": {
           "200": {
@@ -106,9 +106,105 @@
         "tags": [
           "GatewayNetwork"
         ]
+      },
+      "delete": {
+        "summary": "Delete a gateway network.",
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      },
+      "put": {
+        "summary": "Update an existing gateway network.",
+        "operationId": "Update",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiUpdateGatewayNetworkRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
       }
     },
     "/api/gatewaynetworks/{id}/gateways": {
+      "get": {
+        "summary": "Get gateway networks's gateway list.",
+        "operationId": "ListGateways",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiListGatewayNetworkGatewaysResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "description": "Max number of gateways to return in the result-set.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "description": "Offset in the result-set (for pagination).",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      },
       "post": {
         "summary": "Add a new gateway to a gateway network",
         "operationId": "AddGateway",
@@ -135,6 +231,68 @@
             "schema": {
               "$ref": "#/definitions/apiGatewayNetworkGatewayRequest"
             }
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      }
+    },
+    "/api/gatewaynetworks/{id}/gateways/{gatewayMAC}": {
+      "get": {
+        "summary": "Get data for a particular gateway network gateway.",
+        "operationId": "GetGateway",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGetGatewayNetworkGatewayResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "gatewayMAC",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a gateway from a gateway network.",
+        "operationId": "DeleteGateway",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "gatewayMAC",
+            "in": "path",
+            "required": true,
+            "type": "string"
           }
         ],
         "tags": [
@@ -199,10 +357,31 @@
         },
         "gatewayMAC": {
           "type": "string",
-          "format": "int64",
-          "description": "The gateway MAC."
+          "description": "Hex encoded gateway MAC."
         }
       }
+    },
+    "apiGetGatewayNetworkGatewayResponse": {
+      "type": "object",
+      "properties": {
+        "mac": {
+          "type": "string",
+          "description": "Hex encoded mac of the gateway."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the gateway."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the gatewayy was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the gateway was last updated."
+        }
+      },
+      "title": "Response for a gateway in the gateway network"
     },
     "apiGetGatewayNetworkResponse": {
       "type": "object",
@@ -248,6 +427,24 @@
         }
       }
     },
+    "apiListGatewayNetworkGatewaysResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The total number of gateways in the gateway network."
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGetGatewayNetworkGatewayResponse"
+          },
+          "description": "The gateways in the requested limit, offset range."
+        }
+      },
+      "description": "Response for the gateways in a gateway network."
+    },
     "apiListGatewayNetworksResponse": {
       "type": "object",
       "properties": {
@@ -262,6 +459,43 @@
           }
         }
       }
+    },
+    "apiUpdateGatewayNetworkRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The ID of the gateway network to be updated."
+        },
+        "name": {
+          "type": "string",
+          "description": "The new name."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags with specification data."
+        },
+        "price": {
+          "type": "string",
+          "format": "int64",
+          "description": "Price of the gateway network."
+        },
+        "privateNetwork": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Is the network private or not."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Organization the gateway network belongs to."
+        }
+      },
+      "description": "Update existing gateway network."
     }
   }
 }
