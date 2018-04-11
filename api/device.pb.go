@@ -152,6 +152,12 @@ It has these top-level messages:
 	GetGatewayNetworkGatewayRequest
 	GetGatewayNetworkGatewayResponse
 	ListGatewayNetworkGatewaysResponse
+	GatewayNetworkUserRequest
+	DeleteGatewayNetworkUserRequest
+	ListGatewayNetworkUsersRequest
+	GetGatewayNetworkUserRequest
+	GetGatewayNetworkUserResponse
+	ListGatewayNetworkUsersResponse
 	ListOrganizationRequest
 	OrganizationRequest
 	GetOrganizationResponse

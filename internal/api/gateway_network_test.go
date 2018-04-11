@@ -29,6 +29,7 @@ func TestGatewayNetworkAPI(t *testing.T) {
 		validator := &TestValidator{}
 		api := NewGatewayNetworkAPI(validator)
 		gatewayAPI := NewGatewayAPI(validator)
+		userAPI := NewUserAPI(validator)
 
 		org := storage.Organization{
 			Name: "test-organization",
@@ -232,6 +233,89 @@ func TestGatewayNetworkAPI(t *testing.T) {
 						})
 					})
 
+					// Add a new user for adding to the gateway network.
+					Convey("When adding a user", func() {
+						userReq := &pb.AddUserRequest{
+							Username:   "username",
+							Password:   "pass^^ord",
+							IsActive:   true,
+							SessionTTL: 180,
+							Email:      "foo@bar.com",
+						}
+						userResp, err := userAPI.Create(ctx, userReq)
+						So(err, ShouldBeNil)
+
+						validator.returnIsAdmin = false
+						validator.returnUsername = userReq.Username
+
+						Convey("When listing the gateway networks for the user", func() {
+							gns, err := api.List(ctx, &pb.ListGatewayNetworksRequest{
+								Limit:  10,
+								Offset: 0,
+							})
+							So(err, ShouldBeNil)
+
+							Convey("Then the user should not see any gateway networks", func() {
+								So(gns.TotalCount, ShouldEqual, 0)
+								So(gns.Result, ShouldHaveLength, 0)
+							})
+						})
+
+						Convey("When adding the user to the gateway network", func() {
+							addGNUser := &pb.GatewayNetworkUserRequest{
+								Id:     gnId,
+								UserID: userResp.Id,
+							}
+							_, err := api.AddUser(ctx, addGNUser)
+							So(err, ShouldBeNil)
+
+							Convey("When listing the gateway networks for the user", func() {
+								gns, err := api.List(ctx, &pb.ListGatewayNetworksRequest{
+									Limit:  10,
+									Offset: 0,
+								})
+								So(err, ShouldBeNil)
+
+								Convey("Then the user should see the gateway network", func() {
+									So(gns.TotalCount, ShouldEqual, 1)
+									So(gns.Result, ShouldHaveLength, 1)
+								})
+							})
+
+							Convey("Then the user should be part of the gateway network", func() {
+								gnUsers, err := api.ListUsers(ctx, &pb.ListGatewayNetworkUsersRequest{
+									Id:     gnId,
+									Limit:  10,
+									Offset: 0,
+								})
+								So(err, ShouldBeNil)
+								So(gnUsers.Result, ShouldHaveLength, 1)
+								So(gnUsers.Result[0].Id, ShouldEqual, userResp.Id)
+								So(gnUsers.Result[0].Username, ShouldEqual, userReq.Username)
+							})
+
+							Convey("When removing the user from the gateway network", func() {
+								delGNUser := &pb.DeleteGatewayNetworkUserRequest{
+									Id:     addGNUser.Id,
+									UserID: addGNUser.UserID,
+								}
+								_, err := api.DeleteUser(ctx, delGNUser)
+								So(err, ShouldBeNil)
+
+								Convey("Then the user should be removed", func() {
+									gnUsers, err := api.ListUsers(ctx, &pb.ListGatewayNetworkUsersRequest{
+										Id:     gnId,
+										Limit:  10,
+										Offset: 0,
+									})
+									So(err, ShouldBeNil)
+									So(gnUsers, ShouldNotBeNil)
+									So(gnUsers.Result, ShouldHaveLength, 0)
+								})
+							})
+						})
+					})
+
 					Convey("When deleting the gateway network", func() {
 						validator.returnIsAdmin = true
 
@@ -261,6 +345,20 @@ func TestGatewayNetworkAPI(t *testing.T) {
 								Convey("Then the nr of gateways should be 0", func() {
 									So(gws.TotalCount, ShouldEqual, 0)
 									So(gws.Result, ShouldHaveLength, 0)
+								})
+							})
+
+							Convey("When listing the users for the gateway network", func() {
+								usrs, err := api.ListUsers(ctx, &pb.ListGatewayNetworkUsersRequest{
+									Id:     gn.Id,
+									Limit:  10,
+									Offset: 0,
+								})
+								So(err, ShouldBeNil)
+
+								Convey("Then the nr of users should be 0", func() {
+									So(usrs.TotalCount, ShouldEqual, 0)
+									So(usrs.Result, ShouldHaveLength, 0)
 								})
 							})
 						})
