@@ -159,8 +159,65 @@ func TestGatewayNetwork(t *testing.T) {
 						So(c, ShouldEqual, 0)
 					})
 				})
+			})
 
+			Convey("Given a user", func() {
+				user := User{
+					Username: "testuser",
+					IsActive: true,
+					Email:    "foo@bar.com",
+				}
+				_, err := CreateUser(db, &user, "password123")
+				So(err, ShouldBeNil)
 
+				Convey("Then no gateway networks are related to this user", func() {
+					c, err := GetGatewayNetworkCountForUser(db, user.Username, "")
+					So(err, ShouldBeNil)
+					So(c, ShouldEqual, 0)
+
+					gns, err := GetGatewayNetworksForUser(db, user.Username, 10, 0, "")
+					So(err, ShouldBeNil)
+					So(gns, ShouldHaveLength, 0)
+				})
+
+				Convey("When the user is linked to the gateway network", func() {
+					So(CreateGatewayNetworkUser(db, gn.ID, user.ID), ShouldBeNil)
+
+					Convey("Then it can be retrieved", func() {
+						u, err := GetGatewayNetworkUser(db, gn.ID, user.ID)
+						So(err, ShouldBeNil)
+						So(u.UserID, ShouldEqual, user.ID)
+						So(u.Username, ShouldEqual, "testuser")
+					})
+
+					Convey("Then the gateway network has 1 user", func() {
+						c, err := GetGatewayNetworkUserCount(db, gn.ID)
+						So(err, ShouldBeNil)
+						So(c, ShouldEqual, 1)
+
+						users, err := GetGatewayNetworkUsers(db, gn.ID, 10, 0)
+						So(err, ShouldBeNil)
+						So(users, ShouldHaveLength, 1)
+					})
+
+					Convey("Then the test gateway network is returned for the user", func() {
+						c, err := GetGatewayNetworkCountForUser(db, user.Username, "")
+						So(err, ShouldBeNil)
+						So(c, ShouldEqual, 1)
+
+						gns, err := GetGatewayNetworksForUser(db, user.Username, 10, 0, "")
+						So(err, ShouldBeNil)
+						So(gns, ShouldHaveLength, 1)
+						So(gns[0].ID, ShouldEqual, gn.ID)
+					})
+
+					Convey("Then it can be deleted", func() {
+						So(DeleteGatewayNetworkUser(db, gn.ID, user.ID), ShouldBeNil) // admin user
+						c, err := GetGatewayNetworkUserCount(db, gn.ID)
+						So(err, ShouldBeNil)
+						So(c, ShouldEqual, 0)
+					})
+				})
 			})
 		})
 

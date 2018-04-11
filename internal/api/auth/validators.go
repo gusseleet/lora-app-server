@@ -71,6 +71,18 @@ const gnQuery = `
 	left join device d
 		on a.id = d.application_id`
 
+const gnUserQuery = `
+	select count(*)
+	from "user" u
+	left join gateway_network_user gnu
+		on u.id = gnu.user_id
+	left join gateway_network gn
+		on gn.id = gnu.gateway_network_id
+	left join gateway_network_gateway gng
+		on gng.gatewa_network_id = gn.id
+	left join gateway g
+		on gng.gatwa_mac = g.mac`
+
 // ValidateActiveUser validates if the user in the JWT claim is active.
 func ValidateActiveUser() ValidatorFunc {
 	where := [][]string{
@@ -561,6 +573,64 @@ func ValidateGatewayNetworkGatewayAccess(flag Flag, gatewayNetworkID int64, mac 
 
 	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
 		return executeQuery(db, gnQuery, where, claims.Username, gatewayNetworkID)
+	}
+}
+
+// ValidateGatewayNetworkUsersAccess validates if the client has access to
+// the gateway network users.
+func ValidateGatewayNetworkUsersAccess(flag Flag, gatewayNetworkID int64) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Create:
+		// global admin
+		// organization user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "gn.id = $2"},
+		}
+	case List:
+		// global admin
+		// organization user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "gn.id = $2"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, gnQuery, where, claims.Username, gatewayNetworkID)
+	}
+}
+
+// ValidateGatewayNetworkUserAccess validates if the client has access to the
+// given user of the gateway network.
+func ValidateGatewayNetworkUserAccess(flag Flag, gatewayNetworkID int64) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Read:
+		// global admin
+		// organization user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "gn.id = $2"},
+		}
+	case Delete:
+		// global admin
+		// organization admin
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "gn.id = $2"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, gnUserQuery, where, claims.Username, gatewayNetworkID)
 	}
 }
 

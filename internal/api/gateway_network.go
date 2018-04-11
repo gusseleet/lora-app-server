@@ -86,12 +86,15 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 	var count int
 	var gns []storage.GatewayNetwork
 
-	count, err := storage.GetGatewayNetworkCount(config.C.PostgreSQL.DB, req.Search)
+	username, err := a.validator.GetUsername(ctx)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
-
-	gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, int(req.Limit), int(req.Offset))
+	count, err = storage.GetGatewayNetworkCountForUser(config.C.PostgreSQL.DB, username, req.Search)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+	gns, err = storage.GetGatewayNetworksForUser(config.C.PostgreSQL.DB, username, int(req.Limit), int(req.Offset), req.Search)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
@@ -260,5 +263,89 @@ func (a *GatewayNetworkAPI) GetGateway(ctx context.Context, req *pb.GetGatewayNe
 		Name:  		gateway.Name,
 		CreatedAt: 	gateway.CreatedAt.Format(time.RFC3339Nano),
 		UpdatedAt: 	gateway.UpdatedAt.Format(time.RFC3339Nano),
+	}, nil
+}
+
+// ListUsers lists the users linked to the gateway network.
+func (a *GatewayNetworkAPI) ListUsers(ctx context.Context, req *pb.ListGatewayNetworkUsersRequest) (*pb.ListGatewayNetworkUsersResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkUsersAccess(auth.List, req.Id)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	users, err := storage.GetGatewayNetworkUsers(config.C.PostgreSQL.DB, req.Id, int(req.Limit), int(req.Offset))
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	userCount, err := storage.GetGatewayNetworkUserCount(config.C.PostgreSQL.DB, req.Id)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	result := make([]*pb.GetGatewayNetworkUserResponse, len(users))
+	for i, user := range users {
+		result[i] = &pb.GetGatewayNetworkUserResponse{
+			Id:        	user.UserID,
+			Username:  		user.Username,
+			CreatedAt: 	user.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt: 	user.UpdatedAt.Format(time.RFC3339Nano),
+		}
+	}
+
+	return &pb.ListGatewayNetworkUsersResponse{
+		TotalCount: int32(userCount),
+		Result:     result,
+	}, nil
+}
+
+// AddUser creates the given gateway network-user link.
+func (a *GatewayNetworkAPI) AddUser(ctx context.Context, req *pb.GatewayNetworkUserRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkUsersAccess(auth.Create, req.Id)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+
+	err := storage.CreateGatewayNetworkUser(config.C.PostgreSQL.DB, req.Id, req.UserID)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	return &pb.GatewayNetworkEmptyResponse{}, nil
+}
+
+// DeleteUser deletes the given user from the gateway network.
+func (a *GatewayNetworkAPI) DeleteUser(ctx context.Context, req *pb.DeleteGatewayNetworkUserRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkUserAccess(auth.Delete, req.Id)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	err := storage.DeleteGatewayNetworkUser(config.C.PostgreSQL.DB, req.Id, req.UserID)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	return &pb.GatewayNetworkEmptyResponse{}, nil
+}
+
+// GetUser returns the user details for the given user ID.
+func (a *GatewayNetworkAPI) GetUser(ctx context.Context, req *pb.GetGatewayNetworkUserRequest) (*pb.GetGatewayNetworkUserResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkUserAccess(auth.Read, req.Id)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	user, err := storage.GetGatewayNetworkUser(config.C.PostgreSQL.DB, req.Id, req.UserID)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	return &pb.GetGatewayNetworkUserResponse{
+		Id:        	user.UserID,
+		Username:  	user.Username,
+		CreatedAt: 	user.CreatedAt.Format(time.RFC3339Nano),
+		UpdatedAt: 	user.UpdatedAt.Format(time.RFC3339Nano),
 	}, nil
 }

@@ -45,6 +45,15 @@ type GatewayNetworkGateway struct {
 	UpdatedAt       	time.Time             	`db:"updated_at"`
 }
 
+// GatewayNetworkUser represents a gateway network user
+type GatewayNetworkUser struct {
+	ID					int64					`db:"id"`
+	UserID       		int64           		`db:"user_id"`
+	Username			string					`db:"username"`
+	CreatedAt       	time.Time             	`db:"created_at"`
+	UpdatedAt       	time.Time             	`db:"updated_at"`
+}
+
 // CreateGatewayNetwork creates the given gateway network.
 func CreateGatewayNetwork(db sqlx.Queryer, gn *GatewayNetwork) error {
 	if err := gn.Validate(); err != nil {
@@ -172,6 +181,11 @@ func DeleteGatewayNetwork(db sqlx.Ext, id int64) error {
 	err := DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db, id)
 	if err != nil {
 		return errors.Wrap(err, "delete all gateway network gateways error")
+	}
+
+	err = DeleteAllGatewayNetworkUsersForGatewayNetworkID(db, id)
+	if err != nil {
+		return errors.Wrap(err, "delete all gateway network users error")
 	}
 
 	res, err := db.Exec("delete from gateway_network where id = $1", id)
@@ -313,6 +327,203 @@ func DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db sqlx.Ext, gatewayNetw
 		err = DeleteGatewayNetworkGateway(db, gatewayNetworkID, gng.GatewayMAC)
 		if err != nil {
 			return errors.Wrap(err, "delete gateway network gateway error")
+		}
+	}
+
+	return nil
+}
+
+// CreateGatewayNetworkUser adds the given user to the gatewayNetwork.
+func CreateGatewayNetworkUser(db sqlx.Execer, gatewayNetworkID int64, userID int64) error {
+	_, err := db.Exec(`
+		insert into gateway_network_user (	
+			gateway_network_id,
+			user_id,
+			created_at,
+			updated_at
+		) values ($1, $2, now(), now())`,
+		gatewayNetworkID,
+		userID,
+	)
+	if err != nil {
+		return handlePSQLError(Insert, err, "insert error")
+	}
+
+	log.WithFields(log.Fields{
+		"user_id":         	userID,
+		"gateway_network_id": 	gatewayNetworkID,
+	}).Info("user added to gateway network")
+	return nil
+}
+
+// DeleteGatewayNetworkUser deletes the gateway network user matching the given gateway network ID and user ID.
+func DeleteGatewayNetworkUser(db sqlx.Ext, gnID int64, uID int64) error {
+	res, err := db.Exec("delete from gateway_network_user where gateway_network_id = $1 and user_id = $2", gnID, uID)
+	if err != nil {
+		return handlePSQLError(Delete, err, "delete error")
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		return errors.Wrap(err, "get rows affected error")
+	}
+	if ra == 0 {
+		return ErrDoesNotExist
+	}
+
+	log.WithFields(log.Fields{
+		"id": gnID,
+	}).Info("gateway network user deleted")
+
+	return nil
+}
+
+// GetGatewayNetworkUser gets the information of the given gateway network-user.
+func GetGatewayNetworkUser(db sqlx.Queryer, gatewayNetworkID int64, userID int64) (GatewayNetworkUser, error) {
+	var u GatewayNetworkUser
+	err := sqlx.Get(db, &u, `
+		select
+			u.id as user_id,
+			u.username as username,
+			gnu.created_at as created_at,
+			gnu.updated_at as updated_at
+		from gateway_network_user gnu
+		inner join "user" u
+			on u.id = gnu.user_id
+		where
+			gnu.gateway_network_id = $1
+			and gnu.user_id = $2`,
+		gatewayNetworkID,
+		userID,
+	)
+	if err != nil {
+		return u, handlePSQLError(Select, err, "select error")
+	}
+	return u, nil
+}
+
+// GetGatewayNetworkUserCount returns the number of users for the given gateway network.
+func GetGatewayNetworkUserCount(db sqlx.Queryer, gatewayNetworkID int64) (int, error) {
+	var count int
+	err := sqlx.Get(db, &count, `
+		select count(*)
+		from gateway_network_user
+		where
+			gateway_network_id = $1`,
+		gatewayNetworkID,
+	)
+	if err != nil {
+		return count, handlePSQLError(Select, err, "select error")
+	}
+	return count, nil
+}
+
+// GetGatewayNetworkCountForUser returns the number of gateway networks to which
+// the given user is member of.
+func GetGatewayNetworkCountForUser(db sqlx.Queryer, username string, search string) (int, error) {
+	var count int
+
+	if search != "" {
+		search = "%" + search + "%"
+	}
+
+	err := sqlx.Get(db, &count, `
+		select
+			count(gn.*)
+		from gateway_network gn
+		inner join gateway_network_user gnu
+			on gnu.gateway_network_id = gn.id
+		inner join "user" u
+			on u.id = gnu.user_id
+		where
+			u.username = $1
+			and (
+				($2 != '' and gn.name ilike $2)
+				or ($2 = '')
+			)`,
+		username,
+		search,
+	)
+	if err != nil {
+		return count, handlePSQLError(Select, err, "select error")
+	}
+	return count, nil
+}
+
+// GetGatewayNetworksForUser returns a slice of gateway networks to which the given
+// user is member of.
+func GetGatewayNetworksForUser(db sqlx.Queryer, username string, limit, offset int, search string) ([]GatewayNetwork, error) {
+	var gns []GatewayNetwork
+
+	if search != "" {
+		search = "%" + search + "%"
+	}
+
+	err := sqlx.Select(db, &gns, `
+		select
+			gn.*
+		from gateway_network gn
+		inner join gateway_network_user gnu
+			on gnu.gateway_network_id = gn.id
+		inner join "user" u
+			on u.id = gnu.user_id
+		where
+			u.username = $1
+			and (
+				($4 != '' and gn.name ilike $4)
+				or ($4 = '')
+			)
+		order by gn.name
+		limit $2 offset $3`,
+		username,
+		limit,
+		offset,
+		search,
+	)
+	if err != nil {
+		return nil, handlePSQLError(Select, err, "select error")
+	}
+	return gns, nil
+}
+
+// GetGatewayNetworkUsers returns the users for the given gateway network.
+func GetGatewayNetworkUsers(db sqlx.Queryer, gatewayNetworkID int64, limit, offset int) ([]GatewayNetworkUser, error) {
+	var users []GatewayNetworkUser
+	err := sqlx.Select(db, &users, `
+		select
+			u.id as user_id,
+			u.username as username,
+			gnu.created_at as created_at,
+			gnu.updated_at as updated_at
+		from gateway_network_user gnu
+		inner join "user" u
+			on u.id = gnu.user_id
+		where
+			gnu.gateway_network_id = $1
+		order by u.username
+		limit $2 offset $3`,
+		gatewayNetworkID,
+		limit,
+		offset,
+	)
+	if err != nil {
+		return nil, handlePSQLError(Select, err, "select error")
+	}
+	return users, nil
+}
+
+// DeleteAllGatewayNetworkUsersForGatewayNetworkID deletes all gateway network- user links
+// given a gateway network id.
+func DeleteAllGatewayNetworkUsersForGatewayNetworkID(db sqlx.Ext, gatewayNetworkID int64) error {
+	var gnus []GatewayNetworkUser
+	gnus, err := GetGatewayNetworkUsers(db, gatewayNetworkID, 0, 0 )
+	if err != nil {
+		return handlePSQLError(Select, err, "select error")
+	}
+
+	for _, gnu := range gnus {
+		err = DeleteGatewayNetworkUser(db, gatewayNetworkID, gnu.UserID)
+		if err != nil {
+			return errors.Wrap(err, "delete gateway network user error")
 		}
 	}
 
