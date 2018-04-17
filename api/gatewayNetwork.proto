@@ -73,6 +73,35 @@ service GatewayNetwork {
 		};
     }
 
+    // Get gateway networks's user list.
+    rpc ListUsers(ListGatewayNetworkUsersRequest) returns (ListGatewayNetworkUsersResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks/{id}/users"
+		};
+    }
+
+    // Get data for a particular gateway network user.
+    rpc GetUser(GetGatewayNetworkUserRequest) returns (GetGatewayNetworkUserResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks/{id}/users/{userID}"
+		};
+    }
+
+    // Add a new user to a gateway network
+    rpc AddUser(GatewayNetworkUserRequest) returns (GatewayNetworkEmptyResponse) {
+        option(google.api.http) = {
+            post: "/api/gatewaynetworks/{id}/users"
+            body: "*"
+        };
+    }
+
+    // Delete a user from a gateway network.
+    rpc DeleteUser(DeleteGatewayNetworkUserRequest) returns (GatewayNetworkEmptyResponse) {
+        option(google.api.http) = {
+			delete: "/api/gatewaynetworks/{id}/users/{userID}"
+		};
+    }
+
 }
 
 // Request the gateway networks defined in the system.
@@ -106,17 +135,14 @@ message GetGatewayNetworkResponse {
     // Gateway Network name.
     string name = 4;
 
-    // Tags with specification data.
-    repeated string tags = 5;
-
     // Price of the gateway network.
-    int64 price = 6;
+    int64 price = 5;
 
     // Is the network private or not.
-    bool privateNetwork = 7;
+    bool privateNetwork = 6;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 8;
+    int64 organizationID = 7;
 
 }
 
@@ -125,17 +151,22 @@ message CreateGatewayNetworkRequest {
     // Gateway network name.
     string name = 1;
 
-    // Tags with specification data.
-    repeated string tags = 2;
-
     // Price of the gateway network.
-    int64 price = 3;
+    int64 price = 2;
 
     // Is the network private or not.
-    bool privateNetwork = 4;
+    bool privateNetwork = 3;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 5;
+    int64 organizationID = 4;
+
+    // List of gateways to add
+    repeated Gateways gateways = 5;
+}
+
+message Gateways {
+    // Hex encoded mac address.
+    string gatewayMAC = 1;
 }
 
 message CreateGatewayNetworkResponse {
@@ -151,17 +182,14 @@ message UpdateGatewayNetworkRequest {
     // The new name.
     string name = 2;
 
-    // Tags with specification data.
-    repeated string tags = 3;
-
     // Price of the gateway network.
-    int64 price = 4;
+    int64 price = 3;
 
     // Is the network private or not.
-    bool privateNetwork = 5;
+    bool privateNetwork = 4;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 6;
+    int64 organizationID = 5;
 }
 
 message ListGatewayNetworksResponse {
@@ -217,7 +245,7 @@ message GetGatewayNetworkGatewayResponse {
     // Name of the gateway.
     string name = 2;
 
-    // When the gatewayy was created.
+    // When the gateway was created.
     string createdAt = 3;
 
     // When the gateway was last updated.
@@ -231,4 +259,64 @@ message ListGatewayNetworkGatewaysResponse {
 
     // The gateways in the requested limit, offset range.
     repeated GetGatewayNetworkGatewayResponse result = 2;
+}
+
+message GatewayNetworkUserRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // The id of the user.
+    int64 userID = 2;
+}
+
+message DeleteGatewayNetworkUserRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // The id of the user.
+    int64 userID = 2;
+}
+
+// Request the users in a gateway network.
+message ListGatewayNetworkUsersRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // Max number of users to return in the result-set.
+    int32 limit = 2;
+
+    // Offset in the result-set (for pagination).
+    int32 offset = 3;
+}
+
+message GetGatewayNetworkUserRequest {
+    // ID of the gateway network.
+    int64 id = 1;
+
+    // The id of the user.
+    int64 userID = 2;
+}
+
+// Response for a gateway in the gateway network
+message GetGatewayNetworkUserResponse {
+    // Id of the user.
+    int64 id = 1;
+
+    // Name of the user.
+    string username = 2;
+
+    // When the user was created.
+    string createdAt = 3;
+
+    // When the gateway was last updated.
+    string updatedAt = 4;
+}
+
+// Response for the users in a gateway network.
+message ListGatewayNetworkUsersResponse {
+    // The total number of users in the gateway network.
+    int32 totalCount = 1;
+
+    // The users in the requested limit, offset range.
+    repeated GetGatewayNetworkUserResponse result = 2;
 }

@@ -82,4 +82,3 @@ services:
 
   mosquitto:
     image: ansi/mosquitto
-

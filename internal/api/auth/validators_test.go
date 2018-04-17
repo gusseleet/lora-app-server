@@ -10,7 +10,6 @@ import (
 	"github.com/brocaar/lorawan"
 	"github.com/jmoiron/sqlx"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/lib/pq"
 )
 
 type validatorTest struct {
@@ -177,12 +176,10 @@ func TestValidators(t *testing.T) {
 
 	gatewayNetworks := []storage.GatewayNetwork{
 		{Name: "gatewayNetwork1",
-			Tags: pq.StringArray{"Data1", "Data2"},
 			Price: 200,
 			PrivateNetwork: false,
 			OrganizationID: organizations[0].ID},
 		{Name: "gatewayNetwork2",
-			Tags: pq.StringArray{"Data3", "Data4"},
 			Price: 300,
 			PrivateNetwork: true,
 			OrganizationID: organizations[1].ID},
@@ -205,6 +202,20 @@ func TestValidators(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+
+	gnUsers := []struct {
+		UserID       		int64
+		GatewayNetworkID 	int64
+	}{
+		{UserID: users[8].ID, GatewayNetworkID: gatewayNetworks[0].ID},
+		{UserID: users[9].ID, GatewayNetworkID: gatewayNetworks[0].ID},
+	}
+	for _, gnUser := range gnUsers {
+		if err := storage.CreateGatewayNetworkUser(db, gnUser.GatewayNetworkID, gnUser.UserID); err != nil {
+			t.Fatal(err)
+		}
+	}
+
 
 
 	Convey("Given a set of test users, applications and devices", t, func() {
@@ -590,9 +601,21 @@ func TestValidators(t *testing.T) {
 		Convey("When testing ValidateGatewayNetworkAccess", func() {
 			tests := []validatorTest{
 				{
-					Name:       "normal users can read, update or delete",
-					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Read), ValidateGatewayNetworkAccess(Update), ValidateGatewayNetworkAccess(Delete)},
-					Claims:     Claims{Username: "user4"},
+					Name:       "global admin users can update or delete",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Read, gatewayNetworks[0].ID), ValidateGatewayNetworkAccess(Update, gatewayNetworks[0].ID), ValidateGatewayNetworkAccess(Delete, gatewayNetworks[0].ID)},
+					Claims:     Claims{Username: "user1"},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organziation users can read",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Read, gatewayNetworks[0].ID)},
+					Claims:     Claims{Username: "user9"},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization user admins can update or delete",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Update, gatewayNetworks[0].ID), ValidateGatewayNetworkAccess(Delete, gatewayNetworks[0].ID)},
+					Claims:     Claims{Username: "user10"},
 					ExpectedOK: true,
 				},
 			}
@@ -603,9 +626,15 @@ func TestValidators(t *testing.T) {
 		Convey("When testing ValidateGatewayNetworkGatewaysAccess", func() {
 			tests := []validatorTest{
 				{
-					Name:       "normal users can create or fetch list",
+					Name:       "global admin users create or fetch list",
 					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewaysAccess(Create, gatewayNetworks[0].ID), ValidateGatewayNetworkGatewaysAccess(List, gatewayNetworks[0].ID)},
-					Claims:     Claims{Username: "user4"},
+					Claims:     Claims{Username: "user1"},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization users can create or fetch list",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewaysAccess(Create, gatewayNetworks[0].ID), ValidateGatewayNetworkGatewaysAccess(List, gatewayNetworks[0].ID)},
+					Claims:     Claims{Username: "user9"},
 					ExpectedOK: true,
 				},
 			}
@@ -616,9 +645,65 @@ func TestValidators(t *testing.T) {
 		Convey("When testing ValidateGatewayNetworkGatewayAccess", func() {
 			tests := []validatorTest{
 				{
-					Name:       "normal users can read, update or delete",
+					Name:       "global admin users read or delete",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewayAccess(Read, gatewayNetworks[0].ID, gateways[0].MAC), ValidateGatewayNetworkGatewayAccess(Delete, gatewayNetworks[0].ID, gateways[0].MAC)},
+					Claims:     Claims{Username: "user1"},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization users can read",
 					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewayAccess(Read, gatewayNetworks[0].ID, gateways[0].MAC)},
-					Claims:     Claims{Username: "user4"},
+					Claims:     Claims{Username: "user9"},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization user admins can delete",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewayAccess(Delete, gatewayNetworks[0].ID, gateways[0].MAC)},
+					Claims:     Claims{Username: "user10"},
+					ExpectedOK: true,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidateGatewayNetworkUsersAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "global admin users create or fetch list",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewaysAccess(Create, gatewayNetworks[0].ID), ValidateGatewayNetworkGatewaysAccess(List, gatewayNetworks[0].ID)},
+					Claims:     Claims{Username: "user1"},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization users can create or fetch list",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewaysAccess(Create, gatewayNetworks[0].ID), ValidateGatewayNetworkGatewaysAccess(List, gatewayNetworks[0].ID)},
+					Claims:     Claims{Username: "user9"},
+					ExpectedOK: true,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidateGatewayNetworkUserAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "global admin users read or delete",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewayAccess(Read, gatewayNetworks[0].ID, gateways[0].MAC), ValidateGatewayNetworkGatewayAccess(Delete, gatewayNetworks[0].ID, gateways[0].MAC)},
+					Claims:     Claims{Username: "user1"},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "gateway network users can read",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewayAccess(Read, gatewayNetworks[0].ID, gateways[0].MAC)},
+					Claims:     Claims{Username: "user9"},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "gateway network users can delete",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkGatewayAccess(Delete, gatewayNetworks[0].ID, gateways[0].MAC)},
+					Claims:     Claims{Username: "user10"},
 					ExpectedOK: true,
 				},
 			}
@@ -724,7 +809,7 @@ func TestValidators(t *testing.T) {
 					Name:       "organization admin can not delete",
 					Validators: []ValidatorFunc{ValidateOrganizationAccess(Delete, organizations[0].ID)},
 					Claims:     Claims{Username: "user10"},
-					ExpectedOK: false,
+					ExpectedOK: true,
 				},
 				{
 					Name:       "organization users can not update or delete",

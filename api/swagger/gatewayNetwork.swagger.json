@@ -299,6 +299,144 @@
           "GatewayNetwork"
         ]
       }
+    },
+    "/api/gatewaynetworks/{id}/users": {
+      "get": {
+        "summary": "Get gateway networks's user list.",
+        "operationId": "ListUsers",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiListGatewayNetworkUsersResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "description": "Max number of users to return in the result-set.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "description": "Offset in the result-set (for pagination).",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      },
+      "post": {
+        "summary": "Add a new user to a gateway network",
+        "operationId": "AddUser",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      }
+    },
+    "/api/gatewaynetworks/{id}/users/{userID}": {
+      "get": {
+        "summary": "Get data for a particular gateway network user.",
+        "operationId": "GetUser",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGetGatewayNetworkUserResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "userID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a user from a gateway network.",
+        "operationId": "DeleteUser",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "userID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      }
     }
   },
   "definitions": {
@@ -308,13 +446,6 @@
         "name": {
           "type": "string",
           "description": "Gateway network name."
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
         },
         "price": {
           "type": "string",
@@ -330,6 +461,13 @@
           "type": "string",
           "format": "int64",
           "description": "Organization the gateway network belongs to."
+        },
+        "gateways": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGateways"
+          },
+          "title": "List of gateways to add"
         }
       },
       "description": "Add a new organization."
@@ -361,6 +499,30 @@
         }
       }
     },
+    "apiGatewayNetworkUserRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The gateway network id."
+        },
+        "userID": {
+          "type": "string",
+          "format": "int64",
+          "description": "The id of the user."
+        }
+      }
+    },
+    "apiGateways": {
+      "type": "object",
+      "properties": {
+        "gatewayMAC": {
+          "type": "string",
+          "description": "Hex encoded mac address."
+        }
+      }
+    },
     "apiGetGatewayNetworkGatewayResponse": {
       "type": "object",
       "properties": {
@@ -374,7 +536,7 @@
         },
         "createdAt": {
           "type": "string",
-          "description": "When the gatewayy was created."
+          "description": "When the gateway was created."
         },
         "updatedAt": {
           "type": "string",
@@ -403,13 +565,6 @@
           "type": "string",
           "description": "Gateway Network name."
         },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
-        },
         "price": {
           "type": "string",
           "format": "int64",
@@ -426,6 +581,29 @@
           "description": "Organization the gateway network belongs to."
         }
       }
+    },
+    "apiGetGatewayNetworkUserResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "Id of the user."
+        },
+        "username": {
+          "type": "string",
+          "description": "Name of the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the user was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the gateway was last updated."
+        }
+      },
+      "title": "Response for a gateway in the gateway network"
     },
     "apiListGatewayNetworkGatewaysResponse": {
       "type": "object",
@@ -444,6 +622,24 @@
         }
       },
       "description": "Response for the gateways in a gateway network."
+    },
+    "apiListGatewayNetworkUsersResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The total number of users in the gateway network."
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGetGatewayNetworkUserResponse"
+          },
+          "description": "The users in the requested limit, offset range."
+        }
+      },
+      "description": "Response for the users in a gateway network."
     },
     "apiListGatewayNetworksResponse": {
       "type": "object",
@@ -471,13 +667,6 @@
         "name": {
           "type": "string",
           "description": "The new name."
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
         },
         "price": {
           "type": "string",

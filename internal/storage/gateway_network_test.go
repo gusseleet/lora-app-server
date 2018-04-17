@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/gusseleet/lora-app-server/internal/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/brocaar/lorawan"
@@ -33,10 +34,39 @@ func TestGatewayNetwork(t *testing.T) {
 		}
 		So(CreateNetworkServer(db, &n), ShouldBeNil)
 
+		Convey("When creating a gateway network with an invalid space in the name", func() {
+			gn := GatewayNetwork{
+				Name:           "test Network",
+				Price:          200,
+				PrivateNetwork: true,
+				OrganizationID: org.ID,
+			}
+			err := CreateGatewayNetwork(db, &gn)
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldNotBeNil)
+				So(errors.Cause(err), ShouldResemble, ErrGatewayNetworkInvalidName)
+			})
+		})
+
+		Convey("When creating a gateway network with a too short name", func() {
+			gn := GatewayNetwork{
+				Name:           "test",
+				Price:          200,
+				PrivateNetwork: true,
+				OrganizationID: org.ID,
+			}
+			err := CreateGatewayNetwork(db, &gn)
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldNotBeNil)
+				So(errors.Cause(err), ShouldResemble, ErrGatewayNetworkInvalidName)
+			})
+		})
+
 		Convey("When creating a gateway network", func() {
 			gn := GatewayNetwork{
 				Name:           "testNetwork",
-				Tags:           pq.StringArray{"Test", "test"},
 				Price:          200,
 				PrivateNetwork: true,
 				OrganizationID: org.ID,
@@ -55,7 +85,6 @@ func TestGatewayNetwork(t *testing.T) {
 
 			Convey("When updating the gateway network", func() {
 				gn.Name = "test-gateway-network-updated"
-				gn.Tags = pq.StringArray{"Edited", "edited"}
 				gn.Price = 500
 				gn.PrivateNetwork = false
 				So(UpdateGatewayNetwork(db, &gn), ShouldBeNil)
@@ -126,8 +155,65 @@ func TestGatewayNetwork(t *testing.T) {
 						So(c, ShouldEqual, 0)
 					})
 				})
+			})
 
+			Convey("Given a user", func() {
+				user := User{
+					Username: "testuser",
+					IsActive: true,
+					Email:    "foo@bar.com",
+				}
+				_, err := CreateUser(db, &user, "password123")
+				So(err, ShouldBeNil)
 
+				Convey("Then no gateway networks are related to this user", func() {
+					c, err := GetGatewayNetworkCountForUser(db, user.Username, "")
+					So(err, ShouldBeNil)
+					So(c, ShouldEqual, 0)
+
+					gns, err := GetGatewayNetworksForUser(db, user.Username, 10, 0, "")
+					So(err, ShouldBeNil)
+					So(gns, ShouldHaveLength, 0)
+				})
+
+				Convey("When the user is linked to the gateway network", func() {
+					So(CreateGatewayNetworkUser(db, gn.ID, user.ID), ShouldBeNil)
+
+					Convey("Then it can be retrieved", func() {
+						u, err := GetGatewayNetworkUser(db, gn.ID, user.ID)
+						So(err, ShouldBeNil)
+						So(u.UserID, ShouldEqual, user.ID)
+						So(u.Username, ShouldEqual, "testuser")
+					})
+
+					Convey("Then the gateway network has 1 user", func() {
+						c, err := GetGatewayNetworkUserCount(db, gn.ID)
+						So(err, ShouldBeNil)
+						So(c, ShouldEqual, 1)
+
+						users, err := GetGatewayNetworkUsers(db, gn.ID, 10, 0)
+						So(err, ShouldBeNil)
+						So(users, ShouldHaveLength, 1)
+					})
+
+					Convey("Then the test gateway network is returned for the user", func() {
+						c, err := GetGatewayNetworkCountForUser(db, user.Username, "")
+						So(err, ShouldBeNil)
+						So(c, ShouldEqual, 1)
+
+						gns, err := GetGatewayNetworksForUser(db, user.Username, 10, 0, "")
+						So(err, ShouldBeNil)
+						So(gns, ShouldHaveLength, 1)
+						So(gns[0].ID, ShouldEqual, gn.ID)
+					})
+
+					Convey("Then it can be deleted", func() {
+						So(DeleteGatewayNetworkUser(db, gn.ID, user.ID), ShouldBeNil) // admin user
+						c, err := GetGatewayNetworkUserCount(db, gn.ID)
+						So(err, ShouldBeNil)
+						So(c, ShouldEqual, 0)
+					})
+				})
 			})
 		})
 
