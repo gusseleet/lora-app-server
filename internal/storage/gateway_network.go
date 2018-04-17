@@ -9,7 +9,6 @@ import (
 
 	"github.com/brocaar/lorawan"
 
-	"github.com/lib/pq"
 	"regexp"
 )
 
@@ -22,7 +21,6 @@ type GatewayNetwork struct {
 	CreatedAt       time.Time             `db:"created_at"`
 	UpdatedAt       time.Time             `db:"updated_at"`
 	Name   			string 				  `db:"name"`
-	Tags			pq.StringArray		  `db:"tags"`
 	Price           int64                 `db:"price"`
 	PrivateNetwork 	bool				  `db:"private_network"`
 	OrganizationID	int64				  `db:"organization_id"`
@@ -67,15 +65,13 @@ func CreateGatewayNetwork(db sqlx.Queryer, gn *GatewayNetwork) error {
             created_at,
             updated_at,
 			name,
-			tags,
 			price,
 			private_network,
 			organization_id
-        ) values ($1, $2, $3, $4, $5, $6, $7) returning id`,
+        ) values ($1, $2, $3, $4, $5, $6) returning id`,
 		now,
 		now,
 		gn.Name,
-		gn.Tags,
 		gn.Price,
 		gn.PrivateNetwork,
 		gn.OrganizationID,
@@ -142,15 +138,13 @@ func UpdateGatewayNetwork(db sqlx.Execer, gn *GatewayNetwork) error {
 		update gateway_network
 		set
 			name = $2,
-			tags = $3,
-			price = $4,
-			private_network = $5,
-			organization_id = $6,
-			updated_at = $7
+			price = $3,
+			private_network = $4,
+			organization_id = $5,
+			updated_at = $6
 		where id = $1`,
 		gn.ID,
 		gn.Name,
-		gn.Tags,
 		gn.Price,
 		gn.PrivateNetwork,
 		gn.OrganizationID,

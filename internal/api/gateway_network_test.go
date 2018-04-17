@@ -12,8 +12,8 @@ import (
 	"github.com/gusseleet/lora-app-server/internal/test"
 	"github.com/brocaar/loraserver/api/ns"
 	"github.com/brocaar/lorawan"
-	"github.com/lib/pq"
 	"time"
+	"github.com/pkg/errors"
 )
 
 func TestGatewayNetworkAPI(t *testing.T) {
@@ -40,7 +40,6 @@ func TestGatewayNetworkAPI(t *testing.T) {
 			validator.returnIsAdmin = true
 			createReq := &pb.CreateGatewayNetworkRequest{
 				Name:            "testNetwork",
-				Tags:			 pq.StringArray{"Test", "test"},
 				Price:     		 200,
 				PrivateNetwork:  true,
 				OrganizationID:  org.ID,
@@ -56,7 +55,6 @@ func TestGatewayNetworkAPI(t *testing.T) {
 				})
 				So(err, ShouldBeNil)
 				So(gn.Name, ShouldEqual, createReq.Name)
-				//So(gn.Tags, ShouldEqual, createReq.Tags)
 				So(gn.Price, ShouldEqual, createReq.Price)
 				So(gn.PrivateNetwork, ShouldEqual, createReq.PrivateNetwork)
 				So(gn.OrganizationID, ShouldEqual, createReq.OrganizationID)
@@ -66,7 +64,6 @@ func TestGatewayNetworkAPI(t *testing.T) {
 					updateGN := &pb.UpdateGatewayNetworkRequest{
 						Id:              gnId,
 						Name:            "anotherNetwork",
-						Tags:			 pq.StringArray{"Working", "works"},
 						Price:     		 300,
 						PrivateNetwork:  false,
 						OrganizationID:  gn.OrganizationID,
@@ -82,7 +79,6 @@ func TestGatewayNetworkAPI(t *testing.T) {
 						So(err, ShouldBeNil)
 						So(validator.validatorFuncs, ShouldHaveLength, 1)
 						So(gnUpd.Name, ShouldResemble, updateGN.Name)
-						//So(gnUpd.Tags, ShouldResemble, updateGN.Tags)
 						So(gnUpd.Price, ShouldResemble, updateGN.Price)
 						So(gnUpd.PrivateNetwork, ShouldResemble, updateGN.PrivateNetwork)
 						So(gnUpd.OrganizationID, ShouldResemble, updateGN.OrganizationID)
@@ -206,9 +202,51 @@ func TestGatewayNetworkAPI(t *testing.T) {
 							})
 							So(err, ShouldBeNil)
 
-							Convey("Then the nr of gateways should be 0", func() {
+							Convey("Then the nr of gateways should be 1", func() {
 								So(gws.TotalCount, ShouldEqual, 1)
 								So(gws.Result, ShouldHaveLength, 1)
+							})
+						})
+
+						Convey("When trying to create a gateway network with an invalid gateway", func() {
+							validator.returnIsAdmin = true
+							createReq := &pb.CreateGatewayNetworkRequest{
+								Name:           "testNetwork2",
+								Price:          200,
+								PrivateNetwork: true,
+								OrganizationID: org.ID,
+								Gateways: []*pb.Gateways{&pb.Gateways{"1111111111111111"}, &pb.Gateways{addGNGateway.GatewayMAC}},
+							}
+							_, err := api.Create(ctx, createReq)
+							So(err, ShouldNotBeNil)
+							So(errors.Cause(err), ShouldResemble, errToRPCError(storage.ErrDoesNotExist))
+
+						})
+
+						Convey("When creating a gateway network with the gateway added", func() {
+							validator.returnIsAdmin = true
+							createReq := &pb.CreateGatewayNetworkRequest{
+								Name:           "testNetwork3",
+								Price:          300,
+								PrivateNetwork: true,
+								OrganizationID: org.ID,
+								Gateways: []*pb.Gateways{&pb.Gateways{addGNGateway.GatewayMAC}},
+							}
+							createResp, err := api.Create(ctx, createReq)
+							So(err, ShouldBeNil)
+							So(validator.validatorFuncs, ShouldHaveLength, 1)
+							So(createResp, ShouldNotBeNil)
+
+							Convey("Then the gateway network has been created", func() {
+								gn, err := api.Get(ctx, &pb.GatewayNetworkRequest{
+									Id: createResp.Id,
+								})
+								So(err, ShouldBeNil)
+								So(gn.Name, ShouldEqual, createReq.Name)
+								So(gn.Price, ShouldEqual, createReq.Price)
+								So(gn.PrivateNetwork, ShouldEqual, createReq.PrivateNetwork)
+								So(gn.OrganizationID, ShouldEqual, createReq.OrganizationID)
+
 							})
 						})
 
@@ -232,6 +270,7 @@ func TestGatewayNetworkAPI(t *testing.T) {
 							})
 						})
 					})
+
 
 					// Add a new user for adding to the gateway network.
 					Convey("When adding a user", func() {
