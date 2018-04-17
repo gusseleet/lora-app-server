@@ -135,17 +135,14 @@ message GetGatewayNetworkResponse {
     // Gateway Network name.
     string name = 4;
 
-    // Tags with specification data.
-    repeated string tags = 5;
-
     // Price of the gateway network.
-    int64 price = 6;
+    int64 price = 5;
 
     // Is the network private or not.
-    bool privateNetwork = 7;
+    bool privateNetwork = 6;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 8;
+    int64 organizationID = 7;
 
 }
 
@@ -154,17 +151,22 @@ message CreateGatewayNetworkRequest {
     // Gateway network name.
     string name = 1;
 
-    // Tags with specification data.
-    repeated string tags = 2;
-
     // Price of the gateway network.
-    int64 price = 3;
+    int64 price = 2;
 
     // Is the network private or not.
-    bool privateNetwork = 4;
+    bool privateNetwork = 3;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 5;
+    int64 organizationID = 4;
+
+    // List of gateways to add
+    repeated Gateways gateways = 5;
+}
+
+message Gateways {
+    // Hex encoded mac address.
+    string gatewayMAC = 1;
 }
 
 message CreateGatewayNetworkResponse {
@@ -180,17 +182,14 @@ message UpdateGatewayNetworkRequest {
     // The new name.
     string name = 2;
 
-    // Tags with specification data.
-    repeated string tags = 3;
-
     // Price of the gateway network.
-    int64 price = 4;
+    int64 price = 3;
 
     // Is the network private or not.
-    bool privateNetwork = 5;
+    bool privateNetwork = 4;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 6;
+    int64 organizationID = 5;
 }
 
 message ListGatewayNetworksResponse {

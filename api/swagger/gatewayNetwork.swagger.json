@@ -447,13 +447,6 @@
           "type": "string",
           "description": "Gateway network name."
         },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
-        },
         "price": {
           "type": "string",
           "format": "int64",
@@ -468,6 +461,13 @@
           "type": "string",
           "format": "int64",
           "description": "Organization the gateway network belongs to."
+        },
+        "gateways": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGateways"
+          },
+          "title": "List of gateways to add"
         }
       },
       "description": "Add a new organization."
@@ -514,6 +514,15 @@
         }
       }
     },
+    "apiGateways": {
+      "type": "object",
+      "properties": {
+        "gatewayMAC": {
+          "type": "string",
+          "description": "Hex encoded mac address."
+        }
+      }
+    },
     "apiGetGatewayNetworkGatewayResponse": {
       "type": "object",
       "properties": {
@@ -555,13 +564,6 @@
         "name": {
           "type": "string",
           "description": "Gateway Network name."
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
         },
         "price": {
           "type": "string",
@@ -665,13 +667,6 @@
         "name": {
           "type": "string",
           "description": "The new name."
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
         },
         "price": {
           "type": "string",
