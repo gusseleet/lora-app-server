@@ -983,6 +983,26 @@ func ValidateDeviceProfileAccess(flag Flag, id string) ValidatorFunc {
 	}
 }
 
+// ValidateTransmittedDataAccess validates if the client has access to the
+// transmitted data.
+func ValidateTransmittedDataAccess(flag Flag, applicationID int64) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case List:
+		// global admin
+		// organization admin users
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "ou.is_admin = true", "a.id = $2"},
+		}
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, userQuery, where, claims.Username, applicationID)
+	}
+}
+
 func executeQuery(db sqlx.Queryer, query string, where [][]string, args ...interface{}) (bool, error) {
 	var ors []string
 	for _, ands := range where {
