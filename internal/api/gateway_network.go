@@ -34,9 +34,19 @@ func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNet
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
+	for _,g := range req.Gateways{
+		var mac lorawan.EUI64
+		if err := mac.UnmarshalText([]byte(g.GatewayMAC)); err != nil {
+			return nil, grpc.Errorf(codes.InvalidArgument, "bad gateway mac: %s", err)
+		}
+
+		if _,err := storage.GetGateway(config.C.PostgreSQL.DB, mac, false); err != nil{
+			return nil, errToRPCError(err)
+		}
+	}
+
 	gn := storage.GatewayNetwork{
 		Name:            req.Name,
-		Tags:			 req.Tags,
 		Price:     		 req.Price,
 		PrivateNetwork:  req.PrivateNetwork,
 		OrganizationID:	 req.OrganizationID,
@@ -45,6 +55,17 @@ func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNet
 	err := storage.CreateGatewayNetwork(config.C.PostgreSQL.DB, &gn)
 	if err != nil {
 		return nil, errToRPCError(err)
+	}
+
+	for _,g := range req.Gateways{
+		var mac lorawan.EUI64
+		if err := mac.UnmarshalText([]byte(g.GatewayMAC)); err != nil {
+			return nil, grpc.Errorf(codes.InvalidArgument, "bad gateway mac: %s", err)
+		}
+
+		if err = storage.CreateGatewayNetworkGateway(config.C.PostgreSQL.DB, gn.ID, mac); err != nil{
+			return nil, errToRPCError(err)
+		}
 	}
 
 	return &pb.CreateGatewayNetworkResponse{
@@ -69,7 +90,6 @@ func (a *GatewayNetworkAPI) Get(ctx context.Context, req *pb.GatewayNetworkReque
 		CreatedAt:       gn.CreatedAt.Format(time.RFC3339Nano),
 		UpdatedAt:       gn.UpdatedAt.Format(time.RFC3339Nano),
 		Name:            gn.Name,
-		Tags:			 gn.Tags,
 		Price:			 gn.Price,
 		PrivateNetwork:  gn.PrivateNetwork,
 		OrganizationID:	 gn.OrganizationID,
@@ -106,7 +126,6 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 			Id:              gn.ID,
 			CreatedAt:       gn.CreatedAt.Format(time.RFC3339Nano),
 			UpdatedAt:       gn.UpdatedAt.Format(time.RFC3339Nano),
-			Tags:			 gn.Tags,
 			Price:			 gn.Price,
 			Name:            gn.Name,
 			PrivateNetwork:  gn.PrivateNetwork,
@@ -133,10 +152,8 @@ func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNet
 	}
 
 	gn.Name = req.Name
-	gn.Tags = req.Tags
 	gn.Price = req.Price
 	gn.PrivateNetwork = req.PrivateNetwork
-	gn.Tags = req.Tags
 	gn.OrganizationID = req.OrganizationID
 
 	err = storage.UpdateGatewayNetwork(config.C.PostgreSQL.DB, &gn)

@@ -10,7 +10,6 @@ import (
 	"github.com/brocaar/lorawan"
 	"github.com/jmoiron/sqlx"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/lib/pq"
 )
 
 type validatorTest struct {
@@ -177,12 +176,10 @@ func TestValidators(t *testing.T) {
 
 	gatewayNetworks := []storage.GatewayNetwork{
 		{Name: "gatewayNetwork1",
-			Tags: pq.StringArray{"Data1", "Data2"},
 			Price: 200,
 			PrivateNetwork: false,
 			OrganizationID: organizations[0].ID},
 		{Name: "gatewayNetwork2",
-			Tags: pq.StringArray{"Data3", "Data4"},
 			Price: 300,
 			PrivateNetwork: true,
 			OrganizationID: organizations[1].ID},

@@ -143,6 +143,7 @@ It has these top-level messages:
 	GatewayNetworkRequest
 	GetGatewayNetworkResponse
 	CreateGatewayNetworkRequest
+	Gateways
 	CreateGatewayNetworkResponse
 	UpdateGatewayNetworkRequest
 	ListGatewayNetworksResponse

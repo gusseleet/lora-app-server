@@ -37,7 +37,6 @@ func TestGatewayNetwork(t *testing.T) {
 		Convey("When creating a gateway network with an invalid space in the name", func() {
 			gn := GatewayNetwork{
 				Name:           "test Network",
-				Tags:           pq.StringArray{"Test", "test"},
 				Price:          200,
 				PrivateNetwork: true,
 				OrganizationID: org.ID,
@@ -53,7 +52,6 @@ func TestGatewayNetwork(t *testing.T) {
 		Convey("When creating a gateway network with a too short name", func() {
 			gn := GatewayNetwork{
 				Name:           "test",
-				Tags:           pq.StringArray{"Test", "test"},
 				Price:          200,
 				PrivateNetwork: true,
 				OrganizationID: org.ID,
@@ -69,7 +67,6 @@ func TestGatewayNetwork(t *testing.T) {
 		Convey("When creating a gateway network", func() {
 			gn := GatewayNetwork{
 				Name:           "testNetwork",
-				Tags:           pq.StringArray{"Test", "test"},
 				Price:          200,
 				PrivateNetwork: true,
 				OrganizationID: org.ID,
@@ -88,7 +85,6 @@ func TestGatewayNetwork(t *testing.T) {
 
 			Convey("When updating the gateway network", func() {
 				gn.Name = "test-gateway-network-updated"
-				gn.Tags = pq.StringArray{"Edited", "edited"}
 				gn.Price = 500
 				gn.PrivateNetwork = false
 				So(UpdateGatewayNetwork(db, &gn), ShouldBeNil)
