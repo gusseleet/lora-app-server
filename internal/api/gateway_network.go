@@ -30,7 +30,7 @@ func NewGatewayNetworkAPI(validator auth.Validator) *GatewayNetworkAPI {
 // Create creates the given gateway network.
 func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNetworkRequest) (*pb.CreateGatewayNetworkResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworksAccess(auth.Create)); err != nil {
+		auth.ValidateGatewayNetworksAccess(auth.Create, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -47,12 +47,18 @@ func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNet
 
 	gn := storage.GatewayNetwork{
 		Name:            req.Name,
-		Price:     		 req.Price,
+		Description:     req.Description,
 		PrivateNetwork:  req.PrivateNetwork,
 		OrganizationID:	 req.OrganizationID,
 	}
 
 	err := storage.CreateGatewayNetwork(config.C.PostgreSQL.DB, &gn)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	// Creates a link between the gateway network and the organization that created it.
+	err = storage.CreateGatewayNetworkOrganization(config.C.PostgreSQL.DB, gn.ID, gn.OrganizationID)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
@@ -86,37 +92,46 @@ func (a *GatewayNetworkAPI) Get(ctx context.Context, req *pb.GatewayNetworkReque
 	}
 
 	return &pb.GetGatewayNetworkResponse{
-		Id:              gn.ID,
-		CreatedAt:       gn.CreatedAt.Format(time.RFC3339Nano),
-		UpdatedAt:       gn.UpdatedAt.Format(time.RFC3339Nano),
-		Name:            gn.Name,
-		Price:			 gn.Price,
-		PrivateNetwork:  gn.PrivateNetwork,
-		OrganizationID:	 gn.OrganizationID,
+		Id:              	gn.ID,
+		CreatedAt:       	gn.CreatedAt.Format(time.RFC3339Nano),
+		UpdatedAt:       	gn.UpdatedAt.Format(time.RFC3339Nano),
+		Name:           	gn.Name,
+		Description:		gn.Description,
+		PrivateNetwork:  	gn.PrivateNetwork,
+		OrganizationID:	 	gn.OrganizationID,
 	}, nil
 }
 
-// List lists the gateway networks to which the user has access.
+// List lists the gateway networks to which the organization has access.
 func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetworksRequest) (*pb.ListGatewayNetworksResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworksAccess(auth.List)); err != nil {
+		auth.ValidateGatewayNetworksAccess(auth.List, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
 	var count int
 	var gns []storage.GatewayNetwork
+	var err error
 
-	username, err := a.validator.GetUsername(ctx)
-	if err != nil {
-		return nil, errToRPCError(err)
-	}
-	count, err = storage.GetGatewayNetworkCountForUser(config.C.PostgreSQL.DB, username, req.Search)
-	if err != nil {
-		return nil, errToRPCError(err)
-	}
-	gns, err = storage.GetGatewayNetworksForUser(config.C.PostgreSQL.DB, username, int(req.Limit), int(req.Offset), req.Search)
-	if err != nil {
-		return nil, errToRPCError(err)
+	if req.OrganizationID == 0 {
+		gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, req.PrivateNetwork, int(req.Limit), int(req.Offset))
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+
+		count, err = storage.GetGatewayNetworkCount(config.C.PostgreSQL.DB, req.PrivateNetwork)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+	} else {
+		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, int(req.Limit), int(req.Offset))
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
 	}
 
 
@@ -126,7 +141,7 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 			Id:              gn.ID,
 			CreatedAt:       gn.CreatedAt.Format(time.RFC3339Nano),
 			UpdatedAt:       gn.UpdatedAt.Format(time.RFC3339Nano),
-			Price:			 gn.Price,
+			Description:	 gn.Description,
 			Name:            gn.Name,
 			PrivateNetwork:  gn.PrivateNetwork,
 			OrganizationID:	 gn.OrganizationID,
@@ -152,7 +167,7 @@ func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNet
 	}
 
 	gn.Name = req.Name
-	gn.Price = req.Price
+	gn.Description = req.Description
 	gn.PrivateNetwork = req.PrivateNetwork
 	gn.OrganizationID = req.OrganizationID
 
@@ -283,48 +298,81 @@ func (a *GatewayNetworkAPI) GetGateway(ctx context.Context, req *pb.GetGatewayNe
 	}, nil
 }
 
-// ListUsers lists the users linked to the gateway network.
-func (a *GatewayNetworkAPI) ListUsers(ctx context.Context, req *pb.ListGatewayNetworkUsersRequest) (*pb.ListGatewayNetworkUsersResponse, error) {
+// ListOrganizationGatewayNetworks lists the gateway networks linked to the organization.
+func (a *GatewayNetworkAPI) ListOrganizationGatewayNetworks(ctx context.Context, req *pb.ListGatewayNetworkOrganizationGatewayNetworksRequest) (*pb.ListGatewayNetworkOrganizationGatewayNetworksResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkUsersAccess(auth.List, req.Id)); err != nil {
+		auth.ValidateGatewayNetworkOrganizationsAccess(auth.List, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
-	users, err := storage.GetGatewayNetworkUsers(config.C.PostgreSQL.DB, req.Id, int(req.Limit), int(req.Offset))
+	gns, err := storage.GetGatewayNetworkOrganizationGatewayNetworks(config.C.PostgreSQL.DB, req.OrganizationID, int(req.Limit), int(req.Offset))
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
 
-	userCount, err := storage.GetGatewayNetworkUserCount(config.C.PostgreSQL.DB, req.Id)
+	gnCount, err := storage.GetGatewayNetworkOrganizationGatewayNetworkCount(config.C.PostgreSQL.DB, req.OrganizationID)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
 
-	result := make([]*pb.GetGatewayNetworkUserResponse, len(users))
-	for i, user := range users {
-		result[i] = &pb.GetGatewayNetworkUserResponse{
-			Id:        	user.UserID,
-			Username:  		user.Username,
-			CreatedAt: 	user.CreatedAt.Format(time.RFC3339Nano),
-			UpdatedAt: 	user.UpdatedAt.Format(time.RFC3339Nano),
+	result := make([]*pb.GetGatewayNetworkOrganizationGatewayNetworkResponse, len(gns))
+	for i, gn := range gns {
+		result[i] = &pb.GetGatewayNetworkOrganizationGatewayNetworkResponse{
+			Id:     			gn.ID,
+			Name:  		gn.Name,
+			CreatedAt: 			gn.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt: 			gn.UpdatedAt.Format(time.RFC3339Nano),
 		}
 	}
 
-	return &pb.ListGatewayNetworkUsersResponse{
-		TotalCount: int32(userCount),
+	return &pb.ListGatewayNetworkOrganizationGatewayNetworksResponse{
+		TotalCount: int32(gnCount),
 		Result:     result,
 	}, nil
 }
 
-// AddUser creates the given gateway network-user link.
-func (a *GatewayNetworkAPI) AddUser(ctx context.Context, req *pb.GatewayNetworkUserRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+// ListOrganization lists the organizations linked to the gateway network.
+func (a *GatewayNetworkAPI) ListOrganization(ctx context.Context, req *pb.ListGatewayNetworkOrganizationsRequest) (*pb.ListGatewayNetworkOrganizationsResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkUsersAccess(auth.Create, req.Id)); err != nil {
+		auth.ValidateGatewayNetworkOrganizationsAccess(auth.List, req.Id)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	organizations, err := storage.GetGatewayNetworkOrganizations(config.C.PostgreSQL.DB, req.Id, int(req.Limit), int(req.Offset))
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	organizationCount, err := storage.GetGatewayNetworkOrganizationCount(config.C.PostgreSQL.DB, req.Id)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	result := make([]*pb.GetGatewayNetworkOrganizationResponse, len(organizations))
+	for i, organization := range organizations {
+		result[i] = &pb.GetGatewayNetworkOrganizationResponse{
+			OrganizationId:     organization.OrganizationID,
+			DisplayName:  		organization.DisplayName,
+			CreatedAt: 			organization.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt: 			organization.UpdatedAt.Format(time.RFC3339Nano),
+		}
+	}
+
+	return &pb.ListGatewayNetworkOrganizationsResponse{
+		TotalCount: int32(organizationCount),
+		Result:     result,
+	}, nil
+}
+
+// AddOrganization creates the given gateway network-organization link.
+func (a *GatewayNetworkAPI) AddOrganization(ctx context.Context, req *pb.GatewayNetworkOrganizationRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkOrganizationsAccess(auth.Create, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
 
-	err := storage.CreateGatewayNetworkUser(config.C.PostgreSQL.DB, req.Id, req.UserID)
+	err := storage.CreateGatewayNetworkOrganization(config.C.PostgreSQL.DB, req.Id, req.OrganizationID)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
@@ -332,14 +380,14 @@ func (a *GatewayNetworkAPI) AddUser(ctx context.Context, req *pb.GatewayNetworkU
 	return &pb.GatewayNetworkEmptyResponse{}, nil
 }
 
-// DeleteUser deletes the given user from the gateway network.
-func (a *GatewayNetworkAPI) DeleteUser(ctx context.Context, req *pb.DeleteGatewayNetworkUserRequest) (*pb.GatewayNetworkEmptyResponse, error) {
+// DeleteOrganization deletes the given organization from the gateway network.
+func (a *GatewayNetworkAPI) DeleteOrganization(ctx context.Context, req *pb.DeleteGatewayNetworkOrganizationRequest) (*pb.GatewayNetworkEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkUserAccess(auth.Delete, req.Id)); err != nil {
+		auth.ValidateGatewayNetworkOrganizationAccess(auth.Delete, req.Id, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
-	err := storage.DeleteGatewayNetworkUser(config.C.PostgreSQL.DB, req.Id, req.UserID)
+	err := storage.DeleteGatewayNetworkOrganization(config.C.PostgreSQL.DB, req.Id, req.OrganizationID)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
@@ -347,22 +395,22 @@ func (a *GatewayNetworkAPI) DeleteUser(ctx context.Context, req *pb.DeleteGatewa
 	return &pb.GatewayNetworkEmptyResponse{}, nil
 }
 
-// GetUser returns the user details for the given user ID.
-func (a *GatewayNetworkAPI) GetUser(ctx context.Context, req *pb.GetGatewayNetworkUserRequest) (*pb.GetGatewayNetworkUserResponse, error) {
+// GetOrganization returns the organization details for the given organization ID.
+func (a *GatewayNetworkAPI) GetOrganization(ctx context.Context, req *pb.GetGatewayNetworkOrganizationRequest) (*pb.GetGatewayNetworkOrganizationResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworkUserAccess(auth.Read, req.Id)); err != nil {
+		auth.ValidateGatewayNetworkOrganizationAccess(auth.Read, req.Id, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
-	user, err := storage.GetGatewayNetworkUser(config.C.PostgreSQL.DB, req.Id, req.UserID)
+	organization, err := storage.GetGatewayNetworkOrganization(config.C.PostgreSQL.DB, req.Id, req.OrganizationID)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
 
-	return &pb.GetGatewayNetworkUserResponse{
-		Id:        	user.UserID,
-		Username:  	user.Username,
-		CreatedAt: 	user.CreatedAt.Format(time.RFC3339Nano),
-		UpdatedAt: 	user.UpdatedAt.Format(time.RFC3339Nano),
+	return &pb.GetGatewayNetworkOrganizationResponse{
+		OrganizationId:     organization.OrganizationID,
+		DisplayName:  		organization.DisplayName,
+		CreatedAt: 			organization.CreatedAt.Format(time.RFC3339Nano),
+		UpdatedAt: 			organization.UpdatedAt.Format(time.RFC3339Nano),
 	}, nil
 }

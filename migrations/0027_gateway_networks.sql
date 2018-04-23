@@ -4,7 +4,7 @@ create table gateway_network (
 	created_at timestamp with time zone not null,
 	updated_at timestamp with time zone not null,
 	name character varying (100) not null,
-	price bigint not null,
+	description text not null,
 	private_network bool not null,
 	organization_id bigserial not null references organization on delete cascade,
 
