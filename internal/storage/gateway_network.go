@@ -21,7 +21,7 @@ type GatewayNetwork struct {
 	CreatedAt       time.Time             `db:"created_at"`
 	UpdatedAt       time.Time             `db:"updated_at"`
 	Name   			string 				  `db:"name"`
-	Price           int64                 `db:"price"`
+	Description     string                `db:"description"`
 	PrivateNetwork 	bool				  `db:"private_network"`
 	OrganizationID	int64				  `db:"organization_id"`
 }
@@ -43,11 +43,20 @@ type GatewayNetworkGateway struct {
 	UpdatedAt       	time.Time             	`db:"updated_at"`
 }
 
-// GatewayNetworkUser represents a gateway network user
-type GatewayNetworkUser struct {
+// GatewayNetworkOrganization represents a gateway network organization
+type GatewayNetworkOrganization struct {
 	ID					int64					`db:"id"`
-	UserID       		int64           		`db:"user_id"`
-	Username			string					`db:"username"`
+	OrganizationID      int64           		`db:"organization_id"`
+	DisplayName			string					`db:"display_name"`
+	CreatedAt       	time.Time             	`db:"created_at"`
+	UpdatedAt       	time.Time             	`db:"updated_at"`
+}
+
+// GatewayNetworkOrganizationGatewayNetwork represents a gateway network organization, gateway
+type GatewayNetworkOrganizationGatewayNetwork struct {
+	ID					int64					`db:"id"`
+	GatewayNetworkID    int64           		`db:"gateway_network_id"`
+	Name				string					`db:"name"`
 	CreatedAt       	time.Time             	`db:"created_at"`
 	UpdatedAt       	time.Time             	`db:"updated_at"`
 }
@@ -65,14 +74,14 @@ func CreateGatewayNetwork(db sqlx.Queryer, gn *GatewayNetwork) error {
             created_at,
             updated_at,
 			name,
-			price,
+			description,
 			private_network,
 			organization_id
         ) values ($1, $2, $3, $4, $5, $6) returning id`,
 		now,
 		now,
 		gn.Name,
-		gn.Price,
+		gn.Description,
 		gn.PrivateNetwork,
 		gn.OrganizationID,
 	)
@@ -99,10 +108,37 @@ func GetGatewayNetwork(db sqlx.Queryer, id int64) (GatewayNetwork, error) {
 }
 
 // GetGatewayNetworkCount returns the total number of gateway networks.
-func GetGatewayNetworkCount(db sqlx.Queryer, search string) (int, error) {
+func GetGatewayNetworkCount(db sqlx.Queryer, privateNetwork int64) (int, error) {
 	var count int
 
-	err := sqlx.Get(db, &count, "select count(*) from gateway_network")
+	if privateNetwork == 0 {
+		err := sqlx.Get(db, &count, "select count(*) from gateway_network")
+		if err != nil {
+			return 0, handlePSQLError(Select, err, "select error")
+		}
+	} else if privateNetwork == 1 || privateNetwork == 2 {
+		pn := false
+
+		if privateNetwork == 2 {
+			pn = true
+		}
+
+		err := sqlx.Get(db, &count, "select count(*) from gateway_network where private_network = $1", pn)
+		if err != nil {
+			return 0, handlePSQLError(Select, err, "select error")
+		}
+	} else{
+		return 0, handlePSQLError(Select, ErrGatewayNetworkInvalidPrivateNetwork, "select error")
+	}
+
+	return count, nil
+}
+
+// GetGatewayNetworkCountForOrganizationID returns the total number of gateway networks for the given organization id.
+func GetGatewayNetworkCountForOrganizationID(db sqlx.Queryer, organizationID int64) (int, error) {
+	var count int
+
+	err := sqlx.Get(db, &count, "select count(*) from gateway_network where organization_id = $1", organizationID)
 	if err != nil {
 		return 0, handlePSQLError(Select, err, "select error")
 	}
@@ -110,14 +146,60 @@ func GetGatewayNetworkCount(db sqlx.Queryer, search string) (int, error) {
 	return count, nil
 }
 
+
 // GetGatewayNetworks returns a slice of gateway networks.
-func GetGatewayNetworks(db sqlx.Queryer, limit, offset int) ([]GatewayNetwork, error) {
-	var gns []GatewayNetwork
-	err := sqlx.Select(db, &gns, `
+func GetGatewayNetworks(db sqlx.Queryer, privateNetwork int64, limit, offset int) ([]GatewayNetwork, error) {
+	if privateNetwork == 0{
+		var gns []GatewayNetwork
+		err := sqlx.Select(db, &gns, `
 		select *
 		from gateway_network
 		order by name
 		limit $1 offset $2`,
+			limit,
+			offset,
+		)
+		if err != nil {
+			return nil, handlePSQLError(Select, err, "select error")
+		}
+		return gns, nil
+	} else if privateNetwork == 1 || privateNetwork == 2{
+		pn := false
+
+		if privateNetwork == 2{
+			pn = true
+		}
+
+		var gns []GatewayNetwork
+		err := sqlx.Select(db, &gns, `
+		select *
+		from gateway_network
+		where private_network = $1
+		order by name
+		limit $2 offset $3`,
+			pn,
+			limit,
+			offset,
+		)
+		if err != nil {
+			return nil, handlePSQLError(Select, err, "select error")
+		}
+		return gns, nil
+	} else {
+		return nil, handlePSQLError(Select, ErrGatewayNetworkInvalidPrivateNetwork, "select error")
+	}
+}
+
+// GetGatewayNetworksForOrganizationID returns a slice of gateway networks for the give organization id.
+func GetGatewayNetworksForOrganizationID(db sqlx.Queryer, organizationID int64, limit, offset int) ([]GatewayNetwork, error) {
+	var gns []GatewayNetwork
+	err := sqlx.Select(db, &gns, `
+		select *
+		from gateway_network
+		where organization_id = $1
+		order by name
+		limit $2 offset $3`,
+		organizationID,
 		limit,
 		offset,
 	)
@@ -138,14 +220,14 @@ func UpdateGatewayNetwork(db sqlx.Execer, gn *GatewayNetwork) error {
 		update gateway_network
 		set
 			name = $2,
-			price = $3,
+			description = $3,
 			private_network = $4,
 			organization_id = $5,
 			updated_at = $6
 		where id = $1`,
 		gn.ID,
 		gn.Name,
-		gn.Price,
+		gn.Description,
 		gn.PrivateNetwork,
 		gn.OrganizationID,
 		now,
@@ -177,9 +259,9 @@ func DeleteGatewayNetwork(db sqlx.Ext, id int64) error {
 		return errors.Wrap(err, "delete all gateway network gateways error")
 	}
 
-	err = DeleteAllGatewayNetworkUsersForGatewayNetworkID(db, id)
+	err = DeleteAllGatewayNetworkOrganizationsForGatewayNetworkID(db, id)
 	if err != nil {
-		return errors.Wrap(err, "delete all gateway network users error")
+		return errors.Wrap(err, "delete all gateway network organizations error")
 	}
 
 	res, err := db.Exec("delete from gateway_network where id = $1", id)
@@ -327,32 +409,32 @@ func DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db sqlx.Ext, gatewayNetw
 	return nil
 }
 
-// CreateGatewayNetworkUser adds the given user to the gatewayNetwork.
-func CreateGatewayNetworkUser(db sqlx.Execer, gatewayNetworkID int64, userID int64) error {
+// CreateGatewayNetworkOrganization adds the given organization to the gatewayNetwork.
+func CreateGatewayNetworkOrganization(db sqlx.Execer, gatewayNetworkID int64, organizationID int64) error {
 	_, err := db.Exec(`
-		insert into gateway_network_user (	
+		insert into gateway_network_organization (	
 			gateway_network_id,
-			user_id,
+			organization_id,
 			created_at,
 			updated_at
 		) values ($1, $2, now(), now())`,
 		gatewayNetworkID,
-		userID,
+		organizationID,
 	)
 	if err != nil {
 		return handlePSQLError(Insert, err, "insert error")
 	}
 
 	log.WithFields(log.Fields{
-		"user_id":         	userID,
+		"organization_id":      organizationID,
 		"gateway_network_id": 	gatewayNetworkID,
-	}).Info("user added to gateway network")
+	}).Info("organization added to gateway network")
 	return nil
 }
 
-// DeleteGatewayNetworkUser deletes the gateway network user matching the given gateway network ID and user ID.
-func DeleteGatewayNetworkUser(db sqlx.Ext, gnID int64, uID int64) error {
-	res, err := db.Exec("delete from gateway_network_user where gateway_network_id = $1 and user_id = $2", gnID, uID)
+// DeleteGatewayNetworkOrganization deletes the gateway network organization matching the given gateway network ID and organization ID.
+func DeleteGatewayNetworkOrganization(db sqlx.Ext, gnID int64, oID int64) error {
+	res, err := db.Exec("delete from gateway_network_organization where gateway_network_id = $1 and organization_id = $2", gnID, oID)
 	if err != nil {
 		return handlePSQLError(Delete, err, "delete error")
 	}
@@ -366,41 +448,58 @@ func DeleteGatewayNetworkUser(db sqlx.Ext, gnID int64, uID int64) error {
 
 	log.WithFields(log.Fields{
 		"id": gnID,
-	}).Info("gateway network user deleted")
+	}).Info("gateway network organization deleted")
 
 	return nil
 }
 
-// GetGatewayNetworkUser gets the information of the given gateway network-user.
-func GetGatewayNetworkUser(db sqlx.Queryer, gatewayNetworkID int64, userID int64) (GatewayNetworkUser, error) {
-	var u GatewayNetworkUser
-	err := sqlx.Get(db, &u, `
+// GetGatewayNetworkOrganization gets the information of the given gateway network-organization.
+func GetGatewayNetworkOrganization(db sqlx.Queryer, gatewayNetworkID int64, organizationID int64) (GatewayNetworkOrganization, error) {
+	var o GatewayNetworkOrganization
+	err := sqlx.Get(db, &o, `
 		select
-			u.id as user_id,
-			u.username as username,
-			gnu.created_at as created_at,
-			gnu.updated_at as updated_at
-		from gateway_network_user gnu
-		inner join "user" u
-			on u.id = gnu.user_id
+			o.id as organization_id,
+			o.display_name as display_name,
+			gno.created_at as created_at,
+			gno.updated_at as updated_at
+		from gateway_network_organization gno
+		inner join organization o
+			on o.id = gno.organization_id
 		where
-			gnu.gateway_network_id = $1
-			and gnu.user_id = $2`,
+			gno.gateway_network_id = $1
+			and gno.organization_id = $2`,
 		gatewayNetworkID,
-		userID,
+		organizationID,
 	)
 	if err != nil {
-		return u, handlePSQLError(Select, err, "select error")
+		return o, handlePSQLError(Select, err, "select error")
 	}
-	return u, nil
+	return o, nil
 }
 
-// GetGatewayNetworkUserCount returns the number of users for the given gateway network.
-func GetGatewayNetworkUserCount(db sqlx.Queryer, gatewayNetworkID int64) (int, error) {
+
+// GetGatewayNetworkOrganizationGatewayNetworkCount returns the number of gateway networks for the given organization.(REGISTERED)
+func GetGatewayNetworkOrganizationGatewayNetworkCount(db sqlx.Queryer, organizationID int64) (int, error) {
 	var count int
 	err := sqlx.Get(db, &count, `
 		select count(*)
-		from gateway_network_user
+		from gateway_network_organization
+		where
+			organization_id = $1`,
+		organizationID,
+	)
+	if err != nil {
+		return count, handlePSQLError(Select, err, "select error")
+	}
+	return count, nil
+}
+
+// GetGatewayNetworkOrganizationCount returns the number of organizations for the given gateway network.
+func GetGatewayNetworkOrganizationCount(db sqlx.Queryer, gatewayNetworkID int64) (int, error) {
+	var count int
+	err := sqlx.Get(db, &count, `
+		select count(*)
+		from gateway_network_organization
 		where
 			gateway_network_id = $1`,
 		gatewayNetworkID,
@@ -411,9 +510,9 @@ func GetGatewayNetworkUserCount(db sqlx.Queryer, gatewayNetworkID int64) (int, e
 	return count, nil
 }
 
-// GetGatewayNetworkCountForUser returns the number of gateway networks to which
-// the given user is member of.
-func GetGatewayNetworkCountForUser(db sqlx.Queryer, username string, search string) (int, error) {
+// GetGatewayNetworkCountForOrganization returns the number of gateway networks to which
+// the given organization is a member of.
+func GetGatewayNetworkCountForOrganization(db sqlx.Queryer, organizationID int64, search string) (int, error) {
 	var count int
 
 	if search != "" {
@@ -424,17 +523,17 @@ func GetGatewayNetworkCountForUser(db sqlx.Queryer, username string, search stri
 		select
 			count(gn.*)
 		from gateway_network gn
-		inner join gateway_network_user gnu
-			on gnu.gateway_network_id = gn.id
-		inner join "user" u
-			on u.id = gnu.user_id
+		inner join gateway_network_organization gno
+			on gno.gateway_network_id = gn.id
+		inner join organization o
+			on o.id = gno.organization_id
 		where
-			u.username = $1
+			o.id = $1
 			and (
 				($2 != '' and gn.name ilike $2)
 				or ($2 = '')
 			)`,
-		username,
+		organizationID,
 		search,
 	)
 	if err != nil {
@@ -443,9 +542,9 @@ func GetGatewayNetworkCountForUser(db sqlx.Queryer, username string, search stri
 	return count, nil
 }
 
-// GetGatewayNetworksForUser returns a slice of gateway networks to which the given
-// user is member of.
-func GetGatewayNetworksForUser(db sqlx.Queryer, username string, limit, offset int, search string) ([]GatewayNetwork, error) {
+// GetGatewayNetworksForOrganization returns a slice of gateway networks to which the given
+// organization is a member of.
+func GetGatewayNetworksForOrganization(db sqlx.Queryer, organizationID int64, limit, offset int, search string) ([]GatewayNetwork, error) {
 	var gns []GatewayNetwork
 
 	if search != "" {
@@ -456,19 +555,19 @@ func GetGatewayNetworksForUser(db sqlx.Queryer, username string, limit, offset i
 		select
 			gn.*
 		from gateway_network gn
-		inner join gateway_network_user gnu
-			on gnu.gateway_network_id = gn.id
-		inner join "user" u
-			on u.id = gnu.user_id
+		inner join gateway_network_organization gno
+			on gno.gateway_network_id = gn.id
+		inner join organization o
+			on o.id = gno.organization_id
 		where
-			u.username = $1
+			o.id = $1
 			and (
 				($4 != '' and gn.name ilike $4)
 				or ($4 = '')
 			)
 		order by gn.name
 		limit $2 offset $3`,
-		username,
+		organizationID,
 		limit,
 		offset,
 		search,
@@ -479,21 +578,47 @@ func GetGatewayNetworksForUser(db sqlx.Queryer, username string, limit, offset i
 	return gns, nil
 }
 
-// GetGatewayNetworkUsers returns the users for the given gateway network.
-func GetGatewayNetworkUsers(db sqlx.Queryer, gatewayNetworkID int64, limit, offset int) ([]GatewayNetworkUser, error) {
-	var users []GatewayNetworkUser
-	err := sqlx.Select(db, &users, `
+// GetGatewayNetworkOrganizationGatewayNetworks returns the gateway networks for the given organization(REGISTERED).
+func GetGatewayNetworkOrganizationGatewayNetworks(db sqlx.Queryer, organizationID int64, limit, offset int) ([]GatewayNetworkOrganizationGatewayNetwork, error) {
+	var gns []GatewayNetworkOrganizationGatewayNetwork
+	err := sqlx.Select(db, &gns, `
 		select
-			u.id as user_id,
-			u.username as username,
-			gnu.created_at as created_at,
-			gnu.updated_at as updated_at
-		from gateway_network_user gnu
-		inner join "user" u
-			on u.id = gnu.user_id
+			gn.id as gateway_network_id,
+			gn.name as name,
+			gno.created_at as created_at,
+			gno.updated_at as updated_at
+		from gateway_network_organization gno
+		inner join gateway_network gn
+			on gn.id = gno.gateway_network_id
 		where
-			gnu.gateway_network_id = $1
-		order by u.username
+			gno.organization_id = $1
+		order by gn.name
+		limit $2 offset $3`,
+		organizationID,
+		limit,
+		offset,
+	)
+	if err != nil {
+		return nil, handlePSQLError(Select, err, "select error")
+	}
+	return gns, nil
+}
+
+// GetGatewayNetworkOrganizations returns the organizations for the given gateway network.
+func GetGatewayNetworkOrganizations(db sqlx.Queryer, gatewayNetworkID int64, limit, offset int) ([]GatewayNetworkOrganization, error) {
+	var organizations []GatewayNetworkOrganization
+	err := sqlx.Select(db, &organizations, `
+		select
+			o.id as organization_id,
+			o.display_name as display_name,
+			gno.created_at as created_at,
+			gno.updated_at as updated_at
+		from gateway_network_organization gno
+		inner join organization o
+			on o.id = gno.organization_id
+		where
+			gno.gateway_network_id = $1
+		order by o.display_name
 		limit $2 offset $3`,
 		gatewayNetworkID,
 		limit,
@@ -502,22 +627,22 @@ func GetGatewayNetworkUsers(db sqlx.Queryer, gatewayNetworkID int64, limit, offs
 	if err != nil {
 		return nil, handlePSQLError(Select, err, "select error")
 	}
-	return users, nil
+	return organizations, nil
 }
 
-// DeleteAllGatewayNetworkUsersForGatewayNetworkID deletes all gateway network- user links
+// DeleteAllGatewayNetworkOrganizationsForGatewayNetworkID deletes all gateway network- organization links
 // given a gateway network id.
-func DeleteAllGatewayNetworkUsersForGatewayNetworkID(db sqlx.Ext, gatewayNetworkID int64) error {
-	var gnus []GatewayNetworkUser
-	gnus, err := GetGatewayNetworkUsers(db, gatewayNetworkID, 0, 0 )
+func DeleteAllGatewayNetworkOrganizationsForGatewayNetworkID(db sqlx.Ext, gatewayNetworkID int64) error {
+	var gnos []GatewayNetworkOrganization
+	gnos, err := GetGatewayNetworkOrganizations(db, gatewayNetworkID, 0, 0 )
 	if err != nil {
 		return handlePSQLError(Select, err, "select error")
 	}
 
-	for _, gnu := range gnus {
-		err = DeleteGatewayNetworkUser(db, gatewayNetworkID, gnu.UserID)
+	for _, gno := range gnos {
+		err = DeleteGatewayNetworkOrganization(db, gatewayNetworkID, gno.OrganizationID)
 		if err != nil {
-			return errors.Wrap(err, "delete gateway network user error")
+			return errors.Wrap(err, "delete gateway network organization error")
 		}
 	}
 
