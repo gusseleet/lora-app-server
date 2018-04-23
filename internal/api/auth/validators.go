@@ -87,6 +87,20 @@ const gnOrgQuery = `
 	left join gateway g
 		on gng.gateway_mac = g.mac`
 
+const ppQuery = `
+	select count(*)
+	from "user" u
+	left join organization_user ou
+		on u.id = ou.user_id
+	left join organization o
+		on o.id = ou.organization_id
+	left join gateway_network gn
+		on o.id = gn.organization_id
+	left join gateway_network_to_payment_plan ppgn
+		on gn.id = ppgn.gw_id
+	left join payment_plan pp
+		on ppgn.pay_plan_id = pp.id`
+
 // ValidateActiveUser validates if the user in the JWT claim is active.
 func ValidateActiveUser() ValidatorFunc {
 	where := [][]string{
@@ -1008,6 +1022,114 @@ func ValidateTransmittedDataAccess(flag Flag, applicationID int64) ValidatorFunc
 
 	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
 		return executeQuery(db, userQuery, where, claims.Username, applicationID)
+	}
+}
+
+//
+//
+func ValidatePaymentPlansAccess(flag Flag) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Create:
+		// global admin
+		// organization admin
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "ou.is_admin = true"},
+		}
+	case List:
+		// global admin
+		// organization users
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, ppQuery, where, claims.Username)
+	}
+}
+
+func ValidatePaymentPlanAccess(flag Flag, id int64) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Read:
+		// gloabal admin
+		// organization users
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "pp.id = $2"},
+		}
+	case Update, Delete:
+		// global admin
+		// organization admin users
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "ou.is_admin = true", "pp.id = $2"},
+		}
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, ppQuery, where, claims.Username, id)
+	}
+}
+
+func ValidatePaymentPlanGatewayNetworksAccess(flag Flag, id int64) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Create:
+		// global admin
+		// organization user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "pp.id = $2"},
+		}
+	case List:
+		// global admin
+		// organization user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "pp.id = $2"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, ppQuery, where, claims.Username, id)
+	}
+}
+
+func ValidatePaymentPlanGatewayNetworkAccess(flag Flag, id int64) ValidatorFunc {
+	var where = [][]string{}
+
+	switch flag {
+	case Read:
+		// global admin
+		// organization user
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "pp.id = $2"},
+		}
+	case Delete:
+		// global admin
+		// organization admin
+		where = [][]string{
+			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
+			{"u.username = $1", "u.is_active = true", "pp.id = $2"},
+		}
+	default:
+		panic("unsupported flag")
+	}
+
+	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
+		return executeQuery(db, ppQuery, where, claims.Username, id)
 	}
 }
 
