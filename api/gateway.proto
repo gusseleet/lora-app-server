@@ -189,6 +189,9 @@ message CreateGatewayRequest {
 
 	// Max Nodes
 	int64 maxNodes = 12;
+
+	// Gateway Network ID
+	int64 gatewayNetworkID = 13;
 }
 
 message CreateGatewayResponse {}

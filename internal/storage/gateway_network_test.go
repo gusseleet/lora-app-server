@@ -138,7 +138,7 @@ func TestGatewayNetwork(t *testing.T) {
 				gw.CreatedAt = gw.CreatedAt.Truncate(time.Millisecond).UTC()
 				gw.UpdatedAt = gw.UpdatedAt.Truncate(time.Millisecond).UTC()
 
-				Convey("Then it can be get by its MAC", func() {
+				Convey("Then it can be retrieved by its MAC", func() {
 					gw2, err := GetGateway(db, gw.MAC, false)
 					So(err, ShouldBeNil)
 					gw2.CreatedAt = gw2.CreatedAt.Truncate(time.Millisecond).UTC()
