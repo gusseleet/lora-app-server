@@ -68,7 +68,7 @@
           },
           {
             "name": "transmittedType",
-            "description": "Filter on Rx or Tx, where Rx = 1 and Tx = 2.",
+            "description": "Filter on Rx or Tx, where Rx = 2 and Tx = 1.",
             "in": "query",
             "required": false,
             "type": "integer",
