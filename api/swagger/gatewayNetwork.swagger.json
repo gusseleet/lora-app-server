@@ -50,6 +50,22 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "privateNetwork",
+            "description": "Filter private or public networks. 0 = all, 1 = only public, 2 = only private.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "organizationID",
+            "description": "Optional organization id for filtering.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
           }
         ],
         "tags": [
@@ -75,6 +91,48 @@
             "schema": {
               "$ref": "#/definitions/apiCreateGatewayNetworkRequest"
             }
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      }
+    },
+    "/api/gatewaynetworks/organizations/{organizationID}": {
+      "get": {
+        "summary": "Get organization's list of gateway networks.",
+        "operationId": "ListOrganizationGatewayNetworks",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiListGatewayNetworkOrganizationGatewayNetworksResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "description": "Max number of users to return in the result-set.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "description": "Offset in the result-set (for pagination).",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
           }
         ],
         "tags": [
@@ -299,6 +357,144 @@
           "GatewayNetwork"
         ]
       }
+    },
+    "/api/gatewaynetworks/{id}/organizations": {
+      "get": {
+        "summary": "Get gateway networks's organization list.",
+        "operationId": "ListOrganization",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiListGatewayNetworkOrganizationsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "description": "Max number of users to return in the result-set.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "description": "Offset in the result-set (for pagination).",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      },
+      "post": {
+        "summary": "Add a new organization to a gateway network",
+        "operationId": "AddOrganization",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkOrganizationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      }
+    },
+    "/api/gatewaynetworks/{id}/organizations/{organizationID}": {
+      "get": {
+        "summary": "Get data for a particular gateway network organization.",
+        "operationId": "GetOrganization",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGetGatewayNetworkOrganizationResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "organizationID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      },
+      "delete": {
+        "summary": "Delete an organization from a gateway network.",
+        "operationId": "DeleteOrganization",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGatewayNetworkEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "organizationID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "GatewayNetwork"
+        ]
+      }
     }
   },
   "definitions": {
@@ -309,17 +505,14 @@
           "type": "string",
           "description": "Gateway network name."
         },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
-        },
         "price": {
           "type": "string",
           "format": "int64",
           "description": "Price of the gateway network."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the gateway network."
         },
         "privateNetwork": {
           "type": "boolean",
@@ -330,6 +523,13 @@
           "type": "string",
           "format": "int64",
           "description": "Organization the gateway network belongs to."
+        },
+        "gateways": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGateways"
+          },
+          "title": "List of gateways to add"
         }
       },
       "description": "Add a new organization."
@@ -361,6 +561,30 @@
         }
       }
     },
+    "apiGatewayNetworkOrganizationRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The gateway network id."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "The id of the organization."
+        }
+      }
+    },
+    "apiGateways": {
+      "type": "object",
+      "properties": {
+        "gatewayMAC": {
+          "type": "string",
+          "description": "Hex encoded mac address."
+        }
+      }
+    },
     "apiGetGatewayNetworkGatewayResponse": {
       "type": "object",
       "properties": {
@@ -374,7 +598,7 @@
         },
         "createdAt": {
           "type": "string",
-          "description": "When the gatewayy was created."
+          "description": "When the gateway was created."
         },
         "updatedAt": {
           "type": "string",
@@ -382,6 +606,52 @@
         }
       },
       "title": "Response for a gateway in the gateway network"
+    },
+    "apiGetGatewayNetworkOrganizationGatewayNetworkResponse": {
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": "string",
+          "format": "int64",
+          "description": "Id of the gateway network."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the gateway network."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the user was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the gateway was last updated."
+        }
+      },
+      "title": "Response for a the gateway network registered to an organization"
+    },
+    "apiGetGatewayNetworkOrganizationResponse": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "format": "int64",
+          "description": "Id of the organization."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the organization."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the user was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the gateway was last updated."
+        }
+      },
+      "title": "Response for an organization in the gateway network"
     },
     "apiGetGatewayNetworkResponse": {
       "type": "object",
@@ -403,17 +673,9 @@
           "type": "string",
           "description": "Gateway Network name."
         },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
-        },
-        "price": {
+        "description": {
           "type": "string",
-          "format": "int64",
-          "description": "Price of the gateway network."
+          "description": "Description of the gateway network."
         },
         "privateNetwork": {
           "type": "boolean",
@@ -445,6 +707,42 @@
       },
       "description": "Response for the gateways in a gateway network."
     },
+    "apiListGatewayNetworkOrganizationGatewayNetworksResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The total number of gateway netoworks registered to the organization."
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGetGatewayNetworkOrganizationGatewayNetworkResponse"
+          },
+          "description": "The gateway networks in the requested limit, offset range."
+        }
+      },
+      "description": "Response for the gateway networks registered to the organization."
+    },
+    "apiListGatewayNetworkOrganizationsResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The total number of organizations in the gateway network."
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGetGatewayNetworkOrganizationResponse"
+          },
+          "description": "The organizations in the requested limit, offset range."
+        }
+      },
+      "description": "Response for the organizations in a gateway network."
+    },
     "apiListGatewayNetworksResponse": {
       "type": "object",
       "properties": {
@@ -472,17 +770,9 @@
           "type": "string",
           "description": "The new name."
         },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tags with specification data."
-        },
-        "price": {
+        "description": {
           "type": "string",
-          "format": "int64",
-          "description": "Price of the gateway network."
+          "description": "New description of the gateway network."
         },
         "privateNetwork": {
           "type": "boolean",

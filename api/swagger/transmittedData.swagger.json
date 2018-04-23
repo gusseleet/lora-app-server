@@ -1,0 +1,124 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "transmittedData.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/transmittedData": {
+      "get": {
+        "summary": "Get transmitted data list.",
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiListTransmittedDataResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "description": "Max number of transmitted data to return in the result-set.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "description": "Offset in the result-set (for pagination).",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "applicationID",
+            "description": "ID of the application to filter on.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "startDate",
+            "description": "Start date to filter on.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endDate",
+            "description": "End date to filter on.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "transmittedType",
+            "description": "Filter on Rx or Tx, where Rx = 2 and Tx = 1.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "TransmittedData"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiGetTransmittedDataResponse": {
+      "type": "object",
+      "properties": {
+        "applicationID": {
+          "type": "string",
+          "format": "int64",
+          "title": "ID of the application"
+        },
+        "data": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Size of data"
+        },
+        "date": {
+          "type": "string",
+          "title": "Time of transmittion"
+        },
+        "type": {
+          "type": "string",
+          "title": "Type of transmittion"
+        }
+      }
+    },
+    "apiListTransmittedDataResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGetTransmittedDataResponse"
+          }
+        }
+      }
+    }
+  }
+}

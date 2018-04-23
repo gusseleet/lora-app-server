@@ -25,6 +25,7 @@ func TestOrganizationAPI(t *testing.T) {
 		validator := &TestValidator{}
 		api := NewOrganizationAPI(validator)
 		userAPI := NewUserAPI(validator)
+		validator.returnUsername = "admin"
 
 		//We need this because the username is used when an org is created
 		validator.returnUsername = "admin"
@@ -36,7 +37,6 @@ func TestOrganizationAPI(t *testing.T) {
 				DisplayName:     "Display Name",
 				CanHaveGateways: true,
 				OrgNr:			 "1",
-				UserID:			 1,
 			}
 			createResp, err := api.Create(ctx, createReq)
 			So(err, ShouldNotBeNil)
@@ -51,7 +51,6 @@ func TestOrganizationAPI(t *testing.T) {
 				DisplayName:     "Display Name",
 				CanHaveGateways: true,
 				OrgNr: 			 "1",
-				UserID: 		 1,
 			}
 			createResp, err := api.Create(ctx, createReq)
 			So(err, ShouldBeNil)

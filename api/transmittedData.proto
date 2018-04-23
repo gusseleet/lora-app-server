@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package api;
+
+// for grpc-gateway
+import "google/api/annotations.proto";
+
+// TransmittedData is the service managing data sizes sent to applications
+service TransmittedData {
+    // Get transmitted data list.
+    rpc List(ListTransmittedDataRequest) returns (ListTransmittedDataResponse) {
+        option(google.api.http) = {
+            get: "/api/transmittedData"
+        };
+    }
+}
+
+message ListTransmittedDataRequest {
+    // Max number of transmitted data to return in the result-set.
+    int32 limit = 1;
+
+    // Offset in the result-set (for pagination).
+    int32 offset = 2;
+
+    // ID of the application to filter on.
+    int64 applicationID = 3;
+
+    // Start date to filter on.
+    string startDate = 4;
+
+    // End date to filter on.
+    string endDate = 5;
+
+    // Filter on Rx or Tx, where Rx = 2 and Tx = 1
+    int32 transmittedType = 6;
+}
+
+message ListTransmittedDataResponse {
+    int32 totalCount = 1;
+    repeated GetTransmittedDataResponse result = 2;
+}
+
+message GetTransmittedDataResponse {
+    // ID of the application
+    int64 applicationID = 1;
+
+    // Size of data
+    int32 data = 2;
+
+    // Time of transmittion
+    string date = 3;
+
+    // Type of transmittion
+    string type = 4;
+}

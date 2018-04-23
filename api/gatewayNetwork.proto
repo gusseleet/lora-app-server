@@ -73,6 +73,42 @@ service GatewayNetwork {
 		};
     }
 
+    // Get organization's list of gateway networks.
+    rpc ListOrganizationGatewayNetworks(ListGatewayNetworkOrganizationGatewayNetworksRequest) returns (ListGatewayNetworkOrganizationGatewayNetworksResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks/organizations/{organizationID}"
+		};
+    }
+
+    // Get gateway networks's organization list.
+    rpc ListOrganization(ListGatewayNetworkOrganizationsRequest) returns (ListGatewayNetworkOrganizationsResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks/{id}/organizations"
+		};
+    }
+
+    // Get data for a particular gateway network organization.
+    rpc GetOrganization(GetGatewayNetworkOrganizationRequest) returns (GetGatewayNetworkOrganizationResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworks/{id}/organizations/{organizationID}"
+		};
+    }
+
+    // Add a new organization to a gateway network
+    rpc AddOrganization(GatewayNetworkOrganizationRequest) returns (GatewayNetworkEmptyResponse) {
+        option(google.api.http) = {
+            post: "/api/gatewaynetworks/{id}/organizations"
+            body: "*"
+        };
+    }
+
+    // Delete an organization from a gateway network.
+    rpc DeleteOrganization(DeleteGatewayNetworkOrganizationRequest) returns (GatewayNetworkEmptyResponse) {
+        option(google.api.http) = {
+			delete: "/api/gatewaynetworks/{id}/organizations/{organizationID}"
+		};
+    }
+
 }
 
 // Request the gateway networks defined in the system.
@@ -86,6 +122,12 @@ message ListGatewayNetworksRequest {
     // When provided, the given string will be used to search on
     // Name.
     string search = 3;
+
+    // Filter private or public networks. 0 = all, 1 = only public, 2 = only private
+    int64 privateNetwork = 4;
+
+    // Optional organization id for filtering
+    int64 organizationID = 5;
 }
 
 // Request the gateway network information.
@@ -106,17 +148,14 @@ message GetGatewayNetworkResponse {
     // Gateway Network name.
     string name = 4;
 
-    // Tags with specification data.
-    repeated string tags = 5;
-
-    // Price of the gateway network.
-    int64 price = 6;
+    // Description of the gateway network.
+    string description = 5;
 
     // Is the network private or not.
-    bool privateNetwork = 7;
+    bool privateNetwork = 6;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 8;
+    int64 organizationID = 7;
 
 }
 
@@ -125,17 +164,25 @@ message CreateGatewayNetworkRequest {
     // Gateway network name.
     string name = 1;
 
-    // Tags with specification data.
-    repeated string tags = 2;
-
     // Price of the gateway network.
-    int64 price = 3;
+    int64 price = 2;
+
+    // Description of the gateway network.
+    string description = 3;
 
     // Is the network private or not.
     bool privateNetwork = 4;
 
     // Organization the gateway network belongs to.
     int64 organizationID = 5;
+
+    // List of gateways to add
+    repeated Gateways gateways = 6;
+}
+
+message Gateways {
+    // Hex encoded mac address.
+    string gatewayMAC = 1;
 }
 
 message CreateGatewayNetworkResponse {
@@ -151,17 +198,14 @@ message UpdateGatewayNetworkRequest {
     // The new name.
     string name = 2;
 
-    // Tags with specification data.
-    repeated string tags = 3;
-
-    // Price of the gateway network.
-    int64 price = 4;
+    // New description of the gateway network.
+    string description = 3;
 
     // Is the network private or not.
-    bool privateNetwork = 5;
+    bool privateNetwork = 4;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 6;
+    int64 organizationID = 5;
 }
 
 message ListGatewayNetworksResponse {
@@ -217,7 +261,7 @@ message GetGatewayNetworkGatewayResponse {
     // Name of the gateway.
     string name = 2;
 
-    // When the gatewayy was created.
+    // When the gateway was created.
     string createdAt = 3;
 
     // When the gateway was last updated.
@@ -231,4 +275,100 @@ message ListGatewayNetworkGatewaysResponse {
 
     // The gateways in the requested limit, offset range.
     repeated GetGatewayNetworkGatewayResponse result = 2;
+}
+
+message GatewayNetworkOrganizationRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // The id of the organization.
+    int64 organizationID = 2;
+}
+
+message DeleteGatewayNetworkOrganizationRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // The id of the organization.
+    int64 organizationID = 2;
+}
+
+// Request gateway networks registered to an organization.
+message ListGatewayNetworkOrganizationGatewayNetworksRequest {
+    // The organization id.
+    int64 organizationID = 1;
+
+    // Max number of users to return in the result-set.
+    int32 limit = 2;
+
+    // Offset in the result-set (for pagination).
+    int32 offset = 3;
+}
+
+// Request the organizations registered to a gateway network.
+message ListGatewayNetworkOrganizationsRequest {
+    // The gateway network id.
+    int64 id = 1;
+
+    // Max number of users to return in the result-set.
+    int32 limit = 2;
+
+    // Offset in the result-set (for pagination).
+    int32 offset = 3;
+}
+
+message GetGatewayNetworkOrganizationRequest {
+    // ID of the gateway network.
+    int64 id = 1;
+
+    // The id of the organization.
+    int64 organizationID = 2;
+}
+
+// Response for a the gateway network registered to an organization
+message GetGatewayNetworkOrganizationGatewayNetworkResponse {
+    // Id of the gateway network.
+    int64 Id = 1;
+
+    // Name of the gateway network.
+    string name = 2;
+
+    // When the user was created.
+    string createdAt = 3;
+
+    // When the gateway was last updated.
+    string updatedAt = 4;
+}
+
+// Response for an organization in the gateway network
+message GetGatewayNetworkOrganizationResponse {
+    // Id of the organization.
+    int64 organizationId = 1;
+
+    // Display name of the organization.
+    string displayName = 2;
+
+    // When the user was created.
+    string createdAt = 3;
+
+    // When the gateway was last updated.
+    string updatedAt = 4;
+}
+
+// Response for the gateway networks registered to the organization.
+message ListGatewayNetworkOrganizationGatewayNetworksResponse {
+    // The total number of gateway netoworks registered to the organization.
+    int32 totalCount = 1;
+
+    // The gateway networks in the requested limit, offset range.
+    repeated GetGatewayNetworkOrganizationGatewayNetworkResponse result = 2;
+}
+
+// Response for the organizations in a gateway network.
+message ListGatewayNetworkOrganizationsResponse {
+    // The total number of organizations in the gateway network.
+    int32 totalCount = 1;
+
+    // The organizations in the requested limit, offset range.
+    repeated GetGatewayNetworkOrganizationResponse result = 2;
 }

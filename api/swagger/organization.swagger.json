@@ -362,11 +362,6 @@
         "orgNr": {
           "type": "string",
           "title": "The Organization number"
-        },
-        "userID": {
-          "type": "string",
-          "format": "int64",
-          "title": "The ID of the user that creates the organization"
         }
       },
       "description": "Add a new organization."

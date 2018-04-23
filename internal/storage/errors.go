@@ -33,6 +33,8 @@ var (
 	ErrInvalidUsernameOrPassword = errors.New("invalid username or password")
 	ErrOrganizationInvalidName   = errors.New("invalid organization name")
 	ErrGatewayInvalidName        = errors.New("invalid gateway name")
+	ErrGatewayNetworkInvalidName = errors.New("invalid gateway network name")
+	ErrGatewayNetworkInvalidPrivateNetwork = errors.New("invalid private network value")
 	ErrInvalidEmail              = errors.New("invalid e-mail")
 )
 
