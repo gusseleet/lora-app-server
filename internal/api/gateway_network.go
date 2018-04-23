@@ -124,11 +124,11 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 			return nil, errToRPCError(err)
 		}
 	} else {
-		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, int(req.Limit), int(req.Offset))
+		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset))
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
-		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID)
+		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
