@@ -273,7 +273,7 @@
         },
         {
           "name": "JS_SERVER",
-          "value": "http://appserver:8003"
+          "value": "http://127.0.0.1:8003"
         }
       ]
     }
