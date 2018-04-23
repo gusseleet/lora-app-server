@@ -17,6 +17,7 @@ It is generated from these files:
 	networkServer.proto
 	serviceProfile.proto
 	deviceProfile.proto
+	transmittedData.proto
 
 It has these top-level messages:
 	DeviceKeys
@@ -153,12 +154,15 @@ It has these top-level messages:
 	GetGatewayNetworkGatewayRequest
 	GetGatewayNetworkGatewayResponse
 	ListGatewayNetworkGatewaysResponse
-	GatewayNetworkUserRequest
-	DeleteGatewayNetworkUserRequest
-	ListGatewayNetworkUsersRequest
-	GetGatewayNetworkUserRequest
-	GetGatewayNetworkUserResponse
-	ListGatewayNetworkUsersResponse
+	GatewayNetworkOrganizationRequest
+	DeleteGatewayNetworkOrganizationRequest
+	ListGatewayNetworkOrganizationGatewayNetworksRequest
+	ListGatewayNetworkOrganizationsRequest
+	GetGatewayNetworkOrganizationRequest
+	GetGatewayNetworkOrganizationGatewayNetworkResponse
+	GetGatewayNetworkOrganizationResponse
+	ListGatewayNetworkOrganizationGatewayNetworksResponse
+	ListGatewayNetworkOrganizationsResponse
 	ListOrganizationRequest
 	OrganizationRequest
 	GetOrganizationResponse
@@ -207,6 +211,9 @@ It has these top-level messages:
 	ListDeviceProfileRequest
 	DeviceProfileMeta
 	ListDeviceProfileResponse
+	ListTransmittedDataRequest
+	ListTransmittedDataResponse
+	GetTransmittedDataResponse
 */
 package api
 
