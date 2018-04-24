@@ -36,11 +36,6 @@ func (a *GatewayAPI) Create(ctx context.Context, req *pb.CreateGatewayRequest) (
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
-	_,err = storage.GetGatewayNetwork(config.C.PostgreSQL.DB, req.GatewayNetworkID)
-	if err != nil{
-		return nil, errToRPCError(storage.ErrDoesNotExist)
-	}
-
 	// also validate that the network-server is accessible for the given organization
 	err = a.validator.Validate(ctx, auth.ValidateOrganizationNetworkServerAccess(auth.Read, req.OrganizationID, req.NetworkServerID))
 	if err != nil {
@@ -97,12 +92,6 @@ func (a *GatewayAPI) Create(ctx context.Context, req *pb.CreateGatewayRequest) (
 	if err != nil {
 		return nil, err
 	}
-
-	err = storage.CreateGatewayNetworkGateway(config.C.PostgreSQL.DB, req.GatewayNetworkID, mac)
-	if err != nil {
-		return nil, errToRPCError(err)
-	}
-
 
 	return &pb.CreateGatewayResponse{}, nil
 }

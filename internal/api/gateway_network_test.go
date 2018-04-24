@@ -160,7 +160,6 @@ func TestGatewayNetworkAPI(t *testing.T) {
 						NetworkServerID: n.ID,
 						Tags:            []string{"Test", "Tag"},
 						MaxNodes:        3,
-						GatewayNetworkID: gnId,
 					})
 					So(err, ShouldBeNil)
 					So(validator.ctx, ShouldResemble, ctx)
@@ -208,7 +207,26 @@ func TestGatewayNetworkAPI(t *testing.T) {
 						})
 					})
 
-					Convey("When creating a second gateway to add to the gateway network", func(){
+					Convey("When adding the gateway to the gateway network", func() {
+						addGNGateway := &pb.GatewayNetworkGatewayRequest{
+							GatewayMAC: "0102030405060708",
+							Id:         gn.Id,
+						}
+						_, err := api.AddGateway(ctx, addGNGateway)
+						So(err, ShouldBeNil)
+
+						validator.returnIsAdmin = true
+						Convey("Then the gateway can be retrieved from the gateway network", func() {
+							gw, err := api.GetGateway(ctx, &pb.GetGatewayNetworkGatewayRequest{
+								Id:         gn.Id,
+								GatewayMAC: addGNGateway.GatewayMAC,
+							})
+							So(err, ShouldBeNil)
+							So(gw.Mac, ShouldEqual, addGNGateway.GatewayMAC)
+							So(validator.validatorFuncs, ShouldHaveLength, 1)
+						})
+
+						Convey("When creating a second gateway to add to the gateway network", func() {
 							gw := storage.Gateway{
 								MAC:             lorawan.EUI64{8, 7, 6, 5, 4, 3, 2, 1},
 								Name:            "test-gw2",
@@ -216,7 +234,7 @@ func TestGatewayNetworkAPI(t *testing.T) {
 								OrganizationID:  org.ID,
 								Ping:            true,
 								NetworkServerID: n.ID,
-								Tags:			 pq.StringArray{"Test","Test2"},
+								Tags:            pq.StringArray{"Test", "Test2"},
 								MaxNodes:        64,
 							}
 							So(storage.CreateGateway(db, &gw), ShouldBeNil)
@@ -228,99 +246,101 @@ func TestGatewayNetworkAPI(t *testing.T) {
 								So(err, ShouldBeNil)
 							})
 
-						// Add the gateway
-						Convey("When adding the gateway to the gateway network", func() {
-							addGNGateway := &pb.GatewayNetworkGatewayRequest{
-								GatewayMAC: "0807060504030201",
-								Id:         gn.Id,
-							}
-							_, err := api.AddGateway(ctx, addGNGateway)
-							So(err, ShouldBeNil)
-
-							validator.returnIsAdmin = true
-							Convey("Then the gateway can be retrieved from the gateway network", func() {
-								gw, err := api.GetGateway(ctx, &pb.GetGatewayNetworkGatewayRequest{
+							// Add the gateway
+							Convey("When adding the gateway to the gateway network", func() {
+								addGNGateway := &pb.GatewayNetworkGatewayRequest{
+									GatewayMAC: "0807060504030201",
 									Id:         gn.Id,
-									GatewayMAC: addGNGateway.GatewayMAC,
-								})
-								So(err, ShouldBeNil)
-								So(gw.Mac, ShouldEqual, addGNGateway.GatewayMAC)
-								So(validator.validatorFuncs, ShouldHaveLength, 1)
-							})
-
-							Convey("When listing the gateways for the gateway network", func() {
-								gws, err := api.ListGateways(ctx, &pb.ListGatewayNetworkGatewaysRequest{
-									Id:     gn.Id,
-									Limit:  10,
-									Offset: 0,
-								})
-								So(err, ShouldBeNil)
-
-								Convey("Then the nr of gateways should be 1", func() {
-									So(gws.TotalCount, ShouldEqual, 2)
-									So(gws.Result, ShouldHaveLength, 2)
-								})
-							})
-
-							Convey("When trying to create a gateway network with an invalid gateway", func() {
-								validator.returnIsAdmin = true
-								createReq := &pb.CreateGatewayNetworkRequest{
-									Name:           "testNetwork2",
-									Description:    "A test network with an invalid gateway",
-									PrivateNetwork: true,
-									OrganizationID: org.ID,
-									Gateways:       []*pb.Gateways{&pb.Gateways{"1111111111111111"}, &pb.Gateways{addGNGateway.GatewayMAC}},
 								}
-								_, err := api.Create(ctx, createReq)
-								So(err, ShouldNotBeNil)
-								So(errors.Cause(err), ShouldResemble, errToRPCError(storage.ErrDoesNotExist))
-
-							})
-
-							Convey("When creating a gateway network with the gateway added", func() {
-								validator.returnIsAdmin = true
-								createReq := &pb.CreateGatewayNetworkRequest{
-									Name:           "testNetwork3",
-									Description:    "A test network",
-									PrivateNetwork: true,
-									OrganizationID: org.ID,
-									Gateways:       []*pb.Gateways{&pb.Gateways{addGNGateway.GatewayMAC}},
-								}
-								createResp, err := api.Create(ctx, createReq)
+								_, err := api.AddGateway(ctx, addGNGateway)
 								So(err, ShouldBeNil)
-								So(validator.validatorFuncs, ShouldHaveLength, 1)
-								So(createResp, ShouldNotBeNil)
 
-								Convey("Then the gateway network has been created", func() {
-									gn, err := api.Get(ctx, &pb.GatewayNetworkRequest{
-										Id: createResp.Id,
+								validator.returnIsAdmin = true
+								Convey("Then the gateway can be retrieved from the gateway network", func() {
+									gw, err := api.GetGateway(ctx, &pb.GetGatewayNetworkGatewayRequest{
+										Id:         gn.Id,
+										GatewayMAC: addGNGateway.GatewayMAC,
 									})
 									So(err, ShouldBeNil)
-									So(gn.Name, ShouldEqual, createReq.Name)
-									So(gn.Description, ShouldEqual, createReq.Description)
-									So(gn.PrivateNetwork, ShouldEqual, createReq.PrivateNetwork)
-									So(gn.OrganizationID, ShouldEqual, createReq.OrganizationID)
-
+									So(gw.Mac, ShouldEqual, addGNGateway.GatewayMAC)
+									So(validator.validatorFuncs, ShouldHaveLength, 1)
 								})
-							})
 
-							Convey("When removing the gateway from the gateway network", func() {
-								delGNGateway := &pb.DeleteGatewayNetworkGatewayRequest{
-									GatewayMAC: addGNGateway.GatewayMAC,
-									Id:         addGNGateway.Id,
-								}
-								_, err := api.DeleteGateway(ctx, delGNGateway)
-								So(err, ShouldBeNil)
-
-								Convey("Then the gateway should be removed", func() {
-									gnGateways, err := api.ListGateways(ctx, &pb.ListGatewayNetworkGatewaysRequest{
-										Id:     gnId,
+								Convey("When listing the gateways for the gateway network", func() {
+									gws, err := api.ListGateways(ctx, &pb.ListGatewayNetworkGatewaysRequest{
+										Id:     gn.Id,
 										Limit:  10,
 										Offset: 0,
 									})
 									So(err, ShouldBeNil)
-									So(gnGateways, ShouldNotBeNil)
-									So(gnGateways.Result, ShouldHaveLength, 1)
+
+									Convey("Then the nr of gateways should be 2", func() {
+										So(gws.Result[0].Name, ShouldEqual, "test-gateway")
+										So(gws.TotalCount, ShouldEqual, 2)
+										So(gws.Result, ShouldHaveLength, 2)
+									})
+								})
+
+								Convey("When trying to create a gateway network with an invalid gateway", func() {
+									validator.returnIsAdmin = true
+									createReq := &pb.CreateGatewayNetworkRequest{
+										Name:           "testNetwork2",
+										Description:    "A test network with an invalid gateway",
+										PrivateNetwork: true,
+										OrganizationID: org.ID,
+										Gateways:       []*pb.Gateways{&pb.Gateways{"1111111111111111"}, &pb.Gateways{addGNGateway.GatewayMAC}},
+									}
+									_, err := api.Create(ctx, createReq)
+									So(err, ShouldNotBeNil)
+									So(errors.Cause(err), ShouldResemble, errToRPCError(storage.ErrDoesNotExist))
+
+								})
+
+								Convey("When creating a gateway network with the gateway added", func() {
+									validator.returnIsAdmin = true
+									createReq := &pb.CreateGatewayNetworkRequest{
+										Name:           "testNetwork3",
+										Description:    "A test network",
+										PrivateNetwork: true,
+										OrganizationID: org.ID,
+										Gateways:       []*pb.Gateways{&pb.Gateways{addGNGateway.GatewayMAC}},
+									}
+									createResp, err := api.Create(ctx, createReq)
+									So(err, ShouldBeNil)
+									So(validator.validatorFuncs, ShouldHaveLength, 1)
+									So(createResp, ShouldNotBeNil)
+
+									Convey("Then the gateway network has been created", func() {
+										gn, err := api.Get(ctx, &pb.GatewayNetworkRequest{
+											Id: createResp.Id,
+										})
+										So(err, ShouldBeNil)
+										So(gn.Name, ShouldEqual, createReq.Name)
+										So(gn.Description, ShouldEqual, createReq.Description)
+										So(gn.PrivateNetwork, ShouldEqual, createReq.PrivateNetwork)
+										So(gn.OrganizationID, ShouldEqual, createReq.OrganizationID)
+
+									})
+								})
+
+								Convey("When removing the gateway from the gateway network", func() {
+									delGNGateway := &pb.DeleteGatewayNetworkGatewayRequest{
+										GatewayMAC: addGNGateway.GatewayMAC,
+										Id:         addGNGateway.Id,
+									}
+									_, err := api.DeleteGateway(ctx, delGNGateway)
+									So(err, ShouldBeNil)
+
+									Convey("Then the gateway should be removed", func() {
+										gnGateways, err := api.ListGateways(ctx, &pb.ListGatewayNetworkGatewaysRequest{
+											Id:     gnId,
+											Limit:  10,
+											Offset: 0,
+										})
+										So(err, ShouldBeNil)
+										So(gnGateways, ShouldNotBeNil)
+										So(gnGateways.Result, ShouldHaveLength, 1)
+									})
 								})
 							})
 						})
