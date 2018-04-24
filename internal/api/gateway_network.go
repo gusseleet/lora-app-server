@@ -141,8 +141,8 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 			Id:              gn.ID,
 			CreatedAt:       gn.CreatedAt.Format(time.RFC3339Nano),
 			UpdatedAt:       gn.UpdatedAt.Format(time.RFC3339Nano),
-			Description:	 gn.Description,
 			Name:            gn.Name,
+			Description:	 gn.Description,
 			PrivateNetwork:  gn.PrivateNetwork,
 			OrganizationID:	 gn.OrganizationID,
 		}

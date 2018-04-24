@@ -296,6 +296,7 @@ func startClientAPI(ctx context.Context) func() error {
 		pb.RegisterServiceProfileServiceServer(clientAPIHandler, api.NewServiceProfileServiceAPI(validator))
 		pb.RegisterDeviceProfileServiceServer(clientAPIHandler, api.NewDeviceProfileServiceAPI(validator))
 		pb.RegisterTransmittedDataServer(clientAPIHandler, api.NewTransmittedDataAPI(validator))
+		pb.RegisterPaymentPlanServer(clientAPIHandler, api.NewPaymentPlanAPI(validator))
 
 		// setup the client http interface variable
 		// we need to start the gRPC service first, as it is used by the
@@ -472,6 +473,9 @@ func getJSONGateway(ctx context.Context) (http.Handler, error) {
 	}
 	if err := pb.RegisterTransmittedDataHandlerFromEndpoint(ctx, mux, apiEndpoint, grpcDialOpts); err != nil {
 		return nil, errors.Wrap(err, "register transmitted data handler error")
+	}
+	if err := pb.RegisterPaymentPlanHandlerFromEndpoint(ctx, mux, apiEndpoint, grpcDialOpts); err != nil {
+		return nil, errors.Wrap(err, "register payment plan handler error")
 	}
 
 	return mux, nil

@@ -505,11 +505,6 @@
           "type": "string",
           "description": "Gateway network name."
         },
-        "price": {
-          "type": "string",
-          "format": "int64",
-          "description": "Price of the gateway network."
-        },
         "description": {
           "type": "string",
           "description": "Description of the gateway network."

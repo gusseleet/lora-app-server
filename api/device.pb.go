@@ -18,6 +18,7 @@ It is generated from these files:
 	serviceProfile.proto
 	deviceProfile.proto
 	transmittedData.proto
+	paymentPlan.proto
 
 It has these top-level messages:
 	DeviceKeys
@@ -214,6 +215,18 @@ It has these top-level messages:
 	ListTransmittedDataRequest
 	ListTransmittedDataResponse
 	GetTransmittedDataResponse
+	ListPaymentPlansRequest
+	ListPaymentPlansResponse
+	PaymentPlanRequest
+	GetPaymentPlanResponse
+	CreatePaymentPlanRequest
+	CreatePaymentPlanResponse
+	UpdatePaymentPlanRequest
+	PaymentPlanEmptyResponse
+	ListPayPlanGatewayNetworksRequest
+	ListPayPlanGatewayNetworkResponse
+	GetPayPlanGatewayNetworkResponse
+	PayPlanGatewayNetworkRequest
 */
 package api
 

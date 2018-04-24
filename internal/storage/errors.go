@@ -36,6 +36,7 @@ var (
 	ErrGatewayNetworkInvalidName = errors.New("invalid gateway network name")
 	ErrGatewayNetworkInvalidPrivateNetwork = errors.New("invalid private network value")
 	ErrInvalidEmail              = errors.New("invalid e-mail")
+	ErrPaymentPlanInvalidName	 = errors.New("invalid payment plan name")
 )
 
 func handlePSQLError(action Action, err error, description string) error {
