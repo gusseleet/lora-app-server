@@ -231,7 +231,8 @@
       "links": [
         "postgres_ns",
         "mosquitto",
-        "redis"
+        "redis",
+        "appserver"
       ],
       "mountPoints": [],
       "environment": [
@@ -273,7 +274,7 @@
         },
         {
           "name": "JS_SERVER",
-          "value": "http://127.0.0.1:8003"
+          "value": "http://appserver:8003"
         }
       ]
     }
