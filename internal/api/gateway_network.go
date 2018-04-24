@@ -154,7 +154,7 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 	}, nil
 }
 
-// Update updates the given gateway network.
+// Update updates the given gateway network with the given data.
 func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNetworkRequest) (*pb.GatewayNetworkEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
 		auth.ValidateGatewayNetworkAccess(auth.Update, req.Id)); err != nil {
