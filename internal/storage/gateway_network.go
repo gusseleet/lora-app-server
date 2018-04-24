@@ -135,12 +135,27 @@ func GetGatewayNetworkCount(db sqlx.Queryer, privateNetwork int64) (int, error) 
 }
 
 // GetGatewayNetworkCountForOrganizationID returns the total number of gateway networks for the given organization id.
-func GetGatewayNetworkCountForOrganizationID(db sqlx.Queryer, organizationID int64) (int, error) {
+func GetGatewayNetworkCountForOrganizationID(db sqlx.Queryer, organizationID int64, privateNetwork int64) (int, error) {
 	var count int
 
-	err := sqlx.Get(db, &count, "select count(*) from gateway_network where organization_id = $1", organizationID)
-	if err != nil {
-		return 0, handlePSQLError(Select, err, "select error")
+	if privateNetwork == 0 {
+		err := sqlx.Get(db, &count, "select count(*) from gateway_network where organization_id = $1", organizationID)
+		if err != nil {
+			return 0, handlePSQLError(Select, err, "select error")
+		}
+	} else if privateNetwork == 1 || privateNetwork == 2 {
+		pn := false;
+
+		if privateNetwork == 2 {
+			pn = true;
+		}
+
+		err := sqlx.Get(db, &count, "select count(*) from gateway_network where organization_id = $1 and private_network = $2", organizationID, pn)
+		if err != nil {
+			return 0, handlePSQLError(Select, err, "select error")
+		}
+	} else {
+		return 0, handlePSQLError(Select, ErrGatewayNetworkInvalidPrivateNetwork, "select error")
 	}
 
 	return count, nil
@@ -191,22 +206,51 @@ func GetGatewayNetworks(db sqlx.Queryer, privateNetwork int64, limit, offset int
 }
 
 // GetGatewayNetworksForOrganizationID returns a slice of gateway networks for the give organization id.
-func GetGatewayNetworksForOrganizationID(db sqlx.Queryer, organizationID int64, limit, offset int) ([]GatewayNetwork, error) {
+func GetGatewayNetworksForOrganizationID(db sqlx.Queryer, organizationID int64, privateNetwork int64, limit, offset int) ([]GatewayNetwork, error) {
 	var gns []GatewayNetwork
-	err := sqlx.Select(db, &gns, `
+
+	if privateNetwork == 0 {
+
+		err := sqlx.Select(db, &gns, `
 		select *
 		from gateway_network
 		where organization_id = $1
 		order by name
 		limit $2 offset $3`,
-		organizationID,
-		limit,
-		offset,
-	)
-	if err != nil {
-		return nil, handlePSQLError(Select, err, "select error")
+			organizationID,
+			limit,
+			offset,
+		)
+		if err != nil {
+			return nil, handlePSQLError(Select, err, "select error")
+		}
+		return gns, nil
+	} else if privateNetwork == 1 || privateNetwork == 2 {
+		pn := false;
+
+		if privateNetwork == 2{
+			pn = true;
+		}
+
+		err := sqlx.Select(db, &gns, `
+		select *
+		from gateway_network
+		where organization_id = $1
+		and private_network = $2
+		order by name
+		limit $3 offset $4`,
+			organizationID,
+			pn,
+			limit,
+			offset,
+		)
+		if err != nil {
+			return nil, handlePSQLError(Select, err, "select error")
+		}
+		return gns, nil
+	} else {
+		return nil, handlePSQLError(Select, ErrGatewayNetworkInvalidPrivateNetwork, "select error")
 	}
-	return gns, nil
 }
 
 // UpdateGatewayNetwork updates the given gateway network.
