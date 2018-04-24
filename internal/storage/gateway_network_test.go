@@ -91,8 +91,8 @@ func TestGatewayNetwork(t *testing.T) {
 				So(gns[0], ShouldResemble, gn)
 			})
 
-			Convey("Then get gateway network count returns 1", func() {
-				count, err := GetGatewayNetworksForOrganizationIDCount(db, 2)
+			Convey("Then get gateway network count for the creating organization returns 1", func() {
+				count, err := GetGatewayNetworkCountForOrganizationID(db, gn.OrganizationID, 2)
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 1)
 			})
@@ -114,7 +114,7 @@ func TestGatewayNetwork(t *testing.T) {
 				})
 			})
 
-			Convey("Then get gateway network count returns 1", func() {
+			Convey("Then the nr of private gateway networks is 1", func() {
 				count, err := GetGatewayNetworkCount(db, 2)
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 1)
