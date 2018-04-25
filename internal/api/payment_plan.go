@@ -39,6 +39,7 @@ func (a *PaymentPlanAPI) Create(ctx context.Context, req *pb.CreatePaymentPlanRe
 		AllowedApps: 	req.AllowedApplications,
 		FixedPrice: 	req.FixedPrice,
 		AddedDataPrice: req.AddedDataPrice,
+		OrganizationID: req.OrganizationID,
 	}
 
 	err := storage.CreatePaymentPlan(config.C.PostgreSQL.DB, &pp)
@@ -71,6 +72,7 @@ func (a *PaymentPlanAPI) Get(ctx context.Context, req *pb.PaymentPlanRequest) (*
 		AllowedApplications:	pp.AllowedApps,
 		FixedPrice:				pp.FixedPrice,
 		AddedDataPrice:			pp.AddedDataPrice,
+		OrganizationID: 		pp.OrganizationID,
 	}, nil
 }
 
@@ -103,6 +105,7 @@ func (a *PaymentPlanAPI) List(ctx context.Context, req *pb.ListPaymentPlansReque
 			AllowedApplications:	pp.AllowedApps,
 			FixedPrice:				pp.FixedPrice,
 			AddedDataPrice:			pp.AddedDataPrice,
+			OrganizationID: 		pp.OrganizationID,
 		}
 	}
 
@@ -130,6 +133,7 @@ func (a *PaymentPlanAPI) Update(ctx context.Context, req *pb.UpdatePaymentPlanRe
 	pp.AllowedApps 		= req.AllowedApplications
 	pp.FixedPrice 		= req.FixedPrice
 	pp.AddedDataPrice 	= req.AddedDataPrice
+	pp.OrganizationID	= req.OrganizationID
 
 	err = storage.UpdatePaymentPlan(config.C.PostgreSQL.DB, &pp)
 	if err != nil {
@@ -186,6 +190,8 @@ func (a *PaymentPlanAPI) ListGatewayNetworks(ctx context.Context, req *pb.ListPa
 			UpdatedAt:		gatewayNetwork.UpdatedAt.Format(time.RFC3339Nano),
 			Name:			gatewayNetwork.Name,
 			PrivateNetwork:	gatewayNetwork.PrivateNetwork,
+			OrganizationID: gatewayNetwork.OrganizationID,
+			Desc: 			gatewayNetwork.Desc,
 		}
 	}
 
@@ -214,6 +220,7 @@ func (a *PaymentPlanAPI) GetGatewayNetwork(ctx context.Context, req *pb.PayPlanG
 		Name:			gatewayNetwork.Name,
 		Desc:			gatewayNetwork.Desc,
 		PrivateNetwork: gatewayNetwork.PrivateNetwork,
+		OrganizationID: gatewayNetwork.OrganizationID,
 	}, nil
 }
 

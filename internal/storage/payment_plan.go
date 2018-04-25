@@ -21,6 +21,7 @@ type PaymentPlan struct {
 	AllowedApps 	int32	`db:"nr_of_allowed_apps"`
 	FixedPrice 		int32 	`db:"fixed_price"`
 	AddedDataPrice 	int32	`db:"added_data_price"`
+	OrganizationID	int64	`db:"organization_id"`
 }
 
 type PaymentPlanGatewayNetwork struct {
@@ -54,14 +55,16 @@ func CreatePaymentPlan(db sqlx.Queryer, pp *PaymentPlan) error {
 			nr_of_allowed_devices,
 			nr_of_allowed_apps,
 			fixed_price,
-			added_data_price
-		) values ($1, $2, $3, $4, $5, $6) returning id`,
+			added_data_price,
+			organization_id
+		) values ($1, $2, $3, $4, $5, $6, $7) returning id`,
 		pp.Name,
 		pp.DataLimit,
 		pp.AllowedDevices,
 		pp.AllowedApps,
 		pp.FixedPrice,
 		pp.AddedDataPrice,
+		pp.OrganizationID,
 	)
 
 	if err != nil {
@@ -145,7 +148,8 @@ func UpdatePaymentPlan(db sqlx.Execer, pp *PaymentPlan) error {
 			nr_of_allowed_devices = $4,
 			nr_of_allowed_apps = $5,
 			fixed_price = $6,
-			added_data_price = $7
+			added_data_price = $7,
+			organization_id = $8
 		where id = $1`,
 		pp.ID,
 		pp.Name,
@@ -154,6 +158,7 @@ func UpdatePaymentPlan(db sqlx.Execer, pp *PaymentPlan) error {
 		pp.AllowedApps,
 		pp.FixedPrice,
 		pp.AddedDataPrice,
+		pp.OrganizationID,
 	)
 
 	if err != nil {

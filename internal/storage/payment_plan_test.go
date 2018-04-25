@@ -47,6 +47,7 @@ func TestPaymentPlan(t *testing.T) {
 				AllowedApps:    10,
 				FixedPrice:     10,
 				AddedDataPrice: 10,
+				OrganizationID: org.ID,
 			}
 
 			err := CreatePaymentPlan(db, &pp)
@@ -65,6 +66,7 @@ func TestPaymentPlan(t *testing.T) {
 				AllowedApps:    10,
 				FixedPrice:     10,
 				AddedDataPrice: 10,
+				OrganizationID: org.ID,
 			}
 
 			err := CreatePaymentPlan(db, &pp)
@@ -83,6 +85,7 @@ func TestPaymentPlan(t *testing.T) {
 				AllowedApps:    10,
 				FixedPrice:     10,
 				AddedDataPrice: 10,
+				OrganizationID: org.ID,
 			}
 			So(CreatePaymentPlan(db, &pp), ShouldBeNil)
 

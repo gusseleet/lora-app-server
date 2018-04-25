@@ -6,7 +6,8 @@ create table payment_plan (
   nr_of_allowed_devices smallint not null,
   nr_of_allowed_apps smallint not null,
   fixed_price smallint not null,
-  added_data_price smallint not null
+  added_data_price smallint not null,
+  organization_id bigserial not null references organization on delete cascade
 );
 
 create index idx_payment_plan_id on payment_plan(id);
