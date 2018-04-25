@@ -220,7 +220,7 @@ func (a *PaymentPlanAPI) GetGatewayNetwork(ctx context.Context, req *pb.PayPlanG
 // AddGatewayNetwork creates the given payment plan <-> gateway network link.
 func (a *PaymentPlanAPI) AddGatewayNetwork(ctx context.Context, req *pb.PayPlanGatewayNetworkRequest) (*pb.PaymentPlanEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanGatewayNetworksAccess(auth.Create, req.Id)); err != nil {
+		auth.ValidatePaymentPlanGatewayNetworkAccess(auth.Create, req.Id, req.GatewayNetworkID)); err != nil {
 			return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -235,7 +235,7 @@ func (a *PaymentPlanAPI) AddGatewayNetwork(ctx context.Context, req *pb.PayPlanG
 // DeleteGatewayNetwork deletes the given gateway network from the payment plan.
 func (a *PaymentPlanAPI) DeleteGatewayNetwork(ctx context.Context, req *pb.PayPlanGatewayNetworkRequest) (*pb.PaymentPlanEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanGatewayNetworkAccess(auth.Delete, req.Id)); err != nil {
+		auth.ValidatePaymentPlanGatewayNetworkAccess(auth.Delete, req.Id, req.GatewayNetworkID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 

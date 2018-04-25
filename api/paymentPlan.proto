@@ -44,18 +44,21 @@ service PaymentPlan {
         };
     }
 
+    // List payment plan-to-gateway network links
     rpc ListGatewayNetworks(ListPayPlanGatewayNetworksRequest) returns (ListPayPlanGatewayNetworkResponse) {
         option(google.api.http) = {
             get: "/api/paymentplans/{id}/gatewaynetworks"
         };
     }
 
+    // Get a specific payment plan-to-gateway network link
     rpc GetGatewayNetwork(PayPlanGatewayNetworkRequest) returns (GetPayPlanGatewayNetworkResponse) {
         option(google.api.http) = {
             get: "/api/paymentplans/{id}/gatewaynetworks/{gatewayNetworkID}"
         };
     }
 
+    // Add a payment plan-to-gateway network link
     rpc AddGatewayNetwork(PayPlanGatewayNetworkRequest) returns (PaymentPlanEmptyResponse) {
         option(google.api.http) = {
             post: "/api/paymentplans/{id}/gatewaynetworks"
@@ -63,6 +66,7 @@ service PaymentPlan {
         };
     }
 
+    // Delete a specific payment plan-to-gateway network link
     rpc DeleteGatewayNetwork(PayPlanGatewayNetworkRequest) returns (PaymentPlanEmptyResponse) {
         option(google.api.http) = {
             delete: "/api/paymentplans/{id}/gatewaynetworks/{gatewayNetworkID}"
