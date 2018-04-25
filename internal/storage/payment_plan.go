@@ -7,11 +7,10 @@ import (
 
 	"regexp"
 	"time"
-	"fmt"
 )
 
-// Validate gateway network name. 6-40 characters of any letters, numbers, dashes or underscores.
-var paymentPlanNameRegexp = regexp.MustCompile(`^[[:word:]-]{6,40}$`)
+// Validate payment plan name. 2-40 characters of any letters, numbers, dashes or underscores.
+var paymentPlanNameRegexp = regexp.MustCompile(`^[[:word:]-]{2,40}$`)
 
 // PaymentPlan defines the payment plan.
 type PaymentPlan struct {
@@ -22,6 +21,7 @@ type PaymentPlan struct {
 	AllowedApps 	int32	`db:"nr_of_allowed_apps"`
 	FixedPrice 		int32 	`db:"fixed_price"`
 	AddedDataPrice 	int32	`db:"added_data_price"`
+	OrganizationID	int64	`db:"organization_id"`
 }
 
 type PaymentPlanGatewayNetwork struct {
@@ -55,14 +55,16 @@ func CreatePaymentPlan(db sqlx.Queryer, pp *PaymentPlan) error {
 			nr_of_allowed_devices,
 			nr_of_allowed_apps,
 			fixed_price,
-			added_data_price
-		) values ($1, $2, $3, $4, $5, $6) returning id`,
+			added_data_price,
+			organization_id
+		) values ($1, $2, $3, $4, $5, $6, $7) returning id`,
 		pp.Name,
 		pp.DataLimit,
 		pp.AllowedDevices,
 		pp.AllowedApps,
 		pp.FixedPrice,
 		pp.AddedDataPrice,
+		pp.OrganizationID,
 	)
 
 	if err != nil {
@@ -79,7 +81,6 @@ func CreatePaymentPlan(db sqlx.Queryer, pp *PaymentPlan) error {
 
 func GetPaymentPlan(db sqlx.Queryer, id int64) (PaymentPlan, error) {
 	var pp PaymentPlan
-	fmt.Println("Payment Plan Get")
 	err := sqlx.Get(db, &pp, "select * from payment_plan where id = $1", id)
 	if err != nil {
 		return pp, handlePSQLError(Select, err, "select error")
@@ -147,7 +148,8 @@ func UpdatePaymentPlan(db sqlx.Execer, pp *PaymentPlan) error {
 			nr_of_allowed_devices = $4,
 			nr_of_allowed_apps = $5,
 			fixed_price = $6,
-			added_data_price = $7
+			added_data_price = $7,
+			organization_id = $8
 		where id = $1`,
 		pp.ID,
 		pp.Name,
@@ -156,6 +158,7 @@ func UpdatePaymentPlan(db sqlx.Execer, pp *PaymentPlan) error {
 		pp.AllowedApps,
 		pp.FixedPrice,
 		pp.AddedDataPrice,
+		pp.OrganizationID,
 	)
 
 	if err != nil {
@@ -229,9 +232,10 @@ func GetPaymentPlanToGatewayNetworks(db sqlx.Queryer, paymentPlanID int64, limit
 			gn.created_at as created_at,
 			gn.updated_at as updated_at,
 			gn.name as name,
-			gn.description as desc,
+			gn.description as description,
 			gn.private_network as private_network,
-			gn.organization_id as organization_id
+			gn.organization_id as organization_id,
+			gnpp.pay_plan_id as pay_plan_id
 		from gateway_network_to_payment_plan gnpp
 		inner join "gateway_network" gn
 			on gn.id = gnpp.gw_id
@@ -258,9 +262,10 @@ func GetPaymentPlanToGatewayNetwork(db sqlx.Queryer, paymentPlanID int64, gatewa
 			gn.created_at as created_at,
 			gn.updated_at as updated_at,
 			gn.name as name,
-			gn.description as desc,
+			gn.description as description,
 			gn.private_network as private_network,
-			gn.organization_id as organization_id
+			gn.organization_id as organization_id,
+			gnpp.pay_plan_id as pay_plan_id
 		from gateway_network_to_payment_plan gnpp
 		inner join "gateway_network" gn
 			on gn.id = gnpp.gw_id

@@ -28,7 +28,7 @@ func NewPaymentPlanAPI(validator auth.Validator) *PaymentPlanAPI {
 // Create creates the given payment plan.
 func (a *PaymentPlanAPI) Create(ctx context.Context, req *pb.CreatePaymentPlanRequest) (*pb.CreatePaymentPlanResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlansAccess(auth.Create)); err != nil {
+		auth.ValidatePaymentPlansAccess(auth.Create, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -39,6 +39,7 @@ func (a *PaymentPlanAPI) Create(ctx context.Context, req *pb.CreatePaymentPlanRe
 		AllowedApps: 	req.AllowedApplications,
 		FixedPrice: 	req.FixedPrice,
 		AddedDataPrice: req.AddedDataPrice,
+		OrganizationID: req.OrganizationID,
 	}
 
 	err := storage.CreatePaymentPlan(config.C.PostgreSQL.DB, &pp)
@@ -54,7 +55,7 @@ func (a *PaymentPlanAPI) Create(ctx context.Context, req *pb.CreatePaymentPlanRe
 // Get returns the payment plan matching the given ID.
 func (a *PaymentPlanAPI) Get(ctx context.Context, req *pb.PaymentPlanRequest) (*pb.GetPaymentPlanResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanAccess(auth.Read, req.Id)); err != nil {
+		auth.ValidatePaymentPlanAccess(auth.Read, req.Id, 0)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -71,13 +72,14 @@ func (a *PaymentPlanAPI) Get(ctx context.Context, req *pb.PaymentPlanRequest) (*
 		AllowedApplications:	pp.AllowedApps,
 		FixedPrice:				pp.FixedPrice,
 		AddedDataPrice:			pp.AddedDataPrice,
+		OrganizationID: 		pp.OrganizationID,
 	}, nil
 }
 
 // List lists the payment plans to which the user has access.
 func (a *PaymentPlanAPI) List(ctx context.Context, req *pb.ListPaymentPlansRequest) (*pb.ListPaymentPlansResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlansAccess(auth.List)); err != nil {
+		auth.ValidatePaymentPlansAccess(auth.List, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -103,6 +105,7 @@ func (a *PaymentPlanAPI) List(ctx context.Context, req *pb.ListPaymentPlansReque
 			AllowedApplications:	pp.AllowedApps,
 			FixedPrice:				pp.FixedPrice,
 			AddedDataPrice:			pp.AddedDataPrice,
+			OrganizationID: 		pp.OrganizationID,
 		}
 	}
 
@@ -115,7 +118,7 @@ func (a *PaymentPlanAPI) List(ctx context.Context, req *pb.ListPaymentPlansReque
 // Update updates the given payment plan.
 func (a *PaymentPlanAPI) Update(ctx context.Context, req *pb.UpdatePaymentPlanRequest) (*pb.PaymentPlanEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanAccess(auth.Update, req.Id)); err != nil {
+		auth.ValidatePaymentPlanAccess(auth.Update, req.Id, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -130,6 +133,7 @@ func (a *PaymentPlanAPI) Update(ctx context.Context, req *pb.UpdatePaymentPlanRe
 	pp.AllowedApps 		= req.AllowedApplications
 	pp.FixedPrice 		= req.FixedPrice
 	pp.AddedDataPrice 	= req.AddedDataPrice
+	pp.OrganizationID	= req.OrganizationID
 
 	err = storage.UpdatePaymentPlan(config.C.PostgreSQL.DB, &pp)
 	if err != nil {
@@ -142,7 +146,7 @@ func (a *PaymentPlanAPI) Update(ctx context.Context, req *pb.UpdatePaymentPlanRe
 // Delete deletes the given payment plan.
 func (a *PaymentPlanAPI) Delete(ctx context.Context, req *pb.PaymentPlanRequest) (*pb.PaymentPlanEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanAccess(auth.Delete, req.Id)); err != nil {
+		auth.ValidatePaymentPlanAccess(auth.Delete, req.Id, 0)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -186,6 +190,8 @@ func (a *PaymentPlanAPI) ListGatewayNetworks(ctx context.Context, req *pb.ListPa
 			UpdatedAt:		gatewayNetwork.UpdatedAt.Format(time.RFC3339Nano),
 			Name:			gatewayNetwork.Name,
 			PrivateNetwork:	gatewayNetwork.PrivateNetwork,
+			OrganizationID: gatewayNetwork.OrganizationID,
+			Desc: 			gatewayNetwork.Desc,
 		}
 	}
 
@@ -198,7 +204,7 @@ func (a *PaymentPlanAPI) ListGatewayNetworks(ctx context.Context, req *pb.ListPa
 // GetGatewayNetwork returns the gateway network details for the given id.
 func (a *PaymentPlanAPI) GetGatewayNetwork(ctx context.Context, req *pb.PayPlanGatewayNetworkRequest) (*pb.GetPayPlanGatewayNetworkResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanAccess(auth.Read, req.Id)); err != nil {
+		auth.ValidatePaymentPlanAccess(auth.Read, req.Id, 0)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -214,13 +220,14 @@ func (a *PaymentPlanAPI) GetGatewayNetwork(ctx context.Context, req *pb.PayPlanG
 		Name:			gatewayNetwork.Name,
 		Desc:			gatewayNetwork.Desc,
 		PrivateNetwork: gatewayNetwork.PrivateNetwork,
+		OrganizationID: gatewayNetwork.OrganizationID,
 	}, nil
 }
 
 // AddGatewayNetwork creates the given payment plan <-> gateway network link.
 func (a *PaymentPlanAPI) AddGatewayNetwork(ctx context.Context, req *pb.PayPlanGatewayNetworkRequest) (*pb.PaymentPlanEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanGatewayNetworksAccess(auth.Create, req.Id)); err != nil {
+		auth.ValidatePaymentPlanGatewayNetworkAccess(auth.Create, req.Id, req.GatewayNetworkID)); err != nil {
 			return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -235,7 +242,7 @@ func (a *PaymentPlanAPI) AddGatewayNetwork(ctx context.Context, req *pb.PayPlanG
 // DeleteGatewayNetwork deletes the given gateway network from the payment plan.
 func (a *PaymentPlanAPI) DeleteGatewayNetwork(ctx context.Context, req *pb.PayPlanGatewayNetworkRequest) (*pb.PaymentPlanEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanGatewayNetworkAccess(auth.Delete, req.Id)); err != nil {
+		auth.ValidatePaymentPlanGatewayNetworkAccess(auth.Delete, req.Id, req.GatewayNetworkID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 

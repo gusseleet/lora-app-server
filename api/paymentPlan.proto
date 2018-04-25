@@ -44,18 +44,21 @@ service PaymentPlan {
         };
     }
 
+    // List payment plan-to-gateway network links
     rpc ListGatewayNetworks(ListPayPlanGatewayNetworksRequest) returns (ListPayPlanGatewayNetworkResponse) {
         option(google.api.http) = {
             get: "/api/paymentplans/{id}/gatewaynetworks"
         };
     }
 
+    // Get a specific payment plan-to-gateway network link
     rpc GetGatewayNetwork(PayPlanGatewayNetworkRequest) returns (GetPayPlanGatewayNetworkResponse) {
         option(google.api.http) = {
             get: "/api/paymentplans/{id}/gatewaynetworks/{gatewayNetworkID}"
         };
     }
 
+    // Add a payment plan-to-gateway network link
     rpc AddGatewayNetwork(PayPlanGatewayNetworkRequest) returns (PaymentPlanEmptyResponse) {
         option(google.api.http) = {
             post: "/api/paymentplans/{id}/gatewaynetworks"
@@ -63,6 +66,7 @@ service PaymentPlan {
         };
     }
 
+    // Delete a specific payment plan-to-gateway network link
     rpc DeleteGatewayNetwork(PayPlanGatewayNetworkRequest) returns (PaymentPlanEmptyResponse) {
         option(google.api.http) = {
             delete: "/api/paymentplans/{id}/gatewaynetworks/{gatewayNetworkID}"
@@ -81,6 +85,9 @@ message ListPaymentPlansRequest {
     // When provided, the given string will be used to search on
     // Name.
     string search = 3;
+
+    // Optional Organization ID for filtering.
+    int64 organizationID = 8;
 }
 
 // Response of listing the payment plans
@@ -120,6 +127,9 @@ message GetPaymentPlanResponse {
 
     // The price of data that exceeds the data limit.
     int32 addedDataPrice = 7;
+
+    // Organization ID that the payment plan belongs to.
+    int64 organizationID = 8;
 }
 
 // Add a new payment plan.
@@ -141,6 +151,9 @@ message CreatePaymentPlanRequest {
 
     // The price of data that exceeds the data limit.
     int32 addedDataPrice = 7;
+
+    // Organization ID that the payment plan belongs to.
+    int64 organizationID = 8;
 }
 
 // The response of the created payment plan.
@@ -171,6 +184,9 @@ message UpdatePaymentPlanRequest {
 
     // The price of data that exceeds the data limit.
     int32 addedDataPrice = 7;
+
+    // Organization ID that the payment plan belongs to.
+    int64 organizationID = 8;
 }
 
 // Empty responses for update and delete

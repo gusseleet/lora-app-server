@@ -21,7 +21,7 @@ import (
 func TestGatewayAPI(t *testing.T) {
 	conf := test.GetConfig()
 
-	Convey("Given clean database with an organization and a mocked network-server api", t, func() {
+	Convey("Given clean database with an organization a mocked network-server api and a test gateway network", t, func() {
 		db, err := storage.OpenDatabase(conf.PostgresDSN)
 		So(err, ShouldBeNil)
 		config.C.PostgreSQL.DB = db
@@ -49,6 +49,15 @@ func TestGatewayAPI(t *testing.T) {
 			Name: "test-organization-2",
 		}
 		So(storage.CreateOrganization(config.C.PostgreSQL.DB, &org2), ShouldBeNil)
+
+		gwn := storage.GatewayNetwork{
+			Name:            "testNetwork",
+			Description:     "A test network",
+			PrivateNetwork:  true,
+			OrganizationID:  org.ID,
+		}
+		So(storage.CreateGatewayNetwork(config.C.PostgreSQL.DB, &gwn), ShouldBeNil)
+
 
 		now := time.Now().UTC()
 		getGatewayResponseNS := ns.GetGatewayResponse{
@@ -93,6 +102,7 @@ func TestGatewayAPI(t *testing.T) {
 				NetworkServerID: n.ID,
 				Tags : []string{"Test","Tag"},
 				MaxNodes: 3,
+				GatewayNetworkID: gwn.ID,
 			})
 			So(err, ShouldBeNil)
 			So(validator.ctx, ShouldResemble, ctx)
@@ -140,7 +150,7 @@ func TestGatewayAPI(t *testing.T) {
 				})
 			})
 
-			Convey("Given an extra gateway beloning to a different organization", func() {
+			Convey("Given an extra gateway belonging to a different organization", func() {
 				org2 := storage.Organization{
 					Name: "test-org-2",
 				}

@@ -525,6 +525,13 @@
             "$ref": "#/definitions/apiGateways"
           },
           "title": "List of gateways to add"
+        },
+        "paymentPlans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiPaymentPlans"
+          },
+          "title": "List of payment plans to add"
         }
       },
       "description": "Add a new organization."
@@ -750,6 +757,16 @@
           "items": {
             "$ref": "#/definitions/apiGetGatewayNetworkResponse"
           }
+        }
+      }
+    },
+    "apiPaymentPlans": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "ID of payment plan"
         }
       }
     },

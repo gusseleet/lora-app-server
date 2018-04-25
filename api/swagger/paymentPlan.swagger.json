@@ -50,6 +50,14 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "organizationID",
+            "description": "Optional Organization ID for filtering.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
           }
         ],
         "tags": [
@@ -166,6 +174,7 @@
     },
     "/api/paymentplans/{id}/gatewaynetworks": {
       "get": {
+        "summary": "List payment plan-to-gateway network links",
         "operationId": "ListGatewayNetworks",
         "responses": {
           "200": {
@@ -205,6 +214,7 @@
         ]
       },
       "post": {
+        "summary": "Add a payment plan-to-gateway network link",
         "operationId": "AddGatewayNetwork",
         "responses": {
           "200": {
@@ -238,6 +248,7 @@
     },
     "/api/paymentplans/{id}/gatewaynetworks/{gatewayNetworkID}": {
       "get": {
+        "summary": "Get a specific payment plan-to-gateway network link",
         "operationId": "GetGatewayNetwork",
         "responses": {
           "200": {
@@ -268,6 +279,7 @@
         ]
       },
       "delete": {
+        "summary": "Delete a specific payment plan-to-gateway network link",
         "operationId": "DeleteGatewayNetwork",
         "responses": {
           "200": {
@@ -331,6 +343,11 @@
           "type": "integer",
           "format": "int32",
           "description": "The price of data that exceeds the data limit."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Organization ID that the payment plan belongs to."
         }
       },
       "description": "Add a new payment plan."
@@ -419,6 +436,11 @@
           "type": "integer",
           "format": "int32",
           "description": "The price of data that exceeds the data limit."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Organization ID that the payment plan belongs to."
         }
       },
       "description": "The response of a payment plan."
@@ -515,6 +537,11 @@
           "type": "integer",
           "format": "int32",
           "description": "The price of data that exceeds the data limit."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Organization ID that the payment plan belongs to."
         }
       },
       "description": "Update existing payment plan."
