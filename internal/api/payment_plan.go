@@ -28,7 +28,7 @@ func NewPaymentPlanAPI(validator auth.Validator) *PaymentPlanAPI {
 // Create creates the given payment plan.
 func (a *PaymentPlanAPI) Create(ctx context.Context, req *pb.CreatePaymentPlanRequest) (*pb.CreatePaymentPlanResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlansAccess(auth.Create)); err != nil {
+		auth.ValidatePaymentPlansAccess(auth.Create, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -55,7 +55,7 @@ func (a *PaymentPlanAPI) Create(ctx context.Context, req *pb.CreatePaymentPlanRe
 // Get returns the payment plan matching the given ID.
 func (a *PaymentPlanAPI) Get(ctx context.Context, req *pb.PaymentPlanRequest) (*pb.GetPaymentPlanResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanAccess(auth.Read, req.Id)); err != nil {
+		auth.ValidatePaymentPlanAccess(auth.Read, req.Id, 0)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -79,7 +79,7 @@ func (a *PaymentPlanAPI) Get(ctx context.Context, req *pb.PaymentPlanRequest) (*
 // List lists the payment plans to which the user has access.
 func (a *PaymentPlanAPI) List(ctx context.Context, req *pb.ListPaymentPlansRequest) (*pb.ListPaymentPlansResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlansAccess(auth.List)); err != nil {
+		auth.ValidatePaymentPlansAccess(auth.List, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -118,7 +118,7 @@ func (a *PaymentPlanAPI) List(ctx context.Context, req *pb.ListPaymentPlansReque
 // Update updates the given payment plan.
 func (a *PaymentPlanAPI) Update(ctx context.Context, req *pb.UpdatePaymentPlanRequest) (*pb.PaymentPlanEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanAccess(auth.Update, req.Id)); err != nil {
+		auth.ValidatePaymentPlanAccess(auth.Update, req.Id, req.OrganizationID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -146,7 +146,7 @@ func (a *PaymentPlanAPI) Update(ctx context.Context, req *pb.UpdatePaymentPlanRe
 // Delete deletes the given payment plan.
 func (a *PaymentPlanAPI) Delete(ctx context.Context, req *pb.PaymentPlanRequest) (*pb.PaymentPlanEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanAccess(auth.Delete, req.Id)); err != nil {
+		auth.ValidatePaymentPlanAccess(auth.Delete, req.Id, 0)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -204,7 +204,7 @@ func (a *PaymentPlanAPI) ListGatewayNetworks(ctx context.Context, req *pb.ListPa
 // GetGatewayNetwork returns the gateway network details for the given id.
 func (a *PaymentPlanAPI) GetGatewayNetwork(ctx context.Context, req *pb.PayPlanGatewayNetworkRequest) (*pb.GetPayPlanGatewayNetworkResponse, error) {
 	if err := a.validator.Validate(ctx,
-		auth.ValidatePaymentPlanAccess(auth.Read, req.Id)); err != nil {
+		auth.ValidatePaymentPlanAccess(auth.Read, req.Id, 0)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 

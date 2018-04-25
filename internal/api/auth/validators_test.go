@@ -224,6 +224,7 @@ func TestValidators(t *testing.T) {
 			AllowedApps:    10,
 			FixedPrice:     10,
 			AddedDataPrice: 10,
+			OrganizationID: organizations[0].ID,
 		},
 		{
 			Name:           "paymentPlan2",
@@ -232,6 +233,7 @@ func TestValidators(t *testing.T) {
 			AllowedApps:    10,
 			FixedPrice:     10,
 			AddedDataPrice: 10,
+			OrganizationID: organizations[1].ID,
 		},
 	}
 	for i := range paymentPlans {
@@ -1272,32 +1274,38 @@ func TestValidators(t *testing.T) {
 			tests := []validatorTest{
 				{
 					Name:		"organization users can not create",
-					Validators:	[]ValidatorFunc{ValidatePaymentPlansAccess(Create)},
+					Validators:	[]ValidatorFunc{ValidatePaymentPlansAccess(Create, organizations[0].ID)},
 					Claims:		Claims{Username: "user9"},
 					ExpectedOK: false,
 				},
 				{
 					Name:       "organization admins can create",
 					Claims:     Claims{Username: "user10"},
-					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(Create)},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(Create, organizations[0].ID)},
 					ExpectedOK: true,
 				},
 				{
 					Name:       "organization users can list",
 					Claims:     Claims{Username: "user9"},
-					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List)},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List, 0)},
 					ExpectedOK: true,
 				},
 				{
 					Name:       "organization admins can list",
 					Claims:     Claims{Username: "user10"},
-					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List)},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List, 0)},
 					ExpectedOK: true,
 				},
 				{
-					Name:       "non-organization users can not list or create",
+					Name:       "non-organization users can not create",
+					Claims:     Claims{Username: "user12"},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(Create, organizations[0].ID)},
+					ExpectedOK: false,
+				},
+				{
+					Name:       "standard users can not list",
 					Claims:     Claims{Username: "user2"},
-					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List), ValidatePaymentPlansAccess(Create)},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List, 0)},
 					ExpectedOK: false,
 				},
 			}
@@ -1310,25 +1318,25 @@ func TestValidators(t *testing.T) {
 				{
 					Name:       "organization user can read",
 					Claims:     Claims{Username: "user9"},
-					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID)},
+					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID, 0)},
 					ExpectedOK: true,
 				},
 				{
 					Name:       "organization admin can read, update and delete",
 					Claims:     Claims{Username: "user10"},
-					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID), ValidatePaymentPlanAccess(Update, paymentPlans[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID)},
+					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID, 0), ValidatePaymentPlanAccess(Update, paymentPlans[0].ID, organizations[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID, 0)},
 					ExpectedOK: true,
 				},
 				{
 					Name:       "organization user cannot update and delete",
 					Claims:     Claims{Username: "user9"},
-					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Update, paymentPlans[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID)},
+					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Update, paymentPlans[0].ID, organizations[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID, 0)},
 					ExpectedOK: false,
 				},
 				{
 					Name:       "non-organization user cannot read, update and delete",
 					Claims:     Claims{Username: "user2"},
-					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID), ValidatePaymentPlanAccess(Update, paymentPlans[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID)},
+					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID, 0), ValidatePaymentPlanAccess(Update, paymentPlans[0].ID, organizations[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID, 0)},
 					ExpectedOK: false,
 				},
 			}
