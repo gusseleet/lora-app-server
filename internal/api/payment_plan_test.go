@@ -43,6 +43,7 @@ func TestPaymentPlanAPI(t *testing.T) {
 				AllowedApplications: 10,
 				FixedPrice:          1000,
 				AddedDataPrice:      10,
+				OrganizationID:		 org.ID,
 			}
 			createResp, err := api.Create(ctx, createReq)
 			So(err, ShouldBeNil)
@@ -60,6 +61,7 @@ func TestPaymentPlanAPI(t *testing.T) {
 				So(pp.AllowedApplications, ShouldEqual, createReq.AllowedApplications)
 				So(pp.FixedPrice, ShouldEqual, createReq.FixedPrice)
 				So(pp.AddedDataPrice, ShouldEqual, createReq.AddedDataPrice)
+				So(pp.OrganizationID, ShouldEqual, org.ID)
 
 				Convey("When trying to list payment plans by searching a non-existing name", func() {
 					pps, err := api.List(ctx, &pb.ListPaymentPlansRequest{
@@ -92,6 +94,7 @@ func TestPaymentPlanAPI(t *testing.T) {
 						AllowedApplications: createReq.AllowedApplications,
 						FixedPrice:          createReq.FixedPrice,
 						AddedDataPrice:      createReq.AddedDataPrice,
+						OrganizationID: 	 createReq.OrganizationID,
 					}
 
 					_, err := api.Update(ctx, updatePP)
