@@ -45,6 +45,12 @@ func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNet
 		}
 	}
 
+	for _, pp := range req.PaymentPlans{
+		if _, err := storage.GetPaymentPlan(config.C.PostgreSQL.DB, pp.Id); err != nil {
+			return nil, errToRPCError(err)
+		}
+	}
+
 	gn := storage.GatewayNetwork{
 		Name:            req.Name,
 		Description:     req.Description,
@@ -70,6 +76,12 @@ func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNet
 		}
 
 		if err = storage.CreateGatewayNetworkGateway(config.C.PostgreSQL.DB, gn.ID, mac); err != nil{
+			return nil, errToRPCError(err)
+		}
+	}
+
+	for _,pp := range req.PaymentPlans{
+		if err = storage.CreatePaymentPlanToGatewayNetwork(config.C.PostgreSQL.DB, pp.Id, gn.ID); err != nil{
 			return nil, errToRPCError(err)
 		}
 	}
