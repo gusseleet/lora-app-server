@@ -175,11 +175,19 @@ message CreateGatewayNetworkRequest {
 
     // List of gateways to add
     repeated Gateways gateways = 5;
+
+    // List of payment plans to add
+    repeated PaymentPlans paymentPlans = 6;
 }
 
 message Gateways {
     // Hex encoded mac address.
     string gatewayMAC = 1;
+}
+
+message PaymentPlans {
+    // ID of payment plan
+    int64 id = 1;
 }
 
 message CreateGatewayNetworkResponse {
