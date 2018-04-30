@@ -219,7 +219,8 @@
       "portMappings": [
         {
           "hostPort": 1700,
-          "containerPort": 1700
+          "containerPort": 1700,
+          "protocol": "udp"
         }
       ],
       "mountPoints": [],
