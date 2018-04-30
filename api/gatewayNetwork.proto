@@ -164,25 +164,30 @@ message CreateGatewayNetworkRequest {
     // Gateway network name.
     string name = 1;
 
-    // Price of the gateway network.
-    int64 price = 2;
-
     // Description of the gateway network.
-    string description = 3;
+    string description = 2;
 
     // Is the network private or not.
-    bool privateNetwork = 4;
+    bool privateNetwork = 3;
 
     // Organization the gateway network belongs to.
-    int64 organizationID = 5;
+    int64 organizationID = 4;
 
     // List of gateways to add
-    repeated Gateways gateways = 6;
+    repeated Gateways gateways = 5;
+
+    // List of payment plans to add
+    repeated PaymentPlans paymentPlans = 6;
 }
 
 message Gateways {
     // Hex encoded mac address.
     string gatewayMAC = 1;
+}
+
+message PaymentPlans {
+    // ID of payment plan
+    int64 id = 1;
 }
 
 message CreateGatewayNetworkResponse {

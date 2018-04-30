@@ -84,11 +84,17 @@ func TestGatewayNetwork(t *testing.T) {
 			})
 
 			Convey("Then the organization that created it can retrieve it", func() {
-				gns, err := GetGatewayNetworksForOrganizationID(db, gn.OrganizationID, 10, 0)
+				gns, err := GetGatewayNetworksForOrganizationID(db, gn.OrganizationID, 2,10, 0)
 				So(err, ShouldBeNil)
 				gns[0].CreatedAt = gn.CreatedAt.Truncate(time.Millisecond).UTC()
 				gns[0].UpdatedAt = gn.UpdatedAt.Truncate(time.Millisecond).UTC()
 				So(gns[0], ShouldResemble, gn)
+			})
+
+			Convey("Then get gateway network count for the creating organization returns 1", func() {
+				count, err := GetGatewayNetworkCountForOrganizationID(db, gn.OrganizationID, 2)
+				So(err, ShouldBeNil)
+				So(count, ShouldEqual, 1)
 			})
 
 			Convey("When updating the gateway network", func() {
@@ -108,7 +114,7 @@ func TestGatewayNetwork(t *testing.T) {
 				})
 			})
 
-			Convey("Then get gateway network count returns 1", func() {
+			Convey("Then the nr of private gateway networks is 1", func() {
 				count, err := GetGatewayNetworkCount(db, 2)
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 1)
@@ -138,7 +144,7 @@ func TestGatewayNetwork(t *testing.T) {
 				gw.CreatedAt = gw.CreatedAt.Truncate(time.Millisecond).UTC()
 				gw.UpdatedAt = gw.UpdatedAt.Truncate(time.Millisecond).UTC()
 
-				Convey("Then it can be get by its MAC", func() {
+				Convey("Then it can be retrieved by its MAC", func() {
 					gw2, err := GetGateway(db, gw.MAC, false)
 					So(err, ShouldBeNil)
 					gw2.CreatedAt = gw2.CreatedAt.Truncate(time.Millisecond).UTC()

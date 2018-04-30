@@ -45,6 +45,12 @@ func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNet
 		}
 	}
 
+	for _, pp := range req.PaymentPlans{
+		if _, err := storage.GetPaymentPlan(config.C.PostgreSQL.DB, pp.Id); err != nil {
+			return nil, errToRPCError(err)
+		}
+	}
+
 	gn := storage.GatewayNetwork{
 		Name:            req.Name,
 		Description:     req.Description,
@@ -70,6 +76,12 @@ func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNet
 		}
 
 		if err = storage.CreateGatewayNetworkGateway(config.C.PostgreSQL.DB, gn.ID, mac); err != nil{
+			return nil, errToRPCError(err)
+		}
+	}
+
+	for _,pp := range req.PaymentPlans{
+		if err = storage.CreatePaymentPlanToGatewayNetwork(config.C.PostgreSQL.DB, pp.Id, gn.ID); err != nil{
 			return nil, errToRPCError(err)
 		}
 	}
@@ -124,11 +136,11 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 			return nil, errToRPCError(err)
 		}
 	} else {
-		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, int(req.Limit), int(req.Offset))
+		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset))
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
-		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID)
+		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
@@ -141,8 +153,8 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 			Id:              gn.ID,
 			CreatedAt:       gn.CreatedAt.Format(time.RFC3339Nano),
 			UpdatedAt:       gn.UpdatedAt.Format(time.RFC3339Nano),
-			Description:	 gn.Description,
 			Name:            gn.Name,
+			Description:	 gn.Description,
 			PrivateNetwork:  gn.PrivateNetwork,
 			OrganizationID:	 gn.OrganizationID,
 		}
@@ -154,7 +166,7 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 	}, nil
 }
 
-// Update updates the given gateway network.
+// Update updates the given gateway network with the given data.
 func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNetworkRequest) (*pb.GatewayNetworkEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
 		auth.ValidateGatewayNetworkAccess(auth.Update, req.Id)); err != nil {

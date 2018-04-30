@@ -216,7 +216,44 @@ func TestValidators(t *testing.T) {
 		}
 	}
 
+	paymentPlans := []storage.PaymentPlan{
+		{
+			Name:           "paymentPlan1",
+			DataLimit:      10,
+			AllowedDevices: 10,
+			AllowedApps:    10,
+			FixedPrice:     10,
+			AddedDataPrice: 10,
+			OrganizationID: organizations[0].ID,
+		},
+		{
+			Name:           "paymentPlan2",
+			DataLimit:      10,
+			AllowedDevices: 10,
+			AllowedApps:    10,
+			FixedPrice:     10,
+			AddedDataPrice: 10,
+			OrganizationID: organizations[1].ID,
+		},
+	}
+	for i := range paymentPlans {
+		if err := storage.CreatePaymentPlan(db, &paymentPlans[i]); err != nil {
+			t.Fatal(err)
+		}
+	}
 
+	ppgns := []struct {
+		GatewayNetworkID 	int64
+		PaymentPlanID 		int64
+	}{
+		{GatewayNetworkID: gatewayNetworks[0].ID, PaymentPlanID: paymentPlans[0].ID},
+		{GatewayNetworkID: gatewayNetworks[1].ID, PaymentPlanID: paymentPlans[1].ID},
+	}
+	for _, ppgn := range ppgns {
+		if err := storage.CreatePaymentPlanToGatewayNetwork(db, ppgn.PaymentPlanID, ppgn.GatewayNetworkID); err != nil {
+			t.Fatal(err)
+		}
+	}
 
 	Convey("Given a set of test users, applications and devices", t, func() {
 
@@ -1223,10 +1260,140 @@ func TestValidators(t *testing.T) {
 					ExpectedOK: false,
 				},
 				{
-					Name:       "non-organization users can not read, update ande delete",
+					Name:       "non-organization users can not read, update and delete",
 					Validators: []ValidatorFunc{ValidateDeviceProfileAccess(Read, deviceProfiles[0].DeviceProfile.DeviceProfileID), ValidateDeviceProfileAccess(Update, deviceProfiles[0].DeviceProfile.DeviceProfileID), ValidateDeviceProfileAccess(Delete, deviceProfiles[0].DeviceProfile.DeviceProfileID)},
 					Claims:     Claims{Username: "user12"},
 					ExpectedOK: false,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidatePaymentPlansAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:		"organization users can not create",
+					Validators:	[]ValidatorFunc{ValidatePaymentPlansAccess(Create, organizations[0].ID)},
+					Claims:		Claims{Username: "user9"},
+					ExpectedOK: false,
+				},
+				{
+					Name:       "organization admins can create",
+					Claims:     Claims{Username: "user10"},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(Create, organizations[0].ID)},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization users can list",
+					Claims:     Claims{Username: "user9"},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List, 0)},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization admins can list",
+					Claims:     Claims{Username: "user10"},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List, 0)},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "non-organization users can not create",
+					Claims:     Claims{Username: "user12"},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(Create, organizations[0].ID)},
+					ExpectedOK: false,
+				},
+				{
+					Name:       "standard users can not list",
+					Claims:     Claims{Username: "user2"},
+					Validators: []ValidatorFunc{ValidatePaymentPlansAccess(List, 0)},
+					ExpectedOK: false,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidatePaymentPlanAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "organization user can read",
+					Claims:     Claims{Username: "user9"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID, 0)},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization admin can read, update and delete",
+					Claims:     Claims{Username: "user10"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID, 0), ValidatePaymentPlanAccess(Update, paymentPlans[0].ID, organizations[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID, 0)},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization user cannot update and delete",
+					Claims:     Claims{Username: "user9"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Update, paymentPlans[0].ID, organizations[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID, 0)},
+					ExpectedOK: false,
+				},
+				{
+					Name:       "non-organization user cannot read, update and delete",
+					Claims:     Claims{Username: "user2"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanAccess(Read, paymentPlans[0].ID, 0), ValidatePaymentPlanAccess(Update, paymentPlans[0].ID, organizations[0].ID), ValidatePaymentPlanAccess(Delete, paymentPlans[0].ID, 0)},
+					ExpectedOK: false,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidatePaymentPlanGatewayNetworksAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "organization admin can list",
+					Claims:     Claims{Username: "user10"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanGatewayNetworksAccess(List, paymentPlans[0].ID)},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization user can list",
+					Claims:     Claims{Username: "user9"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanGatewayNetworksAccess(List, paymentPlans[0].ID)},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "standard user cannot list",
+					Claims:     Claims{Username: "user2"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanGatewayNetworksAccess(List, paymentPlans[0].ID)},
+					ExpectedOK: false,
+				},
+			}
+
+			runTests(tests, db)
+		})
+
+		Convey("When testing ValidatePaymentPlanGatewayNetworkAccess", func() {
+			tests := []validatorTest{
+				{
+					Name:       "organization user cannot create and delete",
+					Claims:     Claims{Username: "user9"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanGatewayNetworkAccess(Create, paymentPlans[0].ID, gatewayNetworks[0].ID), ValidatePaymentPlanGatewayNetworkAccess(Delete, paymentPlans[0].ID, gatewayNetworks[0].ID)},
+					ExpectedOK: false,
+				},
+				{
+					Name:       "non-organization users cannot create, read and delete",
+					Claims:     Claims{Username: "user12"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanGatewayNetworkAccess(Create, paymentPlans[0].ID, gatewayNetworks[0].ID), ValidatePaymentPlanGatewayNetworkAccess(Delete, paymentPlans[0].ID, gatewayNetworks[0].ID), ValidatePaymentPlanGatewayNetworkAccess(Read, paymentPlans[0].ID, gatewayNetworks[0].ID)},
+					ExpectedOK: false,
+				},
+				{
+					Name:       "organization admin can create, update and delete",
+					Claims:     Claims{Username: "user10"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanGatewayNetworkAccess(Create, paymentPlans[0].ID, gatewayNetworks[0].ID), ValidatePaymentPlanGatewayNetworkAccess(Delete, paymentPlans[0].ID, gatewayNetworks[0].ID), ValidatePaymentPlanGatewayNetworkAccess(Read, paymentPlans[0].ID, gatewayNetworks[0].ID)},
+					ExpectedOK: true,
+				},
+				{
+					Name:       "organization user can read",
+					Claims:     Claims{Username: "user10"},
+					Validators: []ValidatorFunc{ValidatePaymentPlanGatewayNetworkAccess(Read, paymentPlans[0].ID, gatewayNetworks[0].ID)},
+					ExpectedOK: true,
 				},
 			}
 

@@ -1,0 +1,550 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "paymentPlan.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/paymentplans": {
+      "get": {
+        "summary": "Get payment plan list.",
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiListPaymentPlansResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "description": "Max number of payment plans to return in the result-set.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "description": "Offset in the result-set (for pagination).",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "search",
+            "description": "When provided, the given string will be used to search on\nName.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "organizationID",
+            "description": "Optional Organization ID for filtering.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      },
+      "post": {
+        "summary": "Create a new payment plan.",
+        "operationId": "Create",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiCreatePaymentPlanResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiCreatePaymentPlanRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      }
+    },
+    "/api/paymentplans/{id}": {
+      "get": {
+        "summary": "Get data for a particular payment plan.",
+        "operationId": "Get",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGetPaymentPlanResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a payment plan.",
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiPaymentPlanEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      },
+      "put": {
+        "summary": "Update an existing payment plan.",
+        "operationId": "Update",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiPaymentPlanEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiUpdatePaymentPlanRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      }
+    },
+    "/api/paymentplans/{id}/gatewaynetworks": {
+      "get": {
+        "summary": "List payment plan-to-gateway network links",
+        "operationId": "ListGatewayNetworks",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiListPayPlanGatewayNetworkResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "description": "Max number of gateways to return in the result-set.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "description": "Offset in the result-set (for pagination).",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      },
+      "post": {
+        "summary": "Add a payment plan-to-gateway network link",
+        "operationId": "AddGatewayNetwork",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiPaymentPlanEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiPayPlanGatewayNetworkRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      }
+    },
+    "/api/paymentplans/{id}/gatewaynetworks/{gatewayNetworkID}": {
+      "get": {
+        "summary": "Get a specific payment plan-to-gateway network link",
+        "operationId": "GetGatewayNetwork",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiGetPayPlanGatewayNetworkResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "gatewayNetworkID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a specific payment plan-to-gateway network link",
+        "operationId": "DeleteGatewayNetwork",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiPaymentPlanEmptyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "gatewayNetworkID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "PaymentPlan"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiCreatePaymentPlanRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The payment plan name."
+        },
+        "dataLimit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The data limit of the payment plan."
+        },
+        "allowedDevices": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The number of allowed devices of the payment plan."
+        },
+        "allowedApplications": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The number of allowed applications of the payment plan."
+        },
+        "fixedPrice": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The fixed price of the payment plan."
+        },
+        "addedDataPrice": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The price of data that exceeds the data limit."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Organization ID that the payment plan belongs to."
+        }
+      },
+      "description": "Add a new payment plan."
+    },
+    "apiCreatePaymentPlanResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The ID of the created payment plan."
+        }
+      },
+      "description": "The response of the created payment plan."
+    },
+    "apiGetPayPlanGatewayNetworkResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "ID of the Gateway Network."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the gateway network was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the gateway network was last updated."
+        },
+        "name": {
+          "type": "string",
+          "description": "Gateway Network name."
+        },
+        "desc": {
+          "type": "string",
+          "description": "Price of the gateway network."
+        },
+        "privateNetwork": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Is the network private or not."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Organization the gateway network belongs to."
+        }
+      },
+      "title": "Response for a specific gateway network of a payment plan"
+    },
+    "apiGetPaymentPlanResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "ID of the payment plan."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the payment plan."
+        },
+        "dataLimit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The data limit of the payment plan."
+        },
+        "allowedDevices": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The number of allowed devices of the payment plan."
+        },
+        "allowedApplications": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The number of allowed applications of the payment plan."
+        },
+        "fixedPrice": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The fixed price of the payment plan."
+        },
+        "addedDataPrice": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The price of data that exceeds the data limit."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Organization ID that the payment plan belongs to."
+        }
+      },
+      "description": "The response of a payment plan."
+    },
+    "apiListPayPlanGatewayNetworkResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The total number of gateway networks of the payment plan."
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGetPayPlanGatewayNetworkResponse"
+          },
+          "description": "The gateway networks in the requested limit, offset range."
+        }
+      },
+      "title": "Response for the gateway networks of a payment plan"
+    },
+    "apiListPaymentPlansResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Number of results"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGetPaymentPlanResponse"
+          },
+          "title": "List of payment plans"
+        }
+      },
+      "title": "Response of listing the payment plans"
+    },
+    "apiPayPlanGatewayNetworkRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The payment plan id."
+        },
+        "gatewayNetworkID": {
+          "type": "string",
+          "format": "int64",
+          "description": "The gateway network id."
+        }
+      },
+      "title": "Request to get a specific gateway network of a specific payment plan"
+    },
+    "apiPaymentPlanEmptyResponse": {
+      "type": "object",
+      "title": "Empty responses for update and delete"
+    },
+    "apiUpdatePaymentPlanRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "ID of the payment plan to be updated."
+        },
+        "name": {
+          "type": "string",
+          "description": "The new name."
+        },
+        "dataLimit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The data limit of the payment plan."
+        },
+        "allowedDevices": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The number of allowed devices of the payment plan."
+        },
+        "allowedApplications": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The number of allowed applications of the payment plan."
+        },
+        "fixedPrice": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The fixed price of the payment plan."
+        },
+        "addedDataPrice": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The price of data that exceeds the data limit."
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Organization ID that the payment plan belongs to."
+        }
+      },
+      "description": "Update existing payment plan."
+    }
+  }
+}

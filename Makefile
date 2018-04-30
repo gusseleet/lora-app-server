@@ -3,6 +3,7 @@ PKGS := $(shell go list ./... | grep -v /vendor |grep -v lora-app-server/api | g
 VERSION := $(shell git describe --always)
 GOOS ?= linux
 GOARCH ?= amd64
+#TESTNAME ?= TestGatewayNetworkAPI
 
 build: ui/build internal/statics internal/migrations
 	@echo "Compiling source for $(GOOS) $(GOARCH)"
@@ -21,7 +22,16 @@ test: internal/statics internal/migrations
 		golint $$pkg ; \
 	done
 	@go vet $(PKGS)
-	@go test -p 1 -v $(PKGS)
+	@go test -p 1 -timeout 9999s -v $(PKGS)
+
+specific-test: internal/statics internal/migrations
+	@echo $(TESTNAME)
+	@echo "Running tests"
+	@for pkg in $(PKGS) ; do \
+		golint $$pkg ; \
+	done
+	@go vet $(PKGS)
+	@go test -run $(TESTNAME) -p 1 -timeout 9999s -v $(PKGS)
 
 documentation:
 	@echo "Building documentation"
@@ -63,7 +73,6 @@ static/swagger/api.swagger.json:
 
 requirements:
 	@echo "Installing development tools"
-	@go get -u github.com/golang/lint/golint
 	@go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	@go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 	@go get -u github.com/golang/protobuf/protoc-gen-go
@@ -89,6 +98,9 @@ update-vendor:
 
 run-compose-test:
 	docker-compose run appserver make test
+
+run-compose-specific-test:
+	docker-compose run appserver make specific-test TESTNAME=$(TESTNAME)
 
 local-stack:
 	docker-compose up
