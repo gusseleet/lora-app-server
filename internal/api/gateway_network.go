@@ -232,10 +232,16 @@ func (a *GatewayNetworkAPI) ListGateways(ctx context.Context, req *pb.ListGatewa
 	result := make([]*pb.GetGatewayNetworkGatewayResponse, len(gateways))
 	for i, gateway := range gateways {
 		result[i] = &pb.GetGatewayNetworkGatewayResponse{
-			Mac:        gateway.GatewayMAC.String(),
-			Name:  		gateway.Name,
-			CreatedAt: 	gateway.CreatedAt.Format(time.RFC3339Nano),
-			UpdatedAt: 	gateway.UpdatedAt.Format(time.RFC3339Nano),
+			Mac:             gateway.GatewayMAC.String(),
+			Name:            gateway.Name,
+			Description:     gateway.Description,
+			CreatedAt:       gateway.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt:       gateway.UpdatedAt.Format(time.RFC3339Nano),
+			OrganizationID:  gateway.OrganizationID,
+			Ping:            gateway.Ping,
+			NetworkServerID: gateway.NetworkServerID,
+			Tags:            gateway.Tags,
+			MaxNodes:        gateway.MaxNodes,
 		}
 	}
 

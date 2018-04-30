@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/brocaar/lorawan"
+	"github.com/lib/pq"
 
 	"regexp"
 )
@@ -38,9 +39,17 @@ func (gn GatewayNetwork) Validate() error {
 type GatewayNetworkGateway struct {
 	ID					int64					`db:"id"`
 	GatewayMAC       	lorawan.EUI64           `db:"gateway_mac"`
-	Name				string					`db:"name"`
-	CreatedAt       	time.Time             	`db:"created_at"`
-	UpdatedAt       	time.Time             	`db:"updated_at"`
+	CreatedAt       	time.Time			    `db:"created_at"`
+	UpdatedAt       	time.Time     			`db:"updated_at"`
+	Name            	string        			`db:"name"`
+	Description     	string        			`db:"description"`
+	OrganizationID  	int64         			`db:"organization_id"`
+	Ping            	bool          			`db:"ping"`
+	LastPingID      	*int64        			`db:"last_ping_id"`
+	LastPingSentAt  	*time.Time    			`db:"last_ping_sent_at"`
+	NetworkServerID 	int64         			`db:"network_server_id"`
+	Tags				pq.StringArray	  		`db:"tags"`
+	MaxNodes			int64			  		`db:"maxnodes"`
 }
 
 // GatewayNetworkOrganization represents a gateway network organization
@@ -376,7 +385,13 @@ func GetGatewayNetworkGateway(db sqlx.Queryer, gatewayNetworkID int64, gatewayMA
 			g.mac as gateway_mac,
 			g.name as name,
 			gng.created_at as created_at,
-			gng.updated_at as updated_at
+			gng.updated_at as updated_at,
+			g.tags,
+			g.description,
+			g.organization_id,
+			g.maxnodes,
+			g.network_server_id,
+			g.ping
 		from gateway_network_gateway gng
 		inner join "gateway" g
 			on g.mac = gng.gateway_mac
