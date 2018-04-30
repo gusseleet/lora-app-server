@@ -211,7 +211,12 @@
         }
       ],
       "command": [],
-      "portMappings": [],
+      "portMappings": [
+        {
+          "hostPort": 1700,
+          "containerPort": 1700
+        }
+      ],
       "mountPoints": [],
       "links": [
         "mosquitto"
