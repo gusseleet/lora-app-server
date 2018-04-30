@@ -179,7 +179,12 @@
       "image": "redis:3.0.7-alpine",
       "essential": true,
       "memory": 128,
-      "portMappings": [],
+      "portMappings": [
+        {
+          "hostPort": 6379,
+          "containerPort": 6379
+        }
+      ],
       "links": [],
       "mountPoints": []
     },
