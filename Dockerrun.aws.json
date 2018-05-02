@@ -55,10 +55,6 @@
         {
           "sourceVolume": "client-ui",
           "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client"
-        },
-        {
-          "sourceVolume": "static_files",
-          "containerPath": "/go/src/github.com/gusseleet/lora-app-server/static/static"
         }
       ],
       "links": [
