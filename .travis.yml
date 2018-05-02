@@ -1,6 +1,14 @@
 language: go
 sudo: required
 dist: trusty
+git:
+  submodules:
+    false
+
+before_install:
+  - echo -e "machine github.com\n  login gusseleet\n  password $CI_USER_PASSWORD" >>~/.netrc
+  - git submodule update --init --recursive
+
 go:
     - 1.9.x
 services:
