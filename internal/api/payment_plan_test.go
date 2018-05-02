@@ -68,6 +68,7 @@ func TestPaymentPlanAPI(t *testing.T) {
 						Limit:  10,
 						Offset: 0,
 						Search: "willNotWork",
+						OrganizationID: org.ID,
 					})
 					So(err, ShouldBeNil)
 					So(pps.Result, ShouldHaveLength, 0)
@@ -79,6 +80,7 @@ func TestPaymentPlanAPI(t *testing.T) {
 						Limit:  10,
 						Offset: 0,
 						Search: "",
+						OrganizationID: org.ID,
 					})
 					So(err, ShouldBeNil)
 					So(pps.Result, ShouldHaveLength, 1)

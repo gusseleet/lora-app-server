@@ -86,11 +86,11 @@ func (a *PaymentPlanAPI) List(ctx context.Context, req *pb.ListPaymentPlansReque
 	var count int
 	var pps []storage.PaymentPlan
 
-	count, err := storage.GetPaymentPlanCount(config.C.PostgreSQL.DB, req.Search)
+	count, err := storage.GetPaymentPlanCount(config.C.PostgreSQL.DB, req.Search, req.OrganizationID)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
-	pps, err = storage.GetPaymentPlans(config.C.PostgreSQL.DB, int(req.Limit), int(req.Offset), req.Search)
+	pps, err = storage.GetPaymentPlans(config.C.PostgreSQL.DB, int(req.Limit), int(req.Offset), req.Search, req.OrganizationID)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}

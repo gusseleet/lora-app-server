@@ -88,7 +88,7 @@ func GetPaymentPlan(db sqlx.Queryer, id int64) (PaymentPlan, error) {
 	return pp, nil
 }
 
-func GetPaymentPlanCount(db sqlx.Queryer, search string) (int, error) {
+func GetPaymentPlanCount(db sqlx.Queryer, search string, organizationID int64) (int, error) {
 	var count int
 
 	if search != "" {
@@ -101,8 +101,9 @@ func GetPaymentPlanCount(db sqlx.Queryer, search string) (int, error) {
 		from payment_plan
 		where
 			($1 != '' and name like $1)
-			or ($1 = '')`,
-		search,
+			or ($1 = '') and
+			organization_id = $2`,
+		search, organizationID,
 	)
 
 	if err != nil {
@@ -111,7 +112,7 @@ func GetPaymentPlanCount(db sqlx.Queryer, search string) (int, error) {
 	return count, nil
 }
 
-func GetPaymentPlans(db sqlx.Queryer, limit, offset int, search string) ([]PaymentPlan, error) {
+func GetPaymentPlans(db sqlx.Queryer, limit, offset int, search string, organizationID int64) ([]PaymentPlan, error) {
 	var pps []PaymentPlan
 
 	if search != "" {
@@ -124,9 +125,10 @@ func GetPaymentPlans(db sqlx.Queryer, limit, offset int, search string) ([]Payme
 		from payment_plan
 		where
 			($3 != '' and name like $3)
-			or ($3 = '')
+			or ($3 = '') and
+			organization_id = $4
 		order by name
-		limit $1 offset $2`, limit, offset, search)
+		limit $1 offset $2`, limit, offset, search, organizationID)
 
 	if err != nil {
 		return nil, handlePSQLError(Select, err, "select error")
