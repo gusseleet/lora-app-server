@@ -48,7 +48,7 @@
       "mountPoints": [
         {
           "sourceVolume": "client-ui",
-          "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client-test"
+          "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client"
         }
       ],
       "links": [
