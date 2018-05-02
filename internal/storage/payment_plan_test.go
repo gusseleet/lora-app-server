@@ -96,19 +96,19 @@ func TestPaymentPlan(t *testing.T) {
 			})
 
 			Convey("...Then it can be retrieved from a list", func() {
-				pps, err := GetPaymentPlans(db, 10, 0, "")
+				pps, err := GetPaymentPlans(db, 10, 0, "", org.ID)
 				So(err, ShouldBeNil)
 				So(pps[0], ShouldResemble, pp)
 			})
 
 			Convey("...Then it can be retrieved by searching on its name", func() {
-				pps, err := GetPaymentPlans(db, 10, 0, "test-payment-plan")
+				pps, err := GetPaymentPlans(db, 10, 0, "test-payment-plan", org.ID)
 				So(err, ShouldBeNil)
 				So(pps[0], ShouldResemble, pp)
 			})
 
 			Convey("...Then the payment plan count should be 1", func() {
-				count, err := GetPaymentPlanCount(db, "")
+				count, err := GetPaymentPlanCount(db, "", org.ID)
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 1)
 			})
