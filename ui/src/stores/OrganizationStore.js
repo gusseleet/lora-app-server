@@ -80,7 +80,7 @@ class OrganizationStore extends EventEmitter {
         callbackFunc(responseData);
       })
     .catch(errorHandler);
-  } 
+  }
 
   getUser(organizationID, userID, callbackFunc) {
     fetch("/api/organizations/"+organizationID+"/users/"+userID, {headers: sessionStore.getHeader()})

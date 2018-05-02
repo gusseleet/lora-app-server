@@ -1,7 +1,47 @@
 import React, { Component } from "react";
 import { withRouter } from 'react-router-dom';
+import { withStyles } from "material-ui/styles";
+
+import Card, { CardContent } from "material-ui/Card";
+import Typography from "material-ui/Typography";
+import { FormGroup, FormControlLabel, FormControl } from "material-ui/Form";
+import Checkbox from "material-ui/Checkbox";
+import Button from "material-ui/Button";
+import GenerateIcon from "material-ui-icons/Autorenew";
+import Input, { InputLabel, InputAdornment } from 'material-ui/Input';
+import IconButton from 'material-ui/IconButton';
 
 import NodeStore from "../../stores/NodeStore";
+
+const styles = theme => ({
+  textField: {
+    width: 400,
+  },
+  whitespace: {
+    marginTop: 10,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 1280,
+    minHeight: 300,
+    margin: "auto",
+    display: "flex",
+    flexWrap: "wrap",
+    overflowY: "hidden"
+  },
+  buttonHolder: {
+    marginTop: 10,
+    marginBottom:10,
+  },
+  helpBox: {
+    padding: 8,
+    backgroundColor: "#F3F3F3",
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 8
+  }
+});
+
 
 
 class NodeActivationForm extends Component {
@@ -26,7 +66,7 @@ class NodeActivationForm extends Component {
   onChange(field, e) {
     let activation = this.state.activation;
     if (e.target.type === "number") {
-      activation[field] = parseInt(e.target.value, 10); 
+      activation[field] = parseInt(e.target.value, 10);
     } else if (e.target.type === "checkbox") {
       activation[field] = e.target.checked;
     } else {
@@ -74,45 +114,150 @@ class NodeActivationForm extends Component {
   }
 
   render() {
+    const { classes } = this.props.classes;
+
     return(
-      <form onSubmit={this.handleSubmit}>
-        <div className="form-group">
-          <label className="control-label" htmlFor="devAddr">Device address</label> (<a href="" onClick={this.getRandomDevAddr}>generate</a>)
-          <input className="form-control" id="devAddr" type="text" placeholder="00000000" pattern="[a-fA-F0-9]{8}" required value={this.state.activation.devAddr || ''} onChange={this.onChange.bind(this, 'devAddr')} />
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="nwkSKey">Network session key</label> (<a href="" onClick={this.getRandomNwkSKey}>generate</a>)
-          <input className="form-control" id="nwkSKey" type="text" placeholder="00000000000000000000000000000000" pattern="[A-Fa-f0-9]{32}" required value={this.state.activation.nwkSKey || ''} onChange={this.onChange.bind(this, 'nwkSKey')} />
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="appSKey">Application session key</label> (<a href="" onClick={this.getRandomAppSKey}>generate</a>)
-          <input className="form-control" id="appSKey" type="text" placeholder="00000000000000000000000000000000" pattern="[A-Fa-f0-9]{32}" required value={this.state.activation.appSKey || ''}  onChange={this.onChange.bind(this, 'appSKey')} />
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="rx2DR">Uplink frame-counter</label>
-          <input className="form-control" id="fCntUp" type="number" min="0" required value={this.state.activation.fCntUp || 0} onChange={this.onChange.bind(this, 'fCntUp')} />
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="rx2DR">Downlink frame-counter</label>
-          <input className="form-control" id="fCntDown" type="number" min="0" required value={this.state.activation.fCntDown || 0} onChange={this.onChange.bind(this, 'fCntDown')} />
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="skipFCntCheck">Disable frame-counter validation</label>
-          <div className="checkbox">
-            <label>
-              <input type="checkbox" name="skipFCntCheck" id="skipFCntCheck" checked={!!this.state.activation.skipFCntCheck} onChange={this.onChange.bind(this, 'skipFCntCheck')} /> Disable frame-counter validation
-            </label>
-          </div>
-          <p className="help-block">
-            Note that disabling the frame-counter validation will compromise security as it enables people to perform replay-attacks.
-          </p>
-        </div>
-        <hr />
-        <div className="btn-toolbar pull-right">
-          <a className="btn btn-default" onClick={this.props.history.goBack}>Go back</a>
-          <button type="submit" className="btn btn-primary">Submit</button>
-        </div>
-      </form>
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography variant="headline">Activate Device</Typography>
+          <form onSubmit={this.handleSubmit}>
+            <FormGroup className={classes.whitespace} row>
+              <FormControl>
+                <InputLabel htmlFor="devAddr">Device address</InputLabel>
+                <Input
+                  id="devAddr"
+                  pattern="[a-fA-F0-9]{8}"
+                  placeholder="00000000"
+                  type="text"
+                  className={classes.textField}
+                  label="Device address"
+                  required value={this.state.activation.devAddr || ''}
+                  onChange={this.onChange.bind(this, 'devAddr')}
+                  endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="Generate"
+                      onClick={this.getRandomDevAddr}
+                    >
+                      <GenerateIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+                />
+              </FormControl>
+            </FormGroup>
+
+            <FormGroup className={classes.whitespace} row>
+              <FormControl>
+                <InputLabel htmlFor="nwkSKey">Network session key</InputLabel>
+                <Input
+                  id="nwkSKey"
+                  placeholder="00000000000000000000000000000000"
+                  label="Network session key"
+                  type="text"
+                  className={classes.textField}
+                  pattern="[A-Fa-f0-9]{32}"
+                  required value={this.state.activation.nwkSKey || ''}
+                  onChange={this.onChange.bind(this, 'nwkSKey')}
+                  endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="Generate"
+                      onClick={this.getRandomNwkSKey}
+                    >
+                      <GenerateIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+                />
+              </FormControl>
+            </FormGroup>
+
+            <FormGroup className={classes.whitespace} row>
+              <FormControl>
+                <InputLabel htmlFor="appSKey">Application session key</InputLabel>
+                <Input
+                  type="text"
+                  className={classes.textField}
+                  id="appSKey"
+                  placeholder="00000000000000000000000000000000"
+                  pattern="[A-Fa-f0-9]{32}"
+                  required value={this.state.activation.appSKey || ''}
+                  onChange={this.onChange.bind(this, 'appSKey')}
+                  endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="Generate"
+                      onClick={this.getRandomAppSKey}
+                    >
+                      <GenerateIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+                />
+              </FormControl>
+            </FormGroup>
+
+            <FormGroup className={classes.whitespace} row>
+              <FormControl>
+                <InputLabel htmlFor="fCntUp">Uplink frame-counter</InputLabel>
+                <Input
+                  className={classes.textField}
+                  id="fCntUp"
+                  type="number"
+                  min="0"
+                  required value={this.state.activation.fCntUp || 0}
+                  onChange={this.onChange.bind(this, 'fCntUp')}
+                />
+              </FormControl>
+            </FormGroup>
+
+            <FormGroup className={classes.whitespace} row>
+              <FormControl>
+                <InputLabel htmlFor="fCntDown">Downlink frame-counter</InputLabel>
+                <Input
+                  className={classes.textField}
+                  id="fCntDown"
+                  type="number"
+                  min="0"
+                  required value={this.state.activation.fCntDown || 0}
+                  onChange={this.onChange.bind(this, 'fCntDown')}
+                />
+              </FormControl>
+            </FormGroup>
+
+            <FormGroup row>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="skipFCntCheck"
+                    id="skipFCntCheck"
+                    checked={!!this.state.activation.skipFCntCheck}
+                    onChange={this.onChange.bind(this, 'skipFCntCheck')}
+                  />
+                }
+                label="Disable frame-counter validation"
+              />
+
+              <Typography component="p" className={classes.helpBox}>
+                Note that disabling the frame-counter validation will compromise security as it enables people to perform replay-attacks.
+                This setting can only be set for ABP devices.
+              </Typography>
+            </FormGroup>
+            <div className={classes.buttonHolder}>
+              <Button
+                className={classes.button}
+                onClick={this.props.history.goBack}
+              >
+                Go back
+              </Button>
+              <Button type="submit" variant="raised">
+                Submit
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     );
   }
 }
@@ -130,7 +275,7 @@ class ActivateNode extends Component {
 
   onSubmit(activation) {
     NodeStore.activateNode(this.props.match.params.devEUI, activation, (responseData) => {
-      this.props.history.push(`/organizations/${this.props.match.params.organizationID}/applications/${this.props.match.params.applicationID}`);
+      this.props.history.push(`/dashboard/${this.props.match.params.organizationID}/applications/${this.props.match.params.applicationID}/devices/${this.props.match.params.devEUI}/edit`);
     });
   }
 
@@ -139,7 +284,7 @@ class ActivateNode extends Component {
       <div>
         <div className="panel panel-default">
           <div className="panel-body">
-            <NodeActivationForm history={this.props.history} devEUI={this.props.match.params.devEUI} onSubmit={this.onSubmit} />
+            <NodeActivationForm classes={this.props} history={this.props.history} devEUI={this.props.match.params.devEUI} onSubmit={this.onSubmit} />
           </div>
         </div>
       </div>
@@ -147,4 +292,5 @@ class ActivateNode extends Component {
   }
 }
 
+ActivateNode = withStyles(styles)(ActivateNode);
 export default withRouter(ActivateNode);

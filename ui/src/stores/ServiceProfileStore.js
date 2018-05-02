@@ -3,7 +3,6 @@ import "whatwg-fetch";
 import sessionStore from "./SessionStore";
 import { checkStatus, errorHandler } from "./helpers";
 
-
 class ServiceProfileStore extends EventEmitter {
   getAllForOrganizationID(organizationID, pageSize, offset, callbackFunc) {
     fetch("/api/service-profiles?organizationID="+organizationID+"&limit="+pageSize+"&offset="+offset, {headers: sessionStore.getHeader()})

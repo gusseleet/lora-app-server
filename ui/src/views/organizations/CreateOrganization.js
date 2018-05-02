@@ -1,43 +1,66 @@
 import React, { Component } from "react";
-import { Link, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
+
+import { withStyles } from "material-ui/styles";
+import Card, { CardContent } from "material-ui/Card";
 
 import OrganizationStore from "../../stores/OrganizationStore";
 import OrganizationForm from "../../components/OrganizationForm";
+import SessionStore from "../../stores/SessionStore"
 
+const styles = theme => ({
+  card: {
+    width: "100%",
+    maxWidth: 1280,
+    minHeight: 300,
+    margin: "auto",
+    marginTop: 30,
+    padding: 16,
+    justifyContent: "center",
+    display: "flex",
+    flexWrap: "wrap",
+    overflowY: "hidden"
+  }
+});
 
 class CreateOrganization extends Component {
   constructor() {
     super();
 
     this.state = {
-      organization: {},
+      organization: {}
     };
 
     this.onSubmit = this.onSubmit.bind(this);
   }
 
   onSubmit(organization) {
-	  OrganizationStore.createOrganization(organization, (responseData) => {
-      this.props.history.push("/organizations");
+    OrganizationStore.createOrganization(organization, responseData => {
+      SessionStore.fetchProfile(() => {
+      this.props.history.push("/organizations");}
+    );
     });
   }
 
   render() {
-    return(
+    const { classes } = this.props;
+    return (
       <div>
-        <ol className="breadcrumb">
-          <li><Link to="/organizations">Organizations</Link></li>
-          <li className="active">Create organization</li>
-        </ol>
-        <hr />
-        <div className="panel panel-default">
-          <div className="panel-body">
-            <OrganizationForm organization={this.state.organization} onSubmit={this.onSubmit} />
-          </div>
-        </div>
+        <Card className={classes.card}>
+          <CardContent>
+            <div className="panel-body">
+              <OrganizationForm
+                formName="Create Organization"
+                organization={this.state.organization}
+                onSubmit={this.onSubmit}
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 }
 
+CreateOrganization = withStyles(styles)(CreateOrganization);
 export default withRouter(CreateOrganization);

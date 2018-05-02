@@ -1,7 +1,45 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
 import ApplicationStore from "../../stores/ApplicationStore";
+
+import { withStyles } from "material-ui/styles";
+import Card from "material-ui/Card";
+import Table, {
+  TableHead,
+  TableBody,
+  TableCell,
+  TableRow
+} from "material-ui/Table";
+import AddIcon from "material-ui-icons/Add";
+import Button from "material-ui/Button";
+
+const styles = theme => ({
+  card: {
+    minHeight: 300,
+    width: "100%",
+    maxWidth: 1280,
+    margin: "auto",
+    marginTop: 30,
+    justifyContent: "center",
+    display: "flex",
+    overflowY: "hidden"
+  },
+  cardContent: {
+    flex: 1
+  },
+  noStyle: {
+    textDecorationLine: "none"
+  },
+  tableHead: {
+    backgroundColor: "#F0F0F0"
+  },
+  wrapper: {
+    width: "100%",
+    maxWidth: 1280,
+    margin: "auto"
+  },
+});
+
 
 const integrationMap = {
   HTTP: {
@@ -14,9 +52,11 @@ const integrationMap = {
 class IntegrationRow extends Component {
   render() {
     return(
-      <tr>
-        <td><Link to={`/organizations/${this.props.params.organizationID}/applications/${this.props.params.applicationID}/integrations/http`}>{integrationMap[this.props.kind].name}</Link></td>
-      </tr>
+      <TableRow hover>
+        <TableCell>
+          <Link to={`/dashboard/${this.props.params.organizationID}/applications/${this.props.params.applicationID}/integrations/http`}>{integrationMap[this.props.kind].name}</Link>
+        </TableCell>
+      </TableRow>
     );
   }
 }
@@ -40,29 +80,37 @@ class ApplicationIntegrations extends Component {
 
   render() {
     const IntegrationRows = this.state.integrations.map((integration, i) => <IntegrationRow key={integration} kind={integration} params={this.props.match.params} />);
+    const { classes } = this.props;
 
     return(
-      <div className="panel panel-default">
-        <div className="panel-heading clearfix">
-          <div className="btn-group pull-right">
-           <Link to={`/organizations/${this.props.match.params.organizationID}/applications/${this.props.match.params.applicationID}/integrations/create`}><button type="button" className="btn btn-default btn-sm">Add integration</button></Link>
-          </div>
+      <div className={classes.wrapper}>
+        <div className={classes.button}>
+         
         </div>
-        <div className="panel-body">
-          <table className="table table-hover">
-            <thead>
-              <tr>
-                <th>Kind</th>
-              </tr>
-            </thead>
-            <tbody>
-              {IntegrationRows}
-            </tbody>
-          </table>
-        </div>
+        <Card className={classes.card}>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow className={classes.tableHead}>
+                <TableCell>Kind</TableCell>
+                  <TableCell style={{ textAlign: "right"}}>
+                    <Link
+                    to={`/dashboard/${this.props.match.params.organizationID}/applications/${this.props.match.params.applicationID}/integrations/create`}
+                    className={classes.noStyle}
+                    >
+                    <Button className={classes.button} variant="raised">
+                      <AddIcon />
+                      Add integration
+                    </Button>
+                  </Link>
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>{IntegrationRows}</TableBody>
+          </Table>
+        </Card>
       </div>
     );
   }
 }
 
-export default ApplicationIntegrations;
+export default withStyles(styles)(ApplicationIntegrations);

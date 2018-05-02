@@ -3,7 +3,6 @@ import "whatwg-fetch";
 import sessionStore from "./SessionStore";
 import { checkStatus, errorHandler } from "./helpers";
 
-
 class NetworkServerStore extends EventEmitter {
   getAll(pageSize, offset, callbackFunc) {
     fetch("/api/network-servers?limit="+pageSize+"&offset="+offset, {headers: sessionStore.getHeader()})

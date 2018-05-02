@@ -1,11 +1,36 @@
-import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
-import Select from "react-select";
-import {Controlled as CodeMirror} from "react-codemirror2";
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
+// import {Controlled as CodeMirror} from "react-codemirror2";
+import TextField from "material-ui/TextField";
+import { withStyles } from "material-ui/styles";
+import { InputLabel } from "material-ui/Input";
+import Button from "material-ui/Button";
+import Typography from "material-ui/Typography";
 
 import ServiceProfileStore from "../stores/ServiceProfileStore";
+import Dropdown from "./Dropdown.js";
 import "codemirror/mode/javascript/javascript";
 
+const styles = theme => ({
+  button: {
+    paddingLeft: 6
+  },
+  buttonHolder: {
+    marginTop: 30,
+    marginBottom: 30
+  },
+  textField: {
+    width: 250,
+    display: "block"
+  },
+  helpBox: {
+    padding: 8,
+    backgroundColor: "#F3F3F3",
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 8
+  }
+});
 
 class ApplicationForm extends Component {
   constructor() {
@@ -13,7 +38,7 @@ class ApplicationForm extends Component {
     this.state = {
       application: {},
       serviceProfiles: [],
-      update: false,
+      update: false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -21,44 +46,49 @@ class ApplicationForm extends Component {
 
   componentDidMount() {
     this.setState({
-      application: this.props.application,
+      application: this.props.application
     });
 
-    ServiceProfileStore.getAllForOrganizationID(this.props.organizationID, 9999, 0, (totalCount, serviceProfiles) => {
-      this.setState({
-        serviceProfiles: serviceProfiles,
-      });
-    });
+    ServiceProfileStore.getAllForOrganizationID(
+      this.props.organizationID,
+      9999,
+      0,
+      (totalCount, serviceProfiles) => {
+        this.setState({
+          serviceProfiles: serviceProfiles
+        });
+      }
+    );
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
       application: nextProps.application,
-      update: nextProps.application.id !== undefined,
+      update: nextProps.application.id !== undefined
     });
   }
 
   onChange(field, e) {
     let application = this.state.application;
     if (e.target.type === "number") {
-      application[field] = parseInt(e.target.value, 10); 
+      application[field] = parseInt(e.target.value, 10);
     } else if (e.target.type === "checkbox") {
       application[field] = e.target.checked;
     } else {
       application[field] = e.target.value;
     }
-    this.setState({application: application});
+    this.setState({ application: application });
   }
 
-  onSelectChange(field, val) {
+  onSelectChange(field, event) {
     let application = this.state.application;
-    if (val !== null) {
-      application[field] = val.value;
+    if (event !== null) {
+      application[field] = event.target.value;
     } else {
       application[field] = null;
     }
     this.setState({
-      application: application,
+      application: application
     });
   }
 
@@ -66,7 +96,7 @@ class ApplicationForm extends Component {
     let application = this.state.application;
     application[field] = newCode;
     this.setState({
-      application: application,
+      application: application
     });
   }
 
@@ -76,25 +106,29 @@ class ApplicationForm extends Component {
   }
 
   render() {
-    const serviceProfileOptions = this.state.serviceProfiles.map((serviceProfile, i) => {
-      return {
-        value: serviceProfile.serviceProfileID,
-        label: serviceProfile.name,
-      };
-    });
+    const { classes } = this.props;
+
+    const serviceProfileOptions = this.state.serviceProfiles.map(
+      (serviceProfile, i) => {
+        return {
+          value: serviceProfile.serviceProfileID,
+          label: serviceProfile.name
+        };
+      }
+    );
 
     const payloadCodecOptions = [
-      {value: "", label: "None"},
-      {value: "CAYENNE_LPP", label: "Cayenne LPP"},
-      {value: "CUSTOM_JS", label: "Custom JavaScript codec functions"},
+      { value: "", label: "None" },
+      { value: "CAYENNE_LPP", label: "Cayenne LPP" },
+      { value: "CUSTOM_JS", label: "Custom JavaScript codec functions" }
     ];
 
-    const codeMirrorOptions = {
-      lineNumbers: true,
-      mode: "javascript",
-      theme: 'base16-light',
-    };
-    
+    // const codeMirrorOptions = {
+    //   lineNumbers: true,
+    //   mode: "javascript",
+    //   theme: 'base16-light',
+    // };
+
     let payloadEncoderScript = this.state.application.payloadEncoderScript;
     let payloadDecoderScript = this.state.application.payloadDecoderScript;
 
@@ -120,75 +154,69 @@ function Decode(fPort, bytes) {
 
     return (
       <form onSubmit={this.handleSubmit}>
-        <div className="form-group">
-          <label className="control-label" htmlFor="name">Application name</label>
-          <input className="form-control" id="name" type="text" placeholder="e.g. 'temperature-sensor'" pattern="[\w-]+" required value={this.state.application.name || ''} onChange={this.onChange.bind(this, 'name')} />
-          <p className="help-block">
-            The name may only contain words, numbers and dashes. 
-          </p>
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="name">Application description</label>
-          <input className="form-control" id="description" type="text" placeholder="a short description of your application" required value={this.state.application.description || ''} onChange={this.onChange.bind(this, 'description')} />
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="serviceProfileID">Service-profile</label>
-          <Select
-            name="serviceProfileID"
-            options={serviceProfileOptions}
-            value={this.state.application.serviceProfileID}
-            onChange={this.onSelectChange.bind(this, 'serviceProfileID')}
-            disabled={this.state.update}
-            required={true}
-          />
-          <p className="help-block">
-            The service-profile to which this application will be attached. Note that you can't change this value after the application has been created.
-          </p>
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="payloadCodec">Payload codec</label>
-          <Select
-            name="payloadCodec"
-            options={payloadCodecOptions}
-            value={this.state.application.payloadCodec}
-            onChange={this.onSelectChange.bind(this, 'payloadCodec')}
-          />
-          <p className="help-block">
-            By defining a payload codec, LoRa App Server can encode and decode the binary device payload for you.
-          </p>
-        </div>
-        <div className={"form-group " + (this.state.application.payloadCodec === "CUSTOM_JS" ? "" : "hidden")}>
-          <label className="control-label" htmlFor="payloadDecoderScript">Payload decoder function</label>
-          <CodeMirror
-            value={payloadDecoderScript}
-            options={codeMirrorOptions}
-            onBeforeChange={this.onCodeChange.bind(this, 'payloadDecoderScript')}
-          />
-          <p className="help-block">
-            The function must have the signature <strong>function Decode(fPort, bytes)</strong> and must return an object.
-            LoRa App Server will convert this object to JSON.
-          </p>
-        </div>
-        <div className={"form-group " + (this.state.application.payloadCodec === "CUSTOM_JS" ? "" : "hidden")}>
-          <label className="control-label" htmlFor="payloadEncoderScript">Payload encoder function</label>
-          <CodeMirror
-            value={payloadEncoderScript}
-            options={codeMirrorOptions}
-            onBeforeChange={this.onCodeChange.bind(this, 'payloadEncoderScript')}
-          />
-          <p className="help-block">
-            The function must have the signature <strong>function Encode(fPort, obj)</strong> and must return an array
-            of bytes.
-          </p>
-        </div>
-        <hr />
-        <div className="btn-toolbar pull-right">
-          <a className="btn btn-default" onClick={this.props.history.goBack}>Go back</a>
-          <button type="submit" className="btn btn-primary">Submit</button>
+        <Typography variant="headline">{this.props.formName}</Typography>
+        <TextField
+          id="name"
+          label="Application Name"
+          className={classes.textField}
+          required
+          value={this.state.application.name || ""}
+          onChange={this.onChange.bind(this, "name")}
+          pattern="[\w-]+"
+        />
+        <Typography component="p" className={classes.helpBox}>
+          The name may only contain words, numbers and dashes.
+        </Typography>
+
+        <TextField
+          id="description"
+          label="Application Description"
+          className={classes.textField}
+          multiline
+          rows="4"
+          placeholder="An optional note about the application..."
+          value={this.state.application.description || ""}
+          onChange={this.onChange.bind(this, "description")}
+          pattern="[\w-]+"
+        />
+
+        <InputLabel htmlFor="serviceProfileID">Service-profile</InputLabel>
+        <Dropdown
+          options={serviceProfileOptions}
+          value={this.state.application.serviceProfileID}
+          onChange={this.onSelectChange.bind(this, "serviceProfileID")}
+        />
+        <Typography component="p" className={classes.helpBox}>
+          A description of the application.
+        </Typography>
+
+        <InputLabel htmlFor="payloadCodec">Payload codec</InputLabel>
+        <Dropdown
+          options={payloadCodecOptions}
+          value={this.state.application.payloadCodec}
+          onChange={this.onSelectChange.bind(this, "payloadCodec")}
+        />
+
+        <Typography component="p" className={classes.helpBox}>
+          By defining a payload codec, LoRa App Server can encode and decode the
+          binary device payload for you.
+        </Typography>
+
+        <div className={classes.buttonHolder}>
+          <Button
+            className={classes.button}
+            onClick={this.props.history.goBack}
+          >
+            Go back
+          </Button>
+          <Button type="submit" variant="raised">
+            Submit
+          </Button>
         </div>
       </form>
     );
   }
 }
 
+ApplicationForm = withStyles(styles)(ApplicationForm);
 export default withRouter(ApplicationForm);

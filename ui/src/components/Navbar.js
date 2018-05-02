@@ -1,8 +1,38 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
-import dispatcher from "../dispatcher";
+import AppBar from "material-ui/AppBar";
+import Toolbar from "material-ui/Toolbar";
+import Typography from "material-ui/Typography";
+import { withStyles } from "material-ui/styles";
+
+import dispatcher from "../config/dispatcher";
 import SessionStore from "../stores/SessionStore";
+import IconButton from "material-ui/IconButton";
+import Menu, { MenuItem } from "material-ui/Menu";
+import AccountCircle from "material-ui-icons/AccountCircle";
+import Tabs, { Tab } from "material-ui/Tabs";
+import LogoImage from "../images/logo_clr.svg";
+
+const styles = {
+  root: {
+    flexGrow: 1
+  },
+  flex: {
+    flex: 1
+  },
+  logo: {
+    width: "100%",
+    maxWidth: 160
+  },
+  toolbar: {
+    margin: 0,
+    minHeight: 48
+  },
+  tabs: {
+    marginRight: 16
+  }
+};
 
 class Navbar extends Component {
   constructor() {
@@ -12,23 +42,31 @@ class Navbar extends Component {
       isAdmin: SessionStore.isAdmin(),
       userDropdownOpen: false,
       logo: SessionStore.getLogo(),
-    }
-
+      anchorEl: null,
+    };
     this.userToggleDropdown = this.userToggleDropdown.bind(this);
     this.handleActions = this.handleActions.bind(this);
   }
 
+  handleMenu = event => {
+    this.setState({ anchorEl: event.currentTarget });
+  };
+
+  handleClose = () => {
+    this.setState({ anchorEl: null });
+  };
+
   userToggleDropdown() {
-	    this.setState({
-	      userDropdownOpen: !this.state.userDropdownOpen,
-	    });
-	  }
+    this.setState({
+      userDropdownOpen: !this.state.userDropdownOpen
+    });
+  }
 
   handleActions(action) {
-    switch(action.type) {
+    switch (action.type) {
       case "BODY_CLICK": {
         this.setState({
-            userDropdownOpen: false,
+          userDropdownOpen: false
         });
         break;
       }
@@ -42,41 +80,97 @@ class Navbar extends Component {
       this.setState({
         user: SessionStore.getUser(),
         isAdmin: SessionStore.isAdmin(),
-        logo: SessionStore.getLogo(),
+        logo: SessionStore.getLogo()
       });
     });
-
     dispatcher.register(this.handleActions);
   }
 
   render() {
+    const { classes, activeTab } = this.props;
+    const { anchorEl } = this.state;
+    const open = Boolean(anchorEl);
+
     return (
-      <nav className="navbar navbar-inverse navbar-fixed-top">
-        <div className="container">
-          <div className="navbar-header">
-            <a className="navbar-brand" href="#/">
-              <span dangerouslySetInnerHTML={{ __html: ( typeof(this.state.logo) === "undefined" ? "" : this.state.logo) }} />
-              LoRa Server
-            </a>
-          </div>
-          <div id="navbar" className="navbar-collapse collapse">
-            <ul className="nav navbar-nav navbar-right">
-              <li className={typeof(this.state.user.username) === "undefined" ? "hidden" : ""}><Link to="/organizations">Organizations</Link></li>
-              <li className={this.state.isAdmin === true ? "" : "hidden"}><Link to="/users">Users</Link></li>
-              <li className={this.state.isAdmin === true ? "" : "hidden"}><Link to="/network-servers">Network servers</Link></li>
-              <li className={"dropdown " + (typeof(this.state.user.username) === "undefined" ? "hidden" : "") + (this.state.userDropdownOpen ? "open" : "")}>
-                <a onClick={this.userToggleDropdown} className="dropdown-toggle">{this.state.user.username} <span className="caret" /></a>
-                <ul className="dropdown-menu" onClick={this.userToggleDropdown}>
-                  <li><Link to={`/users/${this.state.user.id}/password`}>Change password</Link></li>
-                  <li><Link to="/login">Logout</Link></li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+      <div className={classes.root}>
+        <AppBar position="static" color="default">
+          <Toolbar className={classes.toolbar}>
+            <Typography
+              variant="title"
+              color="inherit"
+              className={classes.flex}
+            >
+              <a className="navbar-brand" href="#/">
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      typeof this.state.logo === "undefined"
+                        ? ""
+                        : this.state.logo
+                  }}
+                />
+                <img className={classes.logo} src={LogoImage} alt="Not found" />
+              </a>
+            </Typography>
+            <Tabs
+              className={classes.tabs}
+              value={activeTab || false}
+              onChange={this.handleChange}
+            >
+              <Tab
+                label="Join a network"
+                component={Link}
+                to="/join-a-network"
+                value="join-a-network"
+              />
+              <Tab label="Organizations" component={Link} to="/organizations" value="organizations"/>
+              <Tab label="Dashboard" component={Link} to="/" value="dashboard"/>
+            </Tabs>
+            <IconButton
+              aria-owns={null}
+              aria-haspopup="true"
+              onClick={this.handleMenu}
+              color="inherit"
+            >
+              <AccountCircle />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+              open={open}
+              onClose={this.handleClose}
+            >
+              <MenuItem
+                onClick={this.handleClose}
+                component={Link}
+                to="/profile"
+              >
+                Profile
+              </MenuItem>
+              <MenuItem
+                onClick={this.handleClose}
+                component={Link}
+                to="/settings"
+              >
+                Settings
+              </MenuItem>
+              <MenuItem onClick={this.handleClose} component={Link} to="/login">
+                Logout
+              </MenuItem>
+            </Menu>
+          </Toolbar>
+        </AppBar>
+      </div>
     );
   }
 }
 
-export default Navbar;
+export default withStyles(styles)(Navbar);

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { withRouter } from 'react-router-dom';
+import { withRouter } from "react-router-dom";
 
 import DeviceProfileStore from "../../stores/DeviceProfileStore";
 import DeviceProfileForm from "../../components/DeviceProfileForm";
@@ -11,16 +11,20 @@ class CreateDeviceProfile extends Component {
 
     this.state = {
       deviceProfile: {
-        deviceProfile: {},
-      },
+        deviceProfile: {}
+      }
     };
 
     this.onSubmit = this.onSubmit.bind(this);
   }
 
   onSubmit(deviceProfile) {
-    DeviceProfileStore.createDeviceProfile(deviceProfile, (responseData) => {
-      this.props.history.push(`/organizations/${this.props.match.params.organizationID}/device-profiles`);
+    DeviceProfileStore.createDeviceProfile(deviceProfile, responseData => {
+      this.props.history.push(
+        `/organizations/${
+          this.props.match.params.organizationID
+        }/device-profiles`
+      );
     });
   }
 
@@ -28,21 +32,19 @@ class CreateDeviceProfile extends Component {
     this.setState({
       deviceProfile: {
         organizationID: this.props.match.params.organizationID,
-        deviceProfile: {},
-      },
+        deviceProfile: {}
+      }
     });
   }
 
   render() {
-    return(
-      <div className="panel panel-default">
-        <div className="panel-heading">
-          <h3 className="panel-title panel-title-buttons">Create device-profile</h3>
-        </div>
-        <div className="panel-body">
-          <DeviceProfileForm organizationID={this.props.match.params.organizationID} deviceProfile={this.state.deviceProfile} onSubmit={this.onSubmit} />
-        </div>
-      </div>
+    return (
+      <DeviceProfileForm
+        formName="Create Device-Profile"
+        organizationID={this.props.match.params.organizationID}
+        deviceProfile={this.state.deviceProfile}
+        onSubmit={this.onSubmit}
+      />
     );
   }
 }

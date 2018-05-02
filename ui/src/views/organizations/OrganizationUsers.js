@@ -1,26 +1,39 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, { Component } from "react";
+import organizationStore from "../../stores/OrganizationStore";
+import AddIcon from "material-ui-icons/Add";
+import { withStyles } from "material-ui/styles";
+import Button from "material-ui/Button";
+import Popup from "../../components/Popup";
+import userStore from "../../stores/UserStore";
+import AutoComplete from "../../components/AutoComplete";
+import CollaboratorForm from "../../components/collaboratorForm";
+import Checkbox from "material-ui/Checkbox";
+import { FormControlLabel } from "material-ui/Form";
 
-import OrganizationStore from "../../stores/OrganizationStore";
-import Pagination from "../../components/Pagination";
+const styles = theme => ({
+  content: {
+    maxWidth: "100%",
+    minHeight: 300,
+    margin: "auto",
+    marginTop: 30,
+    justifyContent: "center",
+    display: "flex",
+    overflowY: "hidden"
+  },
+  button: {
+    paddingLeft: 6
+  },
+  buttonHolder: {
+    marginTop: 10
+  },
 
-
-class OrganizationUserRow extends Component {
-  render() {
-    return(
-      <tr>
-        <td>{this.props.user.id}</td>
-        <td>
-          <Link to={`/organizations/${this.props.organizationID}/users/${this.props.user.id}/edit`}>{this.props.user.username}</Link>
-        </td>
-        <td>
-          <span className={"glyphicon glyphicon-" + (this.props.user.isAdmin ? 'ok' : 'remove')} aria-hidden="true"></span>
-        </td>
-      </tr>    
-    );
+  noStyle: {
+    textDecorationLine: "none"
+  },
+  tableHead: {
+    backgroundColor: "#F0F0F0"
   }
-}
-
+});
 
 class OrganizationUsers extends Component {
   constructor() {
@@ -29,63 +42,172 @@ class OrganizationUsers extends Component {
     this.state = {
       organization: {},
       users: [],
-      pageSize: 20,
-      pageNumber: 1,
+      pageSize: 5,
+      userSuggestions: [],
+      pageNumber: 0,
       pages: 1,
+      count: 0,
+      popupOpen: false,
+      addID: -1,
+      shallBecomeAdmin: false
     };
 
     this.updatePage = this.updatePage.bind(this);
-  }
-
-  componentDidMount() {
-    this.updatePage(this.props);
+    this.inviteCollaborator = this.inviteCollaborator.bind(this);
+    this.onInvite = this.onInvite.bind(this);
+    this.onDelete = this.onDelete.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    this.updatePage(nextProps);
+    this.setState(
+      {
+        organization: nextProps.organization
+      },
+      this.updatePage(nextProps)
+    );
   }
 
-  updatePage(props) {
+  updatePage(props, pageSize = undefined) {
+    const size = pageSize === undefined ? this.state.pageSize : pageSize; 
     const query = new URLSearchParams(props.location.search);
-    const page = (query.get('page') === null) ? 1 : query.get('page');
+    const page = query.get("page") === null ? 1 : query.get("page");
+    
+    organizationStore.getUsers(
+      props.organization.id,
+      size,
+      (page - 1) * size,
+      (totalCount, users) => {
+        this.setState({
+          users: users,
+          pageNumber: page - 1,
+          count: parseInt(totalCount, 10),
+          pages: Math.ceil(totalCount / this.state.pageSize)
+        });
+        window.scrollTo(0, 0);
+      }
+    );
+  }
 
-    OrganizationStore.getUsers(this.props.match.params.organizationID, this.state.pageSize, (page-1) * this.state.pageSize, (totalCount, users) => {
+  didWrite(e) {
+    userStore.getAll(e.target.value, 10, 0, (count, result) => {
       this.setState({
-        users: users,
-        pages: Math.ceil(totalCount / this.state.pageSize),
-        pageNumber: page,
+        userSuggestions: result
       });
     });
   }
 
-  render() {
-    const UserRows = this.state.users.map((user, i) => <OrganizationUserRow key={user.id} organizationID={this.props.match.params.organizationID} user={user} />);
+  onInvite() {
+    this.setState({ popupOpen: true });
+  }
 
-    return(
-      <div className="panel panel-default">
-        <div className="panel-heading clearfix">
-          <div className="btn-group pull-right">
-           <Link to={`/organizations/${this.props.match.params.organizationID}/users/create`}><button type="button" className="btn btn-default btn-sm">Add user</button></Link>
-          </div>
+  onDelete(user) {
+    organizationStore.removeUser(
+      this.state.organization.id,
+      user.id,
+      responseData => {
+        this.updatePage(this.props);
+      }
+    );
+  }
+
+  inviteCollaborator(id) {
+    userStore.getUser(id, user => {
+      organizationStore.addUser(
+        this.state.organization.id,
+        {
+          id: this.state.organization.id,
+          isAdmin: this.state.shallBecomeAdmin,
+          userID: user.id
+        },
+        () => {
+          this.setState({
+            addID: -1,
+            shallBecomeAdmin: false,
+            popupOpen: false
+          });
+          this.updatePage(this.props);
+        }
+      );
+    });
+  }
+
+  onChangeRowsPerPage = event => {
+    this.setState({
+      pageSize: event.target.value
+    });
+    this.updatePage(this.props, event.target.value);
+  };
+
+  render() {
+    const { classes } = this.props;
+
+    const collaborators = this.state.users.map((user, index) => ({
+      onDelete: this.onDelete,
+      organizationID: this.props.organization.id,
+      collaborator: user
+    }));
+
+    return (
+      <div className={classes.wrapper}>
+        <Popup
+          open={this.state.popupOpen}
+          handleClose={() => {
+            this.setState(prevState => ({ popupOpen: !prevState.popupOpen }));
+          }}
+          description="Enter username of the user that you want to invite"
+          title="Add Collaborator"
+          actionTitle="Add"
+          objects={
+            <div>
+              <AutoComplete
+                items={this.state.userSuggestions}
+                onChange={selectedItem =>
+                  this.setState({ addID: selectedItem.id })
+                }
+                didWrite={() => this.didWrite.bind(this)}
+              />
+              <FormControlLabel
+                label="Shall become admin"
+                control={
+                  <Checkbox
+                    checked={this.state.shallBecomeAdmin}
+                    onChange={() => {
+                      this.setState(prevState => ({
+                        shallBecomeAdmin: !prevState.shallBecomeAdmin
+                      }));
+                    }}
+                    value="shallBecomeAdmin"
+                  />
+                }
+              />
+            </div>
+          }
+          action={() => {
+            this.inviteCollaborator(this.state.addID);
+          }}
+        />
+        <div className={classes.buttonHolder}>
+          <Button
+            className={classes.button}
+            variant="raised"
+            onClick={this.onInvite}
+          >
+            <AddIcon />
+            Invite Collaborator
+          </Button>
         </div>
-        <div className="panel-body">
-          <table className="table table-hover">
-            <thead>
-              <tr>
-                <th className="col-md-1">ID</th>
-                <th>Username</th>
-                <th className="col-md-1">Admin</th>
-              </tr>
-            </thead>
-            <tbody>
-              {UserRows}
-            </tbody>
-          </table>
-        </div>
-        <Pagination pages={this.state.pages} currentPage={this.state.pageNumber} pathname={`/organizations/${this.props.match.params.organizationID}/users`} />
+        <CollaboratorForm
+          onChangeRowsPerPage={event => this.onChangeRowsPerPage(event)}
+          count={this.state.count}
+          rowsPerPage={this.state.pageSize}
+          pageNumber={this.state.pageNumber}
+          collaborators={collaborators} 
+          onDelete={this.onDelete}
+          organizationID={this.state.organization.id}
+        />
       </div>
     );
   }
 }
 
-export default OrganizationUsers;
+export default withStyles(styles)(OrganizationUsers);

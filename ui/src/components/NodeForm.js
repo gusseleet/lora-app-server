@@ -1,10 +1,54 @@
-import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
+import { withStyles } from "material-ui/styles";
 
-import Select from "react-select";
+import TextField from "material-ui/TextField";
+import Card, { CardContent } from "material-ui/Card";
+import { FormGroup } from "material-ui/Form";
+import Typography from "material-ui/Typography";
+import Button from "material-ui/Button";
+import Dropdown from "./Dropdown";
 
 import DeviceProfileStore from "../stores/DeviceProfileStore";
 
+const styles = theme => ({
+  textField: {
+    width: 200
+  },
+  whitespace: {
+    marginTop: 10
+  },
+  multiline: {
+    width: 300
+  },
+  spacingTop: {
+    marginTop: 10
+  },
+  card: {
+    width: "100%",
+    maxWidth: 1280,
+    minHeight: 300,
+    margin: "auto",
+    display: "flex",
+    flexWrap: "wrap",
+    overflowY: "hidden"
+  },
+  helpBox: {
+    padding: 8,
+    backgroundColor: "#F3F3F3",
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 8
+  },
+  button: {
+    marginLeft: 8,
+    marginRight: 8,
+    paddingLeft: 6
+  },
+  buttonHolder: {
+    marginTop: 30
+  }
+});
 
 class NodeForm extends Component {
   constructor() {
@@ -14,7 +58,7 @@ class NodeForm extends Component {
       node: {},
       devEUIDisabled: false,
       disabled: false,
-      deviceProfiles: [],
+      deviceProfiles: []
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -22,21 +66,26 @@ class NodeForm extends Component {
 
   componentDidMount() {
     this.setState({
-      node: this.props.node,
+      node: this.props.node
     });
 
-    DeviceProfileStore.getAllForApplicationID(this.props.applicationID, 9999, 0, (totalCount, deviceProfiles) => {
-      this.setState({
-        deviceProfiles: deviceProfiles,
-      });
-    });
+    DeviceProfileStore.getAllForApplicationID(
+      this.props.applicationID,
+      9999,
+      0,
+      (totalCount, deviceProfiles) => {
+        this.setState({
+          deviceProfiles: deviceProfiles
+        });
+      }
+    );
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
       node: nextProps.node,
       devEUIDisabled: typeof nextProps.node.devEUI !== "undefined",
-      disabled: nextProps.disabled,
+      disabled: nextProps.disabled
     });
   }
 
@@ -48,70 +97,118 @@ class NodeForm extends Component {
   onChange(field, e) {
     let node = this.state.node;
     if (e.target.type === "number") {
-      node[field] = parseInt(e.target.value, 10); 
+      node[field] = parseInt(e.target.value, 16);
     } else if (e.target.type === "checkbox") {
       node[field] = e.target.checked;
     } else {
       node[field] = e.target.value;
     }
-    this.setState({node: node});
-  };
+    this.setState({ node: node });
+  }
 
-  onSelectChange(field, val) {
+  onSelectChange(field, event) {
     let node = this.state.node;
-    if (val !== null) {
-      node[field] = val.value;
+    if (event !== null) {
+      node[field] = event.target.value;
     } else {
       node[field] = null;
     }
     this.setState({
-      node: node,
+      node: node
     });
   }
 
   render() {
-    const deviceProfileOptions = this.state.deviceProfiles.map((deviceProfile, i) => {
-      return {
-        value: deviceProfile.deviceProfileID,
-        label: deviceProfile.name,
-      };
-    });
+    const { classes } = this.props;
+
+    const deviceProfileOptions = this.state.deviceProfiles.map(
+      (deviceProfile, i) => {
+        return {
+          value: deviceProfile.deviceProfileID,
+          label: deviceProfile.name
+        };
+      }
+    );
 
     return (
-      <form onSubmit={this.handleSubmit}>
-        <div className="form-group">
-          <label className="control-label" htmlFor="name">Device name</label>
-          <input className="form-control" id="name" type="text" placeholder="e.g. 'garden-sensor'" required value={this.state.node.name || ''} pattern="[\w-]+" onChange={this.onChange.bind(this, 'name')} />
-          <p className="help-block">
-            The name may only contain words, numbers and dashes.
-          </p>
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="name">Device description</label>
-          <input className="form-control" id="description" type="text" placeholder="a short description of your node" required value={this.state.node.description || ''} onChange={this.onChange.bind(this, 'description')} />
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="devEUI">Device EUI</label>
-          <input className="form-control" id="devEUI" type="text" placeholder="0000000000000000" pattern="[A-Fa-f0-9]{16}" required disabled={this.state.devEUIDisabled} value={this.state.node.devEUI || ''} onChange={this.onChange.bind(this, 'devEUI')} /> 
-        </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="deviceProfileID">Device-profile</label>
-          <Select
-            name="deviceProfileID"
-            options={deviceProfileOptions}
-            value={this.state.node.deviceProfileID}
-            onChange={this.onSelectChange.bind(this, 'deviceProfileID')}
-            required={true}
-          />
-        </div>
-        <hr />
-        <div className="btn-toolbar pull-right">
-          <a className="btn btn-default" onClick={this.props.history.goBack}>Go back</a>
-          <button type="submit" className={"btn btn-primary " + (this.state.disabled ? 'hidden' : '')}>Submit</button>
-        </div>
-      </form>
+      <div>
+        <form onSubmit={this.handleSubmit}>
+          <Card className={classes.card}>
+            <CardContent>
+              <Typography variant="headline">{this.props.formName}</Typography>
+              <FormGroup className={classes.whitespace} row>
+                <TextField
+                  id="name"
+                  label="Device name"
+                  className={classes.textField}
+                  type="text"
+                  placeholder="e.g. 'garden-sensor'"
+                  value={this.state.node.name || ""}
+                  pattern="[\w-]+"
+                  onChange={this.onChange.bind(this, "name")}
+                />
+              </FormGroup>
+              <Typography component="p" className={classes.helpBox}>
+                The name may only contain words, numbers and dashes.
+              </Typography>
+
+              <FormGroup className={classes.whitespace} row>
+                <TextField
+                  id="description"
+                  label="Device description"
+                  className={classes.textField}
+                  type="text"
+                  placeholder="a short description of your node"
+                  required
+                  value={this.state.node.description || ""}
+                  onChange={this.onChange.bind(this, "description")}
+                />
+              </FormGroup>
+
+              <FormGroup className={classes.whitespace} row>
+                <TextField
+                  id="eui"
+                  label="Device EUI"
+                  className={classes.textField}
+                  type="text"
+                  placeholder="0000000000000000"
+                  pattern="[A-Fa-f0-9]{16}"
+                  required
+                  disabled={this.state.devEUIDisabled}
+                  value={this.state.node.devEUI || ""}
+                  onChange={this.onChange.bind(this, "devEUI")}
+                />
+              </FormGroup>
+
+              <FormGroup className={classes.whitespace} row>
+                <label className={classes.spacingTop} htmlFor="deviceProfileID">
+                  Device-profile
+                </label>
+                <Dropdown
+                  options={deviceProfileOptions}
+                  value={this.state.node.deviceProfileID}
+                  onChange={this.onSelectChange.bind(this, "deviceProfileID")}
+                  required={true}
+                />
+              </FormGroup>
+              <div className={classes.buttonHolder}>
+                <Button
+                  className={classes.button}
+                  onClick={this.props.history.goBack}
+                >
+                  Go back
+                </Button>
+                <Button type="submit" variant="raised">
+                  Submit
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
+      </div>
     );
   }
 }
 
+NodeForm = withStyles(styles)(NodeForm);
 export default withRouter(NodeForm);

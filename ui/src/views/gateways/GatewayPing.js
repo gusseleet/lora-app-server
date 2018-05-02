@@ -4,15 +4,61 @@ import ReactDOM from 'react-dom';
 import moment from "moment";
 import L from 'leaflet';
 import { Map, Marker, TileLayer, Polyline, Popup, MapControl } from 'react-leaflet';
+import { withStyles } from "material-ui/styles";
+
+import Card, { CardContent } from "material-ui/Card";
+import Typography from "material-ui/Typography";
+import LoadingGif from "../../images/loading.gif";
 
 import GatewayStore from "../../stores/GatewayStore";
+
+const styles = theme => ({
+  card: {
+    width: "100%",
+    maxWidth: 1280,
+    minHeight: 770,
+    margin: "auto",
+    display: "flex",
+    flexWrap: "wrap",
+    overflowY: "hidden",
+    flex: 1,
+    flexDirection: 'column'
+  },
+  wrapper: {
+    maxWidth: 1280,
+    width: "100%",
+    margin: "auto"
+  },
+  tableHead: {
+    backgroundColor: "#F0F0F0"
+  },
+  hidden: {
+    display: "none"
+  },
+  map: {
+    height: 700,
+    marginTop: 20
+  },
+  loading: {
+    margin: "auto",
+    width: 100,
+  },
+  loadingWrapper: {
+    margin: "auto",
+  },
+  infoText: {
+    margin: "auto",
+  }
+});
 
 
 class GatewayPing extends Component {
   constructor() {
     super();
 
-    this.state = {};
+    this.state = {
+      loading: true
+    };
   }
 
   componentDidMount() {
@@ -45,22 +91,29 @@ class GatewayPing extends Component {
   }
 
   render() {
-    const style = {
-      height: "800px",
-    };
-
+    const { classes } = this.props;
+    setTimeout(()=>{
+      this.setState({
+        loading: false
+      });
+    }, 2000);
     if (!this.state.gateway || !this.state.ping || !this.state.ping.pingRX || this.state.ping.pingRX.length === 0) {
       return(
-        <div className="panel panel-default">
-          <div className="panel-body">
-            No gateway ping data available (yet). This could mean:
+        <div className={classes.wrapper}>
+          <Card className={classes.card}>
+            <CardContent className={`${this.state.loading ? classes.loadingWrapper : classes.hidden}`}>
+              <img className={classes.loading} src={LoadingGif} alt="Not found" />
+            </CardContent>
+            <CardContent className={`${this.state.loading ? classes.hidden : classes.infoText}`}>
+              No gateway ping data available (yet). This could mean:
 
-            <ul>
-              <li>no ping was emitted yet</li>
-              <li>the gateway ping feature has been disabled in LoRa App Server</li>
-              <li>the ping was not received by any other gateways</li>
-            </ul>
-          </div>
+              <ul>
+                <li>no ping was emitted yet</li>
+                <li>the gateway ping feature has been disabled in LoRa App Server</li>
+                <li>the ping was not received by any other gateways</li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       );
     }
@@ -106,30 +159,30 @@ class GatewayPing extends Component {
 
 
     return(
-      <div className="panel panel-default">
-        <div className="panel-heading">
-        <h3 className="panel-title">Last ping: {lastPingTimestamp}</h3>
-        </div>
-        <div className="panel-body">
-          <Map animate={true} style={style} maxZoom={19} scrollWheelZoom={false} bounds={bounds}>
-            <TileLayer
-              url='//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            />
-            {markers}
-            {lines}
-            <LegendControl className="map-legend">
-              <ul>
-                <li><span className="label" style={{background: this.getColor(-100)}}>&nbsp;</span> &gt;= -100 dBm</li>
-                <li><span className="label" style={{background: this.getColor(-105)}}>&nbsp;</span> &gt;= -105 dBm</li>
-                <li><span className="label" style={{background: this.getColor(-110)}}>&nbsp;</span> &gt;= -110 dBm</li>
-                <li><span className="label" style={{background: this.getColor(-115)}}>&nbsp;</span> &gt;= -115 dBm</li>
-                <li><span className="label" style={{background: this.getColor(-120)}}>&nbsp;</span> &gt;= -120 dBm</li>
-                <li><span className="label" style={{background: this.getColor(-121)}}>&nbsp;</span> &lt; -120 dBm</li>
-              </ul>
-            </LegendControl>
-          </Map>
-        </div>
+      <div className={classes.wrapper}>
+        <Card className={classes.card}>
+          <CardContent>
+            <Typography variant="title">Last ping: {lastPingTimestamp}</Typography>
+            <Map animate={true} className={classes.map} maxZoom={19} scrollWheelZoom={false} bounds={bounds}>
+              <TileLayer
+                url='//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+              />
+              {markers}
+              {lines}
+              <LegendControl className="map-legend">
+                <ul>
+                  <li><span className="label" style={{background: this.getColor(-100)}}>&nbsp;</span> &gt;= -100 dBm</li>
+                  <li><span className="label" style={{background: this.getColor(-105)}}>&nbsp;</span> &gt;= -105 dBm</li>
+                  <li><span className="label" style={{background: this.getColor(-110)}}>&nbsp;</span> &gt;= -110 dBm</li>
+                  <li><span className="label" style={{background: this.getColor(-115)}}>&nbsp;</span> &gt;= -115 dBm</li>
+                  <li><span className="label" style={{background: this.getColor(-120)}}>&nbsp;</span> &gt;= -120 dBm</li>
+                  <li><span className="label" style={{background: this.getColor(-121)}}>&nbsp;</span> &lt; -120 dBm</li>
+                </ul>
+              </LegendControl>
+            </Map>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -154,4 +207,4 @@ class LegendControl extends MapControl {
   }
 }
 
-export default GatewayPing;
+export default withStyles(styles)(GatewayPing);

@@ -1,7 +1,63 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+import Dropdown from './Dropdown.js';
+import Typography from "material-ui/Typography";
+import { FormGroup } from "material-ui/Form";
+import TextField from "material-ui/TextField";
+import { withStyles } from 'material-ui';
+import Button from "material-ui/Button";
 
-import Select from "react-select";
+const styles = theme => ({
+  textField: {
+    width: 200,
+  },
+  multiline: {
+    width: 300
+  },
+  spacingTop: {
+    marginTop: 10
+  },
+  card: {
+    width: "100%",
+    maxWidth: 1280,
+    minHeight: 300,
+    margin: "auto",
+    marginTop: 30,
+    justifyContent: "left",
+    display: "flex",
+    flexWrap: "wrap",
+    overflowY: "hidden"
+  },
+  helpBox: {
+    padding: 8,
+    backgroundColor: "#F3F3F3",
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 8
+  },
+  buttonHolder: {
+    marginTop: 30
+  },
+  mapStyle: {
+    width: "100%",
+    height:300,
+  },
+  button_over: {
+    marginRight: 8,
+    paddingLeft: 6,
+    marginBottom: 6
+  },
+  button_under: {
+    marginRight: 8,
+    paddingLeft: 6,
+    marginTop: 4,
+  },
+  dropdown: {
+    marginTop: 6,
+    marginBottom: 6,
+  }
+
+});
 
 
 class ApplicationHTTPIntegrationHeaderForm extends Component {
@@ -24,19 +80,37 @@ class ApplicationHTTPIntegrationHeaderForm extends Component {
   }
 
   render() {
+
+    const { classes } = this.props;
+    
     return(
-      <div className="form-group row">
-        <div className="col-sm-4">
-          <input type="text" className="form-control" placeholder="Header name" value={this.props.header.key || ''} onChange={this.onChange.bind(this, 'key')} />
-        </div>
-        <div className="col-sm-7">
-          <input type="text" className="form-control" placeholder="Header value" value={this.props.header.value || ''} onChange={this.onChange.bind(this, 'value')} />
-        </div>
-        <div className="col-sm-1">
-          <button type="button" className="btn btn-link pull-right" onClick={this.onDelete}>
-            <span className="glyphicon glyphicon-remove" aria-hidden="true"></span>
-          </button>
-        </div>
+      <div>
+          <FormGroup row>
+            <TextField
+              name="form-control"
+              className={classes.textField}
+              placeholder="Header name"
+              value={this.props.header.key || ''}
+              onChange={this.onChange.bind(this, 'key')}
+            />
+          </FormGroup>
+
+          <FormGroup className={classes.spacingTop} row>
+            <TextField
+              name="form-control"
+              className={classes.textField}
+              placeholder="Header value"
+              value={this.props.header.value || ''}
+              onChange={this.onChange.bind(this, 'value')}
+            />
+          </FormGroup>
+          <Button
+            className={classes.button_under}
+            onClick={this.onDelete}
+            variant="raised"
+          >
+            REMOVE
+          </Button>
       </div>
     );
   }
@@ -86,41 +160,83 @@ class ApplicationHTTPIntegrationForm extends Component {
   }
 
   render() {
+
+    const { classes } = this.props;
+
+
     let headers = [];
     if (typeof(this.props.integration.headers) !== "undefined") {
       headers = this.props.integration.headers;
     }
 
-    const HTTPHeaders = headers.map((header, i) => <ApplicationHTTPIntegrationHeaderForm key={i} index={i} header={header} onHeaderChange={this.onHeaderChange} onDeleteHeader={this.onDeleteHeader} />);
+    const HTTPHeaders = headers.map((header, i) => <ApplicationHTTPIntegrationHeaderForm key={i} index={i} header={header} classes={classes} onHeaderChange={this.onHeaderChange} onDeleteHeader={this.onDeleteHeader} />);
 
     return(
+
+      
       <div>
-        <fieldset>
-          <legend>Headers</legend>
-          {HTTPHeaders}
-          <div className="form-group">
-            <button className="btn btn-default pull-right" onClick={this.addHeader}>Add header</button>
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend>Endpoints</legend>
-          <div className="form-group">
-            <label className="control-label" htmlFor="dataUpURL">Uplink data URL</label>
-            <input className="form-control" id="dataUpURL" name="dataUpURL" type="text" placeholder="http://example.com/uplink" value={this.props.integration.dataUpURL || ''} onChange={this.onChange.bind(this, 'dataUpURL')} />
-          </div>
-          <div className="form-group">
-            <label className="control-label" htmlFor="joinNotificationURL">Join notification URL</label>
-            <input className="form-control" id="joinNotificationURL" name="joinNotificationURL" type="text" placeholder="http://example.com/join" value={this.props.integration.joinNotificationURL || ''} onChange={this.onChange.bind(this, 'joinNotificationURL')} />
-          </div>
-          <div className="form-group">
-            <label className="control-label" htmlFor="ackNotificationURL">ACK notification URL</label>
-            <input className="form-control" id="ackNotificationURL" name="ackNotificationURL" type="text" placeholder="http://example.com/ack" value={this.props.integration.ackNotificationURL || ''} onChange={this.onChange.bind(this, 'ackNotificationURL')} />
-          </div>
-          <div className="form-group">
-            <label className="control-label" htmlFor="errorNotificationURL">Error notification URL</label>
-            <input className="form-control" id="errorNotificationURL" name="errorNotificationURL" type="text" placeholder="http://example.com/error" value={this.props.integration.errorNotificationURL || ''} onChange={this.onChange.bind(this, 'errorNotificationURL')} />
-          </div>
-        </fieldset>
+        <div>
+          <Typography variant="headline">Headers</Typography>
+              {HTTPHeaders}
+              <div className={classes.buttonHolder}>
+                <Button 
+                  variant="raised"
+                  className={classes.button_over}
+                  onClick={this.addHeader}
+                > 
+                  Add Header
+                </Button> 
+            </div> 
+
+      </div>     
+         <Typography variant="headline">Endpoints</Typography>
+              <FormGroup row>
+                <TextField
+                  id="dataUpURL"
+                  name="dataUpURL"
+                  label="Uplink data URL"
+                  className={classes.textField}
+                  placeholder="http://example.com/uplink"
+                  value={this.props.integration.dataUpURL || ''}
+                  onChange={this.onChange.bind(this, 'dataUpURL')}
+                />
+              </FormGroup>
+
+              <FormGroup className={classes.spacingTop} row>
+                <TextField
+                  id="joinNotificationURL"
+                  name="joinNotificationURL"
+                  label="Join notification URL"
+                  className={classes.textField}
+                  placeholder="http://example.com/join"
+                  value={this.props.integration.joinNotificationURL || ''}
+                  onChange={this.onChange.bind(this, 'joinNotificationURL')}
+                />
+              </FormGroup>
+
+              <FormGroup className={classes.spacingTop} row>
+                <TextField
+                  id="ackNotificationURL"
+                  name="ackNotificationURL"
+                  label="ACK notification URL"
+                  className={classes.textField}
+                  placeholder="http://example.com/ack"
+                  value={this.props.integration.ackNotificationURL || ''}
+                  onChange={this.onChange.bind(this, 'ackNotificationURL')}
+                />
+              </FormGroup>
+
+              <FormGroup className={classes.spacingTop} row>
+                <TextField
+                  id="errorNotificationURL"
+                  name="errorNotificationURL"
+                  label="Error notification URL"
+                  className={classes.textField}
+                  placeholder="http://example.com/error"
+                  value={this.props.integration.errorNotificationURL || ''}
+                  onChange={this.onChange.bind(this, 'errorNotificationURL')}
+                />
+              </FormGroup>      
       </div>
     );
   }
@@ -179,9 +295,9 @@ class ApplicationIntegrationForm extends Component {
     });
   }
 
-  onKindSelect(val) {
+  onKindSelect(event) {
     let integration = this.state.integration;
-    integration.kind = val.value;
+    integration.kind = event.target.value;
     this.setState({
       integration: integration,
     });
@@ -193,6 +309,8 @@ class ApplicationIntegrationForm extends Component {
   }
 
   render() {
+
+    const { classes } = this.props;
     const kindOptions = [
       {value: "http", label: "HTTP integration"},
     ];
@@ -200,30 +318,45 @@ class ApplicationIntegrationForm extends Component {
     let form = <div></div>;
 
     if (this.state.integration.kind === "http") {
-      form = <ApplicationHTTPIntegrationForm integration={this.state.integration} onFormChange={this.onFormChange} />;
+      form = <ApplicationHTTPIntegrationForm classes={classes} integration={this.state.integration} onFormChange={this.onFormChange} />;
     }
 
     return(
       <form onSubmit={this.handleSubmit}>
-        <div className="form-group">
-          <label className="control-label" htmlFor="kind">Integration kind</label>
-          <Select
-            name="kind"
-            value={this.state.integration.kind}
-            options={kindOptions}
-            onChange={this.onKindSelect}
-            clearable={false}
-            disabled={this.state.kindDisabled}
-          />
-        </div>
+
+      <label className={classes.spacingTop}>Integration kind</label>
+      <div className={classes.dropdown}>
+      <FormGroup row>
+         <Dropdown 
+          name="kind"
+          value={this.state.integration.kind}
+          options={kindOptions}
+          onChange={this.onKindSelect}
+          clearable={false}
+          disabled={this.state.kindDisabled}
+          /> 
+      </FormGroup>
+      </div>
+
+
         {form}
-        <div className="btn-toolbar pull-right">
-          <a className="btn btn-default" onClick={this.props.history.goBack}>Go back</a>
-          <button type="submit" className="btn btn-primary">Submit</button>
+        <div className={classes.buttonHolder}>
+          <Button
+            className={classes.button_under}
+            onClick={this.props.history.goBack}
+          >
+            Go back
+          </Button>
+          <Button className={classes.button_under}
+            type="submit"
+            variant="raised">
+            Submit
+          </Button>
         </div>
       </form>
     );
   }
 }
 
+ApplicationIntegrationForm = withStyles(styles)(ApplicationIntegrationForm);
 export default withRouter(ApplicationIntegrationForm);

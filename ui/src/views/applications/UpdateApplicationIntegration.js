@@ -1,9 +1,28 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-
 import ApplicationStore from "../../stores/ApplicationStore";
 import ApplicationIntegrationForm from "../../components/ApplicationIntegrationForm";
 
+import { withStyles } from "material-ui/styles";
+import Card, { CardContent } from "material-ui/Card";
+
+
+
+const styles = theme => ({
+  card: {
+    width: "100%",
+    maxWidth: 1280,
+    minHeight: 300,
+    margin: "auto",
+    marginTop: 30,
+    display: "flex",
+    flexWrap: "wrap",
+    overflowY: "hidden",
+    },
+  cardContent: {
+    width: "100%"
+  }
+  });
 
 class UpdateApplicationIntegration extends Component {
   constructor() {
@@ -41,20 +60,27 @@ class UpdateApplicationIntegration extends Component {
   }
 
   render() {
+
+    const { classes } = this.props;
     return(
       <div className="panel panel-default">
-        <div className="panel-heading clearfix">
-          <h3 className="panel-title panel-title-buttons pull-left">Update integration</h3>
-          <div className="btn-group pull-right">
-            <a><button type="button" className="btn btn-danger btn-sm" onClick={this.onDelete}>Remove integration</button></a>
+        <Card className={classes.card}>
+         <CardContent className={classes.cardContent}>
+          <div className="panel-heading clearfix">
+            <h3 className="panel-title panel-title-buttons pull-left">Update integration</h3>
+            <div className="btn-group pull-right">
+              <a><button type="button" className="btn btn-danger btn-sm" onClick={this.onDelete}>Remove integration</button></a>
+            </div>
           </div>
-        </div>
-        <div className="panel-body">
-          <ApplicationIntegrationForm integration={this.state.integration} onSubmit={this.onSubmit} />
-        </div>
-      </div>
+          <div className="panel-body">
+            <ApplicationIntegrationForm integration={this.state.integration} onSubmit={this.onSubmit} />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
     );
   }
 }
 
+UpdateApplicationIntegration = withStyles(styles)(UpdateApplicationIntegration);
 export default withRouter(UpdateApplicationIntegration);

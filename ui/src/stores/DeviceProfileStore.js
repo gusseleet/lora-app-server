@@ -4,7 +4,6 @@ import "whatwg-fetch";
 import sessionStore from "./SessionStore";
 import { checkStatus, errorHandler } from "./helpers";
 
-
 class DeviceProfileStore extends EventEmitter {
   getAllForOrganizationID(organizationID, pageSize, offset, callbackFunc) {
     fetch("/api/device-profiles?organizationID="+organizationID+"&limit="+pageSize+"&offset="+offset, {headers: sessionStore.getHeader()})

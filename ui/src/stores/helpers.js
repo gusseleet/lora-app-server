@@ -1,5 +1,5 @@
-import dispatcher from "../dispatcher";
-import history from '../history';
+import dispatcher from "../config/dispatcher";
+import history from '../config/history';
 
 
 export function checkStatus(response) {
@@ -11,16 +11,18 @@ export function checkStatus(response) {
 };
 
 export function errorHandler(error) {
-  error.then((data) => {
-    if (data.code === 16) {
-      history.push("/login");
-    } else {
-      dispatcher.dispatch({
-        type: "CREATE_ERROR",
-        error: data,
-      });
-    }
-  });
+  error
+    .then((data) => {
+      if (data.code === 16) {
+        history.push("/login");
+      } else {
+        dispatcher.dispatch({
+          type: "CREATE_ERROR",
+          error: data,
+        });
+      }
+    })
+    .catch((error) => { throw error; });
 };
 
 export function errorHandlerIgnoreNotFound(error) {

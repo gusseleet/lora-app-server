@@ -1,9 +1,8 @@
 import { EventEmitter } from "events";
 import "whatwg-fetch";
-import dispatcher from "../dispatcher";
+import dispatcher from "../config/dispatcher";
 import sessionStore from "./SessionStore";
 import { checkStatus, errorHandler, errorHandlerIgnoreNotFound } from "./helpers";
-
 
 class NodeStore extends EventEmitter {
   getAll(applicationID, pageSize, offset, search, callbackFunc) {
@@ -121,7 +120,7 @@ class NodeStore extends EventEmitter {
   }
 
   getRandomDevAddr(devEUI, callbackFunc) {
-    fetch("/api/devices/"+devEUI+"/getRandomDevAddr", {method: "POST", headers: sessionStore.getHeader()}) 
+    fetch("/api/devices/"+devEUI+"/getRandomDevAddr", {method: "POST", headers: sessionStore.getHeader()})
       .then(checkStatus)
       .then((response) => response.json())
       .then((responseData) => {
@@ -135,7 +134,7 @@ class NodeStore extends EventEmitter {
     var wsURL;
 
     if (loc.host === "localhost:3000") {
-      wsURL = `wss://localhost:8080/api/devices/${devEUI}/frames`;
+      wsURL = `wss://52.58.136.78:8080/api/devices/${devEUI}/frames`;
     } else {
       if (loc.protocol === "https:") {
         wsURL = "wss:";
@@ -148,12 +147,10 @@ class NodeStore extends EventEmitter {
 
     let conn = new WebSocket(wsURL, ["Bearer", sessionStore.getToken()]);
     conn.onopen = () => {
-      console.log('connected to', wsURL);
       onOpen();
     };
 
     conn.onclose = () => {
-      console.log('closing', wsURL);
       onClose();
     }
 

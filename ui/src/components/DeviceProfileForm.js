@@ -1,11 +1,38 @@
 import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
-import Select from "react-select";
+import TextField from 'material-ui/TextField';
+import { withStyles } from "material-ui/styles";
+import { InputLabel } from 'material-ui/Input';
+import Card, { CardContent } from "material-ui/Card";
+import Button from "material-ui/Button";
+import Typography from "material-ui/Typography";
 
 import Loaded from "./Loaded.js";
 import NetworkServerStore from "../stores/NetworkServerStore";
 import SessionStore from "../stores/SessionStore";
+import Dropdown from './Dropdown.js';
+
+const styles = theme => ({
+  button: {
+    paddingLeft: 6,
+  },
+  buttonHolder: {
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  textField: {
+    width: 250,
+    display: "block",
+  },
+  helpBox: {
+    padding: 8,
+    backgroundColor: "#F3F3F3",
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 8
+  },
+});
 
 
 class DeviceProfileForm extends Component {
@@ -23,6 +50,8 @@ class DeviceProfileForm extends Component {
       loaded: {
         networkServers: false,
       },
+      macVersion: "",
+
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -38,6 +67,7 @@ class DeviceProfileForm extends Component {
         loaded: {
           networkServers: true,
         },
+        showDropdown: true,
       });
     });
   }
@@ -93,7 +123,7 @@ class DeviceProfileForm extends Component {
     });
   }
 
-  onSelectChange(fieldLookup, val) {
+  onSelectChange(fieldLookup, event) {
     let lookup = fieldLookup.split(".");
     const fieldName = lookup[lookup.length-1];
     lookup.pop(); // remove last item
@@ -105,12 +135,16 @@ class DeviceProfileForm extends Component {
       obj = obj[f];
     }
 
-    obj[fieldName] = val.value;
+    obj[fieldName] = event.target.value;
 
     this.setState({
       deviceProfile: deviceProfile,
     });
   }
+
+  handleChange = name => event => {
+    this.setState({ [name]: event.target.value });
+  };
 
   changeTab(e) {
     e.preventDefault();
@@ -120,6 +154,9 @@ class DeviceProfileForm extends Component {
   }
 
   render() {
+
+    const { classes } = this.props;
+
     const networkServerOptions = this.state.networkServers.map((networkServer, i) => {
       return {
         value: networkServer.id,
@@ -128,10 +165,10 @@ class DeviceProfileForm extends Component {
     });
 
     const macVersionOptions = [
-      {value: "1.0.0", label: "1.0.0"},
-      {value: "1.0.1", label: "1.0.1"},
-      {value: "1.0.2", label: "1.0.2"},
-      {value: "1.1.0", label: "1.1.0"},
+      {value: 100, label: "1.0.0"},
+      {value: 101, label: "1.0.1"},
+      {value: 102, label: "1.0.2"},
+      {value: 110, label: "1.1.0"},
     ];
 
     const regParamsOptions = [
@@ -139,220 +176,143 @@ class DeviceProfileForm extends Component {
       {value: "B", label: "B"},
     ];
 
-    const pingSlotPeriodOptions = [
-      {value: 32 * 1, label: "every second"},
-      {value: 32 * 2, label: "every 2 seconds"},
-      {value: 32 * 4, label: "every 4 seconds"},
-      {value: 32 * 8, label: "every 8 seconds"},
-      {value: 32 * 16, label: "every 16 seconds"},
-      {value: 32 * 32, label: "every 32 seconds"},
-      {value: 32 * 64, label: "every 64 seconds"},
-      {value: 32 * 128, label: "every 128 seconds"},
-    ];
-
     return(
       <Loaded loaded={this.state.loaded}>
-        <div>
-          <ul className="nav nav-tabs">
-            <li role="presentation" className={(this.state.activeTab === "general" ? "active" : "")}><a onClick={this.changeTab} href="#general" aria-controls="general">General</a></li>
-            <li role="presentation" className={(this.state.activeTab === "join" ? "active" : "")}><a onClick={this.changeTab} href="#join" aria-controls="join">Join (OTAA / ABP)</a></li>
-          <li role="presentation" className={(this.state.activeTab === "classB" ? "active" : "")}><a onClick={this.changeTab} href="#classB" aria-controls="classB">Class-B</a></li>
-            <li role="presentation" className={(this.state.activeTab === "classC" ? "active" : "")}><a onClick={this.changeTab} href="#classC" aria-controls="classC">Class-C</a></li>
-          </ul>
-          <hr />
           <form onSubmit={this.handleSubmit}>
-            <div className={"alert alert-warning " + (this.state.networkServers.length > 0 ? 'hidden' : '')}>
-              No network-servers are associated with this organization, a <Link to={`/organizations/${this.props.organizationID}/service-profiles`}>service-profile</Link> needs to be created first for this organization.
-            </div>
-            <fieldset disabled={!this.state.isAdmin}>
-              <div className={(this.state.activeTab === "general" ? "" : "hidden")}>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="name">Device-profile name</label>
-                  <input className="form-control" id="name" type="text" placeholder="e.g. my device-profile" required value={this.state.deviceProfile.name || ''} onChange={this.onChange.bind(this, 'name')} />
-                  <p className="help-block">
-                    A memorable name for the device-profile.
-                  </p>
+            <Card>
+              <CardContent>
+                <Typography variant="headline">{this.props.formName}</Typography>
+                <TextField
+                  id="name"
+                  label="Device Name"
+                  className={classes.textField}
+                  required value={this.state.deviceProfile.name || ''}
+                  onChange={this.onChange.bind(this, 'name')}
+                  pattern="[\w-]+"
+                />
+                <Typography component="p" className={classes.helpBox}>
+                  A memorable name for the device-profile.
+                </Typography>
+
+                <InputLabel htmlFor="networkServerID">Network-server</InputLabel>
+                <Dropdown
+                  value={this.state.deviceProfile.networkServerID}
+                  options={networkServerOptions}
+                  type="number"
+                  onChange={this.onSelectChange.bind(this, "networkServerID")}
+                />
+                <Typography component="p" className={classes.helpBox}>
+                  The network-server on which this device-profile will be provisioned. After creating the device-profile, this value can't be changed.
+                </Typography>
+
+                <InputLabel htmlFor="macVersion">Mac Version </InputLabel>
+                <Dropdown
+                  value={this.state.macVersion}
+                  options={macVersionOptions}
+                  type="number"
+                  onChange={this.handleChange("macVersion")}
+                />
+                <Typography component="p" className={classes.helpBox}>
+                  Version of the LoRaWAN supported by the End-Device.
+                </Typography>
+
+                <InputLabel htmlFor="macVersion">LoRaWAN Regional Parameters revision</InputLabel>
+                <Dropdown
+                  value={this.state.deviceProfile.deviceProfile.regParamsRevision}
+                  options={regParamsOptions}
+                  type="number"
+                  onChange={this.onSelectChange.bind(this, "deviceProfile.regParamsRevision")}
+                />
+                <Typography component="p" className={classes.helpBox}>
+                  Revision of the Regional Parameters document supported by the End-Device.
+                </Typography>
+
+                <TextField
+                  id="maxEIRP"
+                  label="Max EIRP"
+                  className={classes.textField}
+                  type="number"
+                  required value={this.state.deviceProfile.deviceProfile.maxEIRP  || ''}
+                  onChange={this.onChange.bind(this, 'deviceProfile.maxEIRP')}
+                  pattern="[\w-]+"
+                />
+                <Typography component="p" className={classes.helpBox}>
+                Maximum EIRP supported by the End-Device.
+                </Typography>
+                <TextField
+                  id="rxDelay1"
+                  label="RX1 Delay"
+                  className={classes.textField}
+                  type="number"
+                  required value={this.state.deviceProfile.deviceProfile.rxDelay1  || ''}
+                  onChange={this.onChange.bind(this, 'deviceProfile.rxDelay1')}
+                  pattern="[\w-]+"
+                />
+                <Typography component="p" className={classes.helpBox}>
+                Class A RX1 delay (mandatory for ABP).
+                </Typography>
+                <TextField
+                  id="rxDROffset1"
+                  label="RX1 data-rate offset"
+                  className={classes.textField}
+                  type="number"
+                  required value={this.state.deviceProfile.deviceProfile.rxDROffset1  || ''}
+                  onChange={this.onChange.bind(this, 'deviceProfile.rxDROffset1')}
+                  pattern="[\w-]+"
+                />
+                <Typography component="p" className={classes.helpBox}>
+                RX1 data rate offset (mandatory for ABP).
+                </Typography>
+                <TextField
+                  id="rxDataRate2"
+                  label="RX2 data-rate"
+                  className={classes.textField}
+                  type="number"
+                  required value={this.state.deviceProfile.deviceProfile.rxDataRate2  || ''}
+                  onChange={this.onChange.bind(this, 'deviceProfile.rxDataRate2')}
+                  pattern="[\w-]+"
+                />
+                <Typography component="p" className={classes.helpBox}>
+                RX2 data rate (mandatory for ABP).
+                </Typography>
+                <TextField
+                  id="rxFreq2"
+                  label="RX2 channel frequency"
+                  className={classes.textField}
+                  type="number"
+                  required value={this.state.deviceProfile.deviceProfile.rxFreq2  || ''}
+                  onChange={this.onChange.bind(this, 'deviceProfile.rxFreq2')}
+                  pattern="[\w-]+"
+                />
+                <Typography component="p" className={classes.helpBox}>
+                RX2 channel frequency (mandatory for ABP).
+                </Typography>
+                <TextField
+                  id="factoryPresetFreqsStr"
+                  label="Factory-present frequencies"
+                  className={classes.textField}
+                  type="number"
+                  required value={this.state.deviceProfile.deviceProfile.factoryPresetFreqsStr  || ''}
+                  onChange={this.onChange.bind(this, 'deviceProfile.factoryPresetFreqsStr')}
+                  placeholder="860100000, 868300000, 868500000"
+                  pattern="[\w-]+"
+                />
+                <Typography component="p" className={classes.helpBox}>
+                List of factory-preset frequencies (mandatory for ABP).
+                </Typography>
+                <div className={classes.buttonHolder}>
+                  <Button type="submit" className={classes.button} variant="raised">
+                  Submit
+                  </Button>
                 </div>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="networkServerID">Network-server</label>
-                  <Select
-                    name="networkServerID"
-                    options={networkServerOptions}
-                    value={this.state.deviceProfile.networkServerID}
-                    onChange={this.onSelectChange.bind(this, 'networkServerID')}
-                    disabled={this.state.update}
-                  />
-                  <p className="help-block">
-                    The network-server on which this device-profile will be provisioned. After creating the device-profile, this value can't be changed.
-                  </p>
-                </div>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="macVersion">LoRaWAN MAC version</label>
-                  <Select 
-                    name="macVersion"
-                    options={macVersionOptions}
-                    value={this.state.deviceProfile.deviceProfile.macVersion}
-                    onChange={this.onSelectChange.bind(this, 'deviceProfile.macVersion')}
-                  />
-                  <p className="help-block">
-                    Version of the LoRaWAN supported by the End-Device.
-                  </p>
-                </div>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="macVersion">LoRaWAN Regional Parameters revision</label>
-                  <Select 
-                    name="regParamsRevision"
-                    options={regParamsOptions}
-                    value={this.state.deviceProfile.deviceProfile.regParamsRevision}
-                    onChange={this.onSelectChange.bind(this, 'deviceProfile.regParamsRevision')}
-                  />
-                  <p className="help-block">
-                    Revision of the Regional Parameters document supported by the End-Device.
-                  </p>
-                </div>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="maxEIRP">Max EIRP</label>
-                  <input className="form-control" name="maxEIRP" id="maxEIRP" type="number" value={this.state.deviceProfile.deviceProfile.maxEIRP || 0} onChange={this.onChange.bind(this, 'deviceProfile.maxEIRP')} />
-                  <p className="help-block">
-                    Maximum EIRP supported by the End-Device.
-                  </p>
-                </div>
-              </div>
-              <div className={(this.state.activeTab === "join" ? "" : "hidden")}>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="supportsJoin">Supports join (OTAA)</label>
-                  <div className="checkbox">
-                    <label>
-                      <input type="checkbox" name="supportsJoin" id="supportsJoin" checked={!!this.state.deviceProfile.deviceProfile.supportsJoin} onChange={this.onChange.bind(this, 'deviceProfile.supportsJoin')} /> Supports join
-                    </label>
-                  </div>
-                  <p className="help-block">
-                    End-Device supports Join (OTAA) or not (ABP).
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsJoin === true ? "hidden" : "")}>
-                  <label className="control-label" htmlFor="rxDelay1">RX1 delay</label>
-                  <input className="form-control" name="rxDelay1" id="rxDelay1" type="number" value={this.state.deviceProfile.deviceProfile.rxDelay1 || 0} onChange={this.onChange.bind(this, 'deviceProfile.rxDelay1')} />
-                  <p className="help-block">
-                    Class A RX1 delay (mandatory for ABP).
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsJoin === true ? "hidden" : "")}>
-                  <label className="control-label" htmlFor="rxDROffset1">RX1 data-rate offset</label>
-                  <input className="form-control" name="rxDROffset1" id="rxDROffset1" type="number" value={this.state.deviceProfile.deviceProfile.rxDROffset1 || 0} onChange={this.onChange.bind(this, 'deviceProfile.rxDROffset1')} />
-                  <p className="help-block">
-                    RX1 data rate offset (mandatory for ABP).
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsJoin === true ? "hidden" : "")}>
-                  <label className="control-label" htmlFor="rxDataRate2">RX2 data-rate</label>
-                  <input className="form-control" name="rxDataRate2" id="rxDataRate2" type="number" value={this.state.deviceProfile.deviceProfile.rxDataRate2 || 0} onChange={this.onChange.bind(this, 'deviceProfile.rxDataRate2')} />
-                  <p className="help-block">
-                    RX2 data rate (mandatory for ABP).
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsJoin === true ? "hidden" : "")}>
-                  <label className="control-label" htmlFor="rxFreq2">RX2 channel frequency</label>
-                  <input className="form-control" name="rxFreq2" id="rxFreq2" type="number" value={this.state.deviceProfile.deviceProfile.rxFreq2 || 0} onChange={this.onChange.bind(this, 'deviceProfile.rxFreq2')} />
-                  <p className="help-block">
-                    RX2 channel frequency (mandatory for ABP).
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsJoin === true ? "hidden" : "")}>
-                  <label className="control-label" htmlFor="factoryPresetFreqsStr">Factory-present frequencies</label>
-                  <input className="form-control" id="factoryPresetFreqsStr" type="text" placeholder="e.g. 860100000, 868300000, 868500000" value={this.state.deviceProfile.deviceProfile.factoryPresetFreqsStr || ''} onChange={this.onChange.bind(this, 'deviceProfile.factoryPresetFreqsStr')} />
-                  <p className="help-block">
-                    List of factory-preset frequencies (mandatory for ABP).
-                  </p>
-                </div>
-              </div>
-              <div className={(this.state.activeTab === "classB" ? "" : "hidden")}>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="supportsClassB">Supports Class-B</label>
-                  <div className="checkbox">
-                    <label>
-                      <input type="checkbox" name="supportsClassB" id="supportsClassB" checked={this.state.deviceProfile.deviceProfile.supportsClassB} onChange={this.onChange.bind(this, 'deviceProfile.supportsClassB')} /> Supports Class-B
-                    </label>
-                  </div>
-                  <p className="help-block">
-                    End-Device supports Class B.
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsClassB === true ? "" : "hidden")}>
-                  <label className="control-label" htmlFor="classBTimeout">Class-B confirmed downlink timeout</label>
-                  <input className="form-control" name="classBTimeout" id="classBTimeout" type="number" value={this.state.deviceProfile.deviceProfile.classBTimeout || 0} onChange={this.onChange.bind(this, 'deviceProfile.classBTimeout')} />
-                  <p className="help-block">
-                    Class-B timeout (in seconds) for confirmed downlink transmissions.
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsClassB === true ? "" : "hidden")}>
-                  <label className="control-label" htmlFor="pingSlotPeriod">Class-B ping-slot periodicity</label>
-                  <Select
-                    name="pingSlotPeriod"
-                    options={pingSlotPeriodOptions}
-                    value={this.state.deviceProfile.deviceProfile.pingSlotPeriod}
-                    onChange={this.onSelectChange.bind(this, 'deviceProfile.pingSlotPeriod')}
-                  />
-                  <p className="help-block">
-                    Class-B ping-slot periodicity.
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsClassB === true ? "" : "hidden")}>
-                  <label className="control-label" htmlFor="pingSlotDR">Class-B ping-slot data-rate</label>
-                  <input className="form-control" name="pingSlotDR" id="pingSlotDR" type="number" value={this.state.deviceProfile.deviceProfile.pingSlotDR || 0} onChange={this.onChange.bind(this, 'deviceProfile.pingSlotDR')} />
-                  <p className="help-block">
-                    Class-B data-rate.
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsClassB === true ? "" : "hidden")}>
-                  <label className="control-label" htmlFor="pingSlotFreq">Class-B ping-slot frequency (Hz)</label>
-                  <input className="form-control" name="pingSlotFreq" id="pingSlotFreq" type="number" value={this.state.deviceProfile.deviceProfile.pingSlotFreq || 0} onChange={this.onChange.bind(this, 'deviceProfile.pingSlotFreq')} />
-                  <p className="help-block">
-                    Class-B frequency (in Hz).
-                  </p>
-                </div>
-              </div>
-              <div className={(this.state.activeTab === "classC" ? "" : "hidden")}>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="supportsClassC">Supports Class-C</label>
-                  <div className="checkbox">
-                    <label>
-                      <input type="checkbox" name="supportsClassC" id="supportsClassC" checked={this.state.deviceProfile.deviceProfile.supportsClassC} onChange={this.onChange.bind(this, 'deviceProfile.supportsClassC')} /> Supports Class-C
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className={(this.state.activeTab === "classC" ? "" : "hidden")}>
-                <div className="form-group">
-                  <label className="control-label" htmlFor="supportsClassC">Supports Class-C</label>
-                  <div className="checkbox">
-                    <label>
-                      <input type="checkbox" name="supportsClassC" id="supportsClassC" checked={!!this.state.deviceProfile.deviceProfile.supportsClassC} onChange={this.onChange.bind(this, 'deviceProfile.supportsClassC')} /> Supports Class-C
-                    </label>
-                  </div>
-                  <p className="help-block">
-                    End-Device supports Class C.
-                  </p>
-                </div>
-                <div className={"form-group " + (this.state.deviceProfile.deviceProfile.supportsClassC === true ? "" : "hidden")}>
-                  <label className="control-label" htmlFor="classCTimeout">Class-C confirmed downlink timeout</label>
-                  <input className="form-control" name="classCTimeout" id="classCTimeout" type="number" value={this.state.deviceProfile.deviceProfile.classCTimeout || 0} onChange={this.onChange.bind(this, 'deviceProfile.classCTimeout')} />
-                  <p className="help-block">
-                    Class-C timeout (in seconds) for confirmed downlink transmissions.
-                  </p>
-                </div>
-              </div>
-            </fieldset>
-            <hr />
-            <div className={"btn-toolbar pull-right " + (this.state.isAdmin ? "" : "hidden")}>
-              <a className="btn btn-default" onClick={this.props.history.goBack}>Go back</a>
-              <button type="submit" className="btn btn-primary">Submit</button>
-            </div>
+              </CardContent>
+            </Card>
           </form>
-        </div>
+
       </Loaded>
     );
   }
 }
 
+DeviceProfileForm = withStyles(styles)(DeviceProfileForm)
 export default withRouter(DeviceProfileForm);

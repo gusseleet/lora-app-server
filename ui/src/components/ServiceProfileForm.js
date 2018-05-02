@@ -1,12 +1,54 @@
-import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
 
-import Select from "react-select";
+import Button from "material-ui/Button";
+import TextField from "material-ui/TextField";
+import Card, { CardContent } from "material-ui/Card";
+import { FormGroup, FormControlLabel } from "material-ui/Form";
+import  { InputLabel } from 'material-ui/Input';
+import Typography from "material-ui/Typography";
+import Checkbox from "material-ui/Checkbox";
+import { withStyles } from "material-ui/styles";
 
 import Loaded from "./Loaded.js";
 import NetworkServerStore from "../stores/NetworkServerStore";
 import SessionStore from "../stores/SessionStore";
+import Dropdown from './Dropdown.js';
 
+const styles = theme => ({
+  textField: {
+    width: 250
+  },
+  card: {
+    width: "100%",
+    maxWidth: 1280,
+    minHeight: 300,
+    margin: "auto",
+    justifyContent: "center",
+    display: "flex",
+    flexWrap: "wrap",
+    overflowY: "hidden"
+  },
+  helpBox: {
+    padding: 8,
+    backgroundColor: "#F3F3F3",
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 8
+  },
+  sideIcon: {
+    paddingRight: 8,
+    paddingTop: 6
+  },
+  button: {
+    marginLeft: 8,
+    marginRight: 8,
+    paddingLeft: 6
+  },
+  buttonHolder: {
+    marginTop: 30
+  }
+});
 
 class ServiceProfileForm extends Component {
   constructor() {
@@ -14,14 +56,14 @@ class ServiceProfileForm extends Component {
 
     this.state = {
       serviceProfile: {
-        serviceProfile: {},
+        serviceProfile: {}
       },
       networkServers: [],
       update: false,
       isAdmin: false,
       loaded: {
-        networkServers: false,
-      },
+        networkServers: false
+      }
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -29,6 +71,7 @@ class ServiceProfileForm extends Component {
   }
 
   componentDidMount() {
+    // TODO: Remove admin & Set Networkserver
     if (SessionStore.isAdmin()) {
       NetworkServerStore.getAll(9999, 0, (totalCount, networkServers) => {
         this.setState({
@@ -36,26 +79,31 @@ class ServiceProfileForm extends Component {
           networkServers: networkServers,
           isAdmin: true,
           loaded: {
-            networkServers: true,
-          },
+            networkServers: true
+          }
         });
       });
     } else {
-      NetworkServerStore.getAllForOrganizationID(this.props.organizationID, 9999, 0, (totalCount, networkServers) => {
-        this.setState({
-          serviceProfile: this.props.serviceProfile,
-          networkServers: networkServers,
-          isAdmin: false,
-          loaded: {
-            networkServers: true,
-          },
-        });
-      });
+      NetworkServerStore.getAllForOrganizationID(
+        this.props.organizationID,
+        9999,
+        0,
+        (totalCount, networkServers) => {
+          this.setState({
+            serviceProfile: this.props.serviceProfile,
+            networkServers: networkServers,
+            isAdmin: false,
+            loaded: {
+              networkServers: true
+            }
+          });
+        }
+      );
     }
 
     SessionStore.on("change", () => {
       this.setState({
-        isAdmin: SessionStore.isAdmin(),
+        isAdmin: SessionStore.isAdmin()
       });
     });
   }
@@ -63,7 +111,8 @@ class ServiceProfileForm extends Component {
   componentWillReceiveProps(nextProps) {
     this.setState({
       serviceProfile: nextProps.serviceProfile,
-      update: nextProps.serviceProfile.serviceProfile.serviceProfileID !== undefined,
+      update:
+        nextProps.serviceProfile.serviceProfile.serviceProfileID !== undefined
     });
   }
 
@@ -74,7 +123,7 @@ class ServiceProfileForm extends Component {
 
   onChange(fieldLookup, e) {
     let lookup = fieldLookup.split(".");
-    const fieldName = lookup[lookup.length-1];
+    const fieldName = lookup[lookup.length - 1];
     lookup.pop(); // remove last item
 
     let serviceProfile = this.state.serviceProfile;
@@ -93,6 +142,25 @@ class ServiceProfileForm extends Component {
     }
 
     this.setState({
+      serviceProfile: serviceProfile
+    });
+  }
+
+  onSelectChange(fieldLookup, event) {
+    let lookup = fieldLookup.split(".");
+    const fieldName = lookup[lookup.length-1];
+    lookup.pop(); // remove last item
+
+    let serviceProfile = this.state.serviceProfile;
+    let obj = serviceProfile;
+
+    for (const f of lookup) {
+      obj = obj[f];
+    }
+
+    obj[fieldName] = event.target.value;
+
+    this.setState({
       serviceProfile: serviceProfile,
     });
   }
@@ -105,11 +173,13 @@ class ServiceProfileForm extends Component {
       serviceProfile.networkServerID = null;
     }
     this.setState({
-      serviceProfile: serviceProfile,
+      serviceProfile: serviceProfile
     });
   }
 
   render() {
+    const { classes } = this.props;
+
     const networkServerOptions = this.state.networkServers.map((networkServer, i) => {
       return {
         value: networkServer.id,
@@ -117,97 +187,160 @@ class ServiceProfileForm extends Component {
       };
     });
 
-    return(
+    return (
       <Loaded loaded={this.state.loaded}>
         <form onSubmit={this.handleSubmit}>
-          <div className={"alert alert-warning " + (this.state.networkServers.length > 0 ? 'hidden' : '')}>
-            No network-servers are available, a <Link to="/network-servers">network-server</Link> needs to be added first to this installation.
-          </div>
-          <fieldset disabled={!this.state.isAdmin}>
-            <div className="form-group">
-              <label className="control-label" htmlFor="name">Service-profile name</label>
-              <input className="form-control" id="name" type="text" placeholder="e.g. my service-profile" required value={this.state.serviceProfile.name || ''} onChange={this.onChange.bind(this, 'name')} />
-              <p className="help-block">
-                A memorable name for the service-profile.
-              </p>
-            </div>
-            <div className="form-group">
-              <label className="control-label" htmlFor="networkServerID">Network-server</label>
-              <Select
-                name="networkServerID"
-                options={networkServerOptions}
-                value={this.state.serviceProfile.networkServerID}
-                onChange={this.onNetworkServerChange}
-                disabled={this.state.update}
+          <Card className={classes.card}>
+            <CardContent>
+              <Typography variant="headline">{this.props.formName}</Typography>
+              <TextField
+                id="name"
+                label="Service profile name"
+                className={classes.textField}
+                required
+                value={this.state.serviceProfile.name || ""}
+                onChange={this.onChange.bind(this, "name")}
+                pattern="[\w-]+"
               />
-              <p className="help-block">
-                The network-server on which this service-profile will be provisioned. After creating the service-profile, this value can't be changed.
-              </p>
-            </div>
-            <div className="form-group">
-              <label className="control-label" htmlFor="addGWMetadata">Add gateway meta-data</label>
-              <div className="checkbox">
-                <label>
-                  <input type="checkbox" name="addGWMetadata" id="addGWMetadata" checked={!!this.state.serviceProfile.serviceProfile.addGWMetadata} onChange={this.onChange.bind(this, 'serviceProfile.addGWMetadata')} /> Add gateway meta-data
-                </label>
-              </div>
-              <p className="help-block">
-                GW metadata (RSSI, SNR, GW geoloc., etc.) are added to the packet sent to the application-server.
-              </p>
-            </div>
-            <div className="form-group">
-              <label className="control-label" htmlFor="devStatusReqFreq">Device-status request frequency</label>
-              <input className="form-control" id="devStatusReqFreq" type="number" required value={this.state.serviceProfile.serviceProfile.devStatusReqFreq || 0} onChange={this.onChange.bind(this, 'serviceProfile.devStatusReqFreq')} />
-              <p className="help-block">
-                Frequency to initiate an End-Device status request (request/day). Set to 0 to disable.
-              </p>
-            </div>
-            <div className="form-group">
-              <label className="control-label" htmlFor="reportDevStatusBattery">Report battery level</label>
-              <div className="checkbox">
-                <label>
-                  <input type="checkbox" name="reportDevStatusBattery" id="reportDevStatusBattery" checked={!!this.state.serviceProfile.serviceProfile.reportDevStatusBattery} onChange={this.onChange.bind(this, 'serviceProfile.reportDevStatusBattery')} /> Report battery level
-                </label>
-              </div>
-              <p className="help-block">
+              <Typography component="p" className={classes.helpBox}>
+                A memorable name for the service profile.
+              </Typography>
+              
+              <InputLabel htmlFor="networkServerID">Network-server</InputLabel>
+              <Dropdown
+                value={this.state.serviceProfile.networkServerID}
+                options={networkServerOptions}
+                type="number"
+                onChange={this.onSelectChange.bind(this, "networkServerID")}
+              />
+
+              <Typography component="p" className={classes.helpBox}>
+                Choose a Network Server
+              </Typography>
+
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={
+                      !!this.state.serviceProfile.serviceProfile.addGWMetadata
+                    }
+                    onChange={this.onChange.bind(
+                      this,
+                      "serviceProfile.addGWMetadata"
+                    )}
+                    value="addGwMetaData"
+                  />
+                }
+                label="Add gateway meta-data"
+              />
+              <Typography component="p" className={classes.helpBox}>
+                When checked, it means that organization administrators are able
+                to add their own gateways to the network. Note that the usage of
+                the gateways is not limited to this organization. GW metadata
+                (RSSI, SNR, GW geoloc., etc.) are added to the packet sent to
+                the application-server.
+              </Typography>
+
+              <TextField
+                id="deviceStatusRequestFrenquency"
+                label="Device-status request frequency"
+                className={classes.textField}
+                value={
+                  this.state.serviceProfile.serviceProfile.devStatusReqFreq || 0
+                }
+                type="number"
+                onChange={this.onChange.bind(
+                  this,
+                  "serviceProfile.devStatusReqFreq"
+                )}
+              />
+              <FormGroup row>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={
+                        !!this.state.serviceProfile.serviceProfile
+                          .reportDevStatusBattery
+                      }
+                      onChange={this.onChange.bind(
+                        this,
+                        "serviceProfile.reportDevStatusBattery"
+                      )}
+                      value="reportBatteryLevel"
+                    />
+                  }
+                  label="Report battery level"
+                />
+              </FormGroup>
+              <Typography component="p" className={classes.helpBox}>
                 Report End-Device battery level to application-server.
-              </p>
-            </div>
-            <div className="form-group">
-              <label className="control-label" htmlFor="reportDevStatusBattery">Report margin</label>
-              <div className="checkbox">
-                <label>
-                  <input type="checkbox" name="reportDevStatusMargin" id="reportDevStatusMargin" checked={!!this.state.serviceProfile.serviceProfile.reportDevStatusMargin} onChange={this.onChange.bind(this, 'serviceProfile.reportDevStatusMargin')} /> Report margin
-                </label>
-              </div>
-              <p className="help-block">
+              </Typography>
+
+              <FormGroup row>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={
+                        !!this.state.serviceProfile.serviceProfile
+                          .reportDevStatusMargin
+                      }
+                      onChange={this.onChange.bind(
+                        this,
+                        "serviceProfile.reportDevStatusMargin"
+                      )}
+                      value="reportDevStatusMargin"
+                    />
+                  }
+                  label="Report margin"
+                />
+              </FormGroup>
+              <Typography component="p" className={classes.helpBox}>
                 Report End-Device margin to application-server.
-              </p>
-            </div>
-            <div className="form-group">
-              <label className="control-label" htmlFor="drMin">Minimum allowed data-rate</label>
-              <input className="form-control" id="drMin" type="number" required value={this.state.serviceProfile.serviceProfile.drMin || 0} onChange={this.onChange.bind(this, 'serviceProfile.drMin')} />
-              <p className="help-block">
+              </Typography>
+
+              <TextField
+                id="drMin"
+                label="Minimum allowed data-rate"
+                className={classes.textField}
+                type="number"
+                value={this.state.serviceProfile.serviceProfile.drMin || 0}
+                onChange={this.onChange.bind(this, "serviceProfile.drMin")}
+              />
+              <Typography component="p" className={classes.helpBox}>
                 Minimum allowed data rate. Used for ADR.
-              </p>
-            </div>
-            <div className="form-group">
-              <label className="control-label" htmlFor="drMax">Maximum allowed data-rate</label>
-              <input className="form-control" id="drMax" type="number" required value={this.state.serviceProfile.serviceProfile.drMax || 0} onChange={this.onChange.bind(this, 'serviceProfile.drMax')} />
-              <p className="help-block">
+              </Typography>
+
+              <TextField
+                id="drMax"
+                label="Maximum allowed data-rate"
+                className={classes.textField}
+                type="number"
+                required
+                value={this.state.serviceProfile.serviceProfile.drMax || 0}
+                onChange={this.onChange.bind(this, "serviceProfile.drMax")}
+              />
+              <Typography component="p" className={classes.helpBox}>
                 Maximum allowed data rate. Used for ADR.
-              </p>
-            </div>
-          </fieldset>
-          <hr />
-          <div className={"btn-toolbar pull-right " + (this.state.isAdmin ? "" : "hidden")}>
-            <a className="btn btn-default" onClick={this.props.history.goBack}>Go back</a>
-            <button type="submit" className="btn btn-primary">Submit</button>
-          </div>
+              </Typography>
+
+              <div className={classes.buttonHolder}>
+                <Button
+                  className={classes.button}
+                  onClick={this.props.history.goBack}
+                >
+                  Go back
+                </Button>
+                <Button type="submit" variant="raised">
+                  Submit
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </form>
       </Loaded>
     );
   }
 }
 
+ServiceProfileForm = withStyles(styles)(ServiceProfileForm);
 export default withRouter(ServiceProfileForm);

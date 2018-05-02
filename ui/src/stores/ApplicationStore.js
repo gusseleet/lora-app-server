@@ -3,7 +3,6 @@ import "whatwg-fetch";
 import sessionStore from "./SessionStore";
 import { checkStatus, errorHandler } from "./helpers";
 
-
 class ApplicationStore extends EventEmitter {
   getAll(pageSize, offset, callbackFunc) {
     fetch("/api/applications?limit="+pageSize+"&offset="+offset, {headers: sessionStore.getHeader()})

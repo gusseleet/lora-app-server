@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
 
 import UserStore from "../../stores/UserStore";
 import UserForm from "../../components/UserForm";
@@ -9,34 +9,25 @@ class CreateUser extends Component {
     super();
 
     this.state = {
-      user: {
-        isActive: true,
-      },
+      user: {},
     };
 
     this.onSubmit = this.onSubmit.bind(this);
   }
 
   onSubmit(user) {
-    UserStore.createUser(user, (responseData) => {
-      this.props.history.push('/users');
+    UserStore.register(user, responseData => {
+      this.props.history.push("/login");
     });
   }
 
   render() {
-    return(
+    return (
       <div>
-        <ol className="breadcrumb">
-          <li><Link to="/users">Users</Link></li>
-          <li className="active">Create user</li>
-        </ol>
-        <hr />
-        <div className="panel panel-default">
           <div className="panel-body">
             <UserForm user={this.state.user} onSubmit={this.onSubmit} />
           </div>
         </div>
-      </div>
     );
   }
 }

@@ -2,12 +2,73 @@ import React, { Component } from "react";
 import JSONTree from "react-json-tree";
 import moment from "moment";
 import fileDownload from "js-file-download";
+import { withStyles } from "material-ui/styles";
+
+import Card, { CardContent } from "material-ui/Card";
+import Typography from "material-ui/Typography";
+import Button from "material-ui/Button";
+import Table, {
+  TableHead,
+  TableBody,
+  TableCell,
+  TableRow
+} from "material-ui/Table";
+import PauseIcon from "material-ui-icons/Pause";
+import ResumeIcon from "material-ui-icons/PlayArrow";
+import DeleteIcon from "material-ui-icons/Delete";
+import DownloadIcon from "material-ui-icons/FileDownload";
+import ArrowUp from "material-ui-icons/ArrowUpward";
 
 import NodeStore from "../../stores/NodeStore";
+
+const styles = theme => ({
+  card: {
+    width: "100%",
+    maxWidth: 1280,
+    minHeight: 300,
+    margin: "auto",
+    display: "flex",
+    flexWrap: "wrap",
+    overflowY: "hidden",
+    flex: 1,
+    flexDirection: 'column',
+  },
+  wrapper: {
+    maxWidth: 1280,
+    width: "100%",
+    margin: "auto"
+  },
+  tableHead: {
+    backgroundColor: "#F0F0F0"
+  },
+  disconnected: {
+    padding: 4,
+    backgroundColor: "red",
+    borderRadius: 5,
+    color: "white",
+    fontSize: 12
+  },
+  connected: {
+    padding: 4,
+    backgroundColor: "green",
+    borderRadius: 5,
+    color: "white",
+    fontSize: 12
+  },
+  treeStyle: {
+    paddingTop:0,
+    paddingBottom: 0,
+  },
+  hidden: {
+    display: "none"
+  }
+});
 
 
 class FrameRow extends Component {
   render() {
+    const classes = this.props.classes;
+
     const theme = {
       scheme: 'google',
       author: 'seth wright (http://sethawright.com)',
@@ -34,37 +95,30 @@ class FrameRow extends Component {
     };
 
     let rxtx = {};
-    let dir = "";
 
     if (this.props.frame.uplinkMetaData !== undefined) {
-      dir = "up";
       rxtx["uplink"] = this.props.frame.uplinkMetaData;
     }
 
     if (this.props.frame.downlinkMetaData !== undefined) {
-      dir = "down";
       rxtx["downlink"] = this.props.frame.downlinkMetaData;
     }
 
     const receivedAt = moment(this.props.frame.receivedAt).format("LTS");
-    const treeStyle = {
-      paddingTop: '0',
-      paddingBottom: '0',
-    };
 
     return(
-      <tr>
-        <td>
-          <span className={`glyphicon glyphicon-arrow-${dir}`} aria-hidden="true"></span>
-        </td>
-        <td>{receivedAt}</td>
-        <td style={treeStyle}>
+      <TableRow>
+        <TableCell>
+          <ArrowUp />
+        </TableCell>
+        <TableCell>{receivedAt}</TableCell>
+        <TableCell className={classes.treeStyle}>
           <JSONTree data={rxtx} theme={theme} hideRoot={true} />
-        </td>
-        <td style={treeStyle}>
+        </TableCell>
+        <TableCell className={classes.treeStyle}>
           <JSONTree data={data} theme={theme} hideRoot={true} />
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
     );
   }
 }
@@ -157,8 +211,6 @@ class NodeFrameLogs extends Component {
     this.setState({
       frames: frames,
     });
-
-    console.log(frame);
   }
 
   componentDidMount() {
@@ -173,54 +225,63 @@ class NodeFrameLogs extends Component {
   }
 
   render() {
-    const FrameRows = this.state.frames.map((frame, i) => <FrameRow key={frame.id} frame={frame} />);
+    const { classes } = this.props;
+    const FrameRows = this.state.frames.map((frame, i) => <FrameRow classes={classes} key={frame.id} frame={frame} />);
     let status;
 
     if (this.state.wsConnected) {
-      status = <span className="label label-success">connected</span>;
+      status = <span className={classes.connected}>connected</span>;
     } else {
-      status = <span className="label label-danger">disconnected</span>;
+      status = <span className={classes.disconnected}>disconnected</span>;
     }
 
     return (
-      <div>
-        <div className="panel panel-default">
-          <div className="panel-heading clearfix">
-            <h3 className="panel-title panel-title-buttons pull-left">Live LoRaWAN frame logs {status}</h3> 
-            <div className="btn-group pull-right" role="group" aria-label="...">
-              <button type="button" className={`btn btn-default btn-sm ${this.state.paused ? 'hidden': ''}`} onClick={this.togglePause}>
-                <span className="glyphicon glyphicon-pause" aria-hidden="true"></span> Pause
-              </button>
-              <button type="button" className={`btn btn-default btn-sm ${this.state.paused ? '': 'hidden'}`} onClick={this.togglePause}>
-                <span className="glyphicon glyphicon-play" aria-hidden="true"></span> Start
-              </button>
-              <button type="button" className="btn btn-default btn-sm" onClick={this.clearFrames}>
-                <span className="glyphicon glyphicon-trash" aria-hidden="true"></span> Clear logs
-              </button>
-              <button type="button" className="btn btn-default btn-sm" onClick={this.download}>
-                <span className="glyphicon glyphicon-download" aria-hidden="true"></span> Download
-              </button>
-            </div>
-          </div>
-          <div className="panel-body">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th className="col-md-1">&nbsp;</th>
-                  <th className="col-md-2">Received</th>
-                  <th className="col-md-4">RX / TX parameters</th>
-                  <th>LoRaWAN PHYPayload</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FrameRows}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div className={classes.wrapper}>
+        <Card className={classes.card}>
+          <CardContent>
+            <Table>
+              <TableHead>
+                <TableCell>
+                  <Typography variant="title">Live LoRaWAN frame logs {status}</Typography>
+                </TableCell>
+                <TableCell style={{textAlign: "right"}}>
+                  <Button  className={`${this.state.paused ? classes.hidden : ''}`} onClick={this.togglePause}>
+                    <PauseIcon />
+                    Pause
+                  </Button>
+                  <Button className={`${this.state.paused ? '': classes.hidden}`} onClick={this.togglePause}>
+                    <ResumeIcon />
+                    Start
+                  </Button>
+                  <Button onClick={this.clearFrames}>
+                    <DeleteIcon />
+                    Clear logs
+                  </Button>
+                  <Button onClick={this.download}>
+                    <DownloadIcon />
+                    Download
+                  </Button>
+                </TableCell>
+              </TableHead>
+            </Table>
+              <Table className={classes.table}>
+                <TableHead className={classes.tableHead}>
+                  <TableRow>
+                    <TableCell  width={10}/>
+                    <TableCell  width={100}>Received</TableCell>
+                    <TableCell>RX / TX parameters</TableCell>
+                    <TableCell>LoRaWAN PHYPayload</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {FrameRows}
+                </TableBody>
+              </Table>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 }
 
-export default NodeFrameLogs;
+export default withStyles(styles)(NodeFrameLogs);

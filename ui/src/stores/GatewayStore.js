@@ -2,8 +2,7 @@ import { EventEmitter } from "events";
 
 import sessionStore from "./SessionStore";
 import { checkStatus, errorHandler } from "./helpers";
-import dispatcher from "../dispatcher";
-
+import dispatcher from "../config/dispatcher";
 
 class GatewayStore extends EventEmitter {
   getAll(pageSize, offset, callbackFunc) {
@@ -225,12 +224,10 @@ class GatewayStore extends EventEmitter {
 
     let conn = new WebSocket(wsURL, ["Bearer", sessionStore.getToken()]);
     conn.onopen = () => {
-      console.log('connected to', wsURL);
       onOpen();
     };
 
     conn.onclose = () => {
-      console.log('closing', wsURL);
       onClose();
     }
 

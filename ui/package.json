@@ -1,19 +1,30 @@
 {
-  "name": "ui",
+  "name": "iot-square-fe",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "react-scripts": "1.1.0"
+    "babel-core": "^6.26.0",
+    "babel-jest": "^22.4.1",
+    "codecov": "^3.0.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "eslint": "^4.18.0",
+    "react-scripts": "1.1.0",
+    "regenerator-runtime": "^0.11.1"
   },
   "dependencies": {
     "bootstrap": "^3.3.7",
     "bootswatch": "^3.3.7",
     "chart.js": "^1.1.1",
     "codemirror": "^5.32.0",
+    "dotenv": "^5.0.0",
+    "downshift": "^1.31.7",
     "flux": "^3.1.3",
     "history": "^4.7.2",
     "js-file-download": "^0.4.1",
     "leaflet": "^1.3.0",
+    "material-ui": "^1.0.0-beta.43",
+    "material-ui-icons": "^1.0.0-beta.36",
     "moment": "^2.18.1",
     "react": "^16.2.0",
     "react-chartjs": "^1.2.0",
@@ -21,7 +32,7 @@
     "react-dom": "^16.2.0",
     "react-input-autosize": "^2.2.1",
     "react-json-tree": "^0.11.0",
-    "react-leaflet": "^1.8.0",
+    "react-leaflet": "^1.9.1",
     "react-router-dom": "^4.2.2",
     "react-select": "^1.2.1",
     "whatwg-fetch": "^2.0.3"
@@ -29,11 +40,21 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "test": "react-scripts test --env=jsdom --coverage",
+    "eject": "react-scripts eject",
+    "lint": "eslint ./src",
+    "cov-report": "codecov --token=318d798f-b7f5-4fe6-b96f-1c95c67a214b"
   },
   "eslintConfig": {
     "extends": "./node_modules/react-scripts/config/eslint.js"
   },
-  "proxy": "https://localhost:8080/"
+  "jest": {
+    "collectCoverageFrom": [
+      "**/src/**.{js,jsx}",
+      "!**/config/**",
+      "!**/index.js",
+      "!**/setupTests.js"
+    ]
+  },
+  "proxy": "https://52.58.136.78:8080"
 }

@@ -2,8 +2,48 @@ import React, { Component } from 'react';
 import moment from "moment";
 import { Map, Marker, TileLayer } from 'react-leaflet';
 import { Bar } from "react-chartjs";
+import { withStyles } from "material-ui/styles";
+import Card, { CardContent } from "material-ui/Card";
+import Table, {
+  TableHead,
+  TableBody,
+  TableCell,
+  TableRow
+} from "material-ui/Table";
+import Typography from "material-ui/Typography";
+import Button from "material-ui/Button";
 
 import GatewayStore from "../../stores/GatewayStore";
+import Divider from 'material-ui/Divider';
+
+const styles = theme => ({
+  card: {
+    minHeight: 300,
+    margin: "auto",
+    justifyContent: "center",
+    display: "flex",
+    overflowY: "hidden"
+  },
+  cardContent: {
+    flex: 1
+  },
+  wrapper: {
+    maxWidth: 1280,
+    width: "100%",
+    margin: "auto"
+  },
+  map: {
+    height: 450,
+    width: 450
+  },
+  tableHead: {
+    backgroundColor: "#F0F0F0"
+  },
+  stats: {
+    minWidth: 720,
+    width: "100%",
+  }
+});
 
 
 class GatewayStats extends Component {
@@ -108,7 +148,7 @@ class GatewayStats extends Component {
         statsUp: statsUp,
         statsDown: statsDown,
       });
-    });  
+    });
   }
 
   updatePeriod(p) {
@@ -122,21 +162,25 @@ class GatewayStats extends Component {
 
   render() {
     return(
-      <div>
-        <div className="clearfix">
-          <div className="btn-group pull-right" role="group" aria-label="...">
-            <button type="button" className={'btn btn-' + (this.state.periodSelected === 'hour' ? 'primary' : 'default')} onClick={this.updatePeriod.bind(this, 'hour')}>hour</button>
-            <button type="button" className={'btn btn-' + (this.state.periodSelected === '1d' ? 'primary' : 'default')} onClick={this.updatePeriod.bind(this, '1d')}>1D</button>
-            <button type="button" className={'btn btn-' + (this.state.periodSelected === '14d' ? 'primary' : 'default')} onClick={this.updatePeriod.bind(this, '14d')}>14D</button>
-            <button type="button" className={'btn btn-' + (this.state.periodSelected === '30d' ? 'primary' : 'default')} onClick={this.updatePeriod.bind(this, '30d')}>30D</button>
-          </div>
-        </div>
+      <div style={{marginTop: 10}}>
+        <Button onClick={this.updatePeriod.bind(this, 'hour')}>
+         hour
+        </Button>
+        <Button onClick={this.updatePeriod.bind(this, '1d')}>
+         1d
+        </Button>
+        <Button onClick={this.updatePeriod.bind(this, '14d')}>
+         14d
+        </Button>
+        <Button onClick={this.updatePeriod.bind(this, '30d')}>
+          30d
+        </Button>
 
-        <h4>Frames sent per {this.state.periods[this.state.periodSelected].interval.toLowerCase()}</h4>
-        <Bar height="75" data={this.state.statsUp} options={this.state.statsOptions} redraw />
-        <hr />
-        <h4>Frames received per {this.state.periods[this.state.periodSelected].interval.toLowerCase()}</h4>
-        <Bar height="75" data={this.state.statsDown} options={this.state.statsOptions} redraw /> 
+        <Typography variant="headline" style={{marginTop: 20}}>Frames sent per {this.state.periods[this.state.periodSelected].interval.toLowerCase()}</Typography>
+        <Bar height="120" data={this.state.statsUp} options={this.state.statsOptions} redraw />
+        <Divider />
+        <Typography variant="headline">Frames received per {this.state.periods[this.state.periodSelected].interval.toLowerCase()}</Typography>
+        <Bar height="120" data={this.state.statsDown} options={this.state.statsOptions} redraw />
 
 
       </div>
@@ -158,60 +202,59 @@ class GatewayDetails extends Component {
       this.setState({
         gateway: gateway,
       });
-    }); 
+    });
   }
 
   render() {
-    const style = {
-      height: "400px",
-    };
+    const { classes } = this.props;
 
     let lastseen = "";
     let position = [];
 
     if (typeof(this.state.gateway.latitude) !== "undefined" && typeof(this.state.gateway.longitude !== "undefined")) {
-      position = [this.state.gateway.latitude, this.state.gateway.longitude]; 
+      position = [this.state.gateway.latitude, this.state.gateway.longitude];
     } else {
       position = [0,0];
     }
 
     if (typeof(this.state.gateway.lastSeenAt) !== "undefined" && this.state.gateway.lastSeenAt !== "") {
-      lastseen = moment(this.state.gateway.lastSeenAt).fromNow();    
+      lastseen = moment(this.state.gateway.lastSeenAt).fromNow();
     }
 
     return(
-      <div className="panel panel-default">
-        <div className="panel-body">
-          <div className="row">
-            <div className="col-md-6">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th colSpan={2}><h4>{this.state.gateway.name}</h4></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="col-md-4"><strong>MAC</strong></td>
-                    <td>{this.state.gateway.mac}</td>
-                  </tr>
-                  <tr>
-                    <td className="col-md-4"><strong>Altitude</strong></td>
-                    <td>{this.state.gateway.altitude} meters</td>
-                  </tr>
-                  <tr>
-                    <td className="col-md-4"><strong>GPS coordinates</strong></td>
-                    <td>{this.state.gateway.latitude}, {this.state.gateway.longitude}</td>
-                  </tr>
-                  <tr>
-                    <td className="col-md-4"><strong>Last seen (stats)</strong></td>
-                    <td>{lastseen}</td>
-                  </tr>
-                </tbody>
-              </table>
+      <div className={classes.wrapper}>
+          <Card className={classes.card} >
+            <CardContent>
+              <div className={classes.contentLeft}>
+              <Table className={classes.table}>
+                <TableHead>
+                    <TableRow className={classes.tableHead}>
+                      <TableCell><Typography variant="headline">{this.state.gateway.name}</Typography></TableCell>
+                      <TableCell />
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell><strong>MAC</strong></TableCell>
+                    <TableCell>{this.state.gateway.mac}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell><strong>Altitude</strong></TableCell>
+                    <TableCell>{this.state.gateway.altitude} meters</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell><strong>GPS coordinates</strong></TableCell>
+                    <TableCell>{this.state.gateway.latitude}, {this.state.gateway.longitude}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell><strong>Last seen (stats)</strong></TableCell>
+                    <TableCell>{lastseen}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
-            <div className="col-md-6">
-              <Map center={position} zoom={15} style={style} animate={true} scrollWheelZoom={false}>
+            <div className={classes.contentRight}>
+              <Map center={position} zoom={15} className={classes.map} animate={true} scrollWheelZoom={false}>
                 <TileLayer
                   url='//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
                   attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -219,13 +262,17 @@ class GatewayDetails extends Component {
                 <Marker position={position} />
               </Map>
             </div>
-          </div>
-          <hr />
-          <GatewayStats mac={this.props.match.params.mac} />
-        </div>
+          </CardContent>
+          <CardContent>
+            <div className={classes.stats}>
+              <GatewayStats mac={this.props.match.params.mac} />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 }
 
-export default GatewayDetails;
+
+export default withStyles(styles)(GatewayDetails);

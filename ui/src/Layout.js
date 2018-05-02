@@ -1,84 +1,113 @@
-import React, { Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import React, { Component } from "react";
+import { Route, Switch } from "react-router-dom";
+import { withTheme, MuiThemeProvider } from "material-ui/styles";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+import * as constants from "./config/constants";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Errors from "./components/Errors";
-import dispatcher from "./dispatcher";
+import dispatcher from "./config/dispatcher";
 
 // users
 import Login from "./views/users/Login";
 import CreateUser from "./views/users/CreateUser";
 import UpdatePassword from "./views/users/UpdatePassword";
-import ListUsers from "./views/users/ListUsers";
 import UpdateUser from "./views/users/UpdateUser";
 
+import theme from "./theme";
+
 // organizations
-import OrganizationRedirect from './views/organizations/OrganizationRedirect';
-import ListOrganizations from './views/organizations/ListOrganizations';
-import CreateOrganization from './views/organizations/CreateOrganization';
-import OrganizationLayout from './views/organizations/OrganizationLayout';
+import OrganizationRedirect from "./views/organizations/OrganizationRedirect";
+import ListOrganizations from "./views/organizations/ListOrganizations";
+import CreateOrganization from "./views/organizations/CreateOrganization";
+import EditOrganization from "./views/organizations/EditOrganization";
 
-// network-servers
-import ListNetworkServers from "./views/networkservers/ListNetworkServers";
-import CreateNetworkServer from "./views/networkservers/CreateNetworkServer";
-import NetworkServerLayout from "./views/networkservers/NetworkServerLayout";
-import ChannelConfigurationLayout from "./views/gateways/ChannelConfigurationLayout";
-
-// gateways
-import GatewayLayout from "./views/gateways/GatewayLayout";
-
-// applications
-import ApplicationLayout from './views/applications/ApplicationLayout';
-
-// devices
-import NodeLayout from './views/nodes/NodeLayout';
-
+// Gateway network
+import JoinGatewayNetwork from "./views/gatewaynetworks/JoinGatewayNetwork";
+// dashboard
+import SubLayout from "./components/SubLayout";
+import DashboardRedirect from "./views/dashboard/DashboardRedirect";
 
 class Layout extends Component {
   onClick() {
     dispatcher.dispatch({
-      type: "BODY_CLICK",
+      type: "BODY_CLICK"
     });
   }
 
   render() {
+    let activeTab = this.props.location.pathname.replace(this.props.match.url, '').split(/\/((?:(?!\/).)*)(\/|$)/)[0]
+
     return (
-      <div>
-        <Navbar />
-        <div className="container" onClick={this.onClick}>
-          <div className="row">
-            <Errors />
-            <Switch>
-              <Route exact path="/" component={OrganizationRedirect} />
-              <Route exact path="/login" component={Login} />
-              <Route exact path="/users/create" component={CreateUser} />
-              <Route exact path="/users/:userID/password" component={UpdatePassword} />
-              <Route exact path="/users/:userID/edit" component={UpdateUser} />
-              <Route exact path="/users" component={ListUsers} />
+      <MuiThemeProvider theme={theme}>
+        <div>
+          { this.props.location.pathname !== "/users/create" &&
+            this.props.location.pathname !== "/login" 
+            ? (<Navbar activeTab={activeTab}/>) 
+            : null
+          }
+          <div className="container" onClick={this.onClick}>
+            <div className="row">
+              <Errors />
+              <Switch>
+                <Route exact path="/login" component={Login} />
+                <ProtectedRoute
+                  exact
+                  authorize={[constants.ADMIN_ROLE, constants.USER_ROLE]}
+                  path="/"
+                  component={DashboardRedirect}
+                />
 
-              <Route exact path="/network-servers" component={ListNetworkServers} />
-              <Route exact path="/network-servers/create" component={CreateNetworkServer} />
-              {/* \d+ regexp to make sure we don't match channel-configurations/create */}
-              <Route path="/network-servers/:networkServerID/channel-configurations/:channelConfigurationID(\d+)" component={ChannelConfigurationLayout} />
-              <Route path="/network-servers/:networkServerID" component={NetworkServerLayout} />
+                <Route
+                  path="/dashboard/:organizationID"
+                  component={SubLayout}
+                />
 
-              <Route exact path="/organizations" component={ListOrganizations} />
-              <Route exact path="/organizations/create" component={CreateOrganization} />
-              {/* \w{16} to make sure we don't match gateways/create */}
-              <Route path="/organizations/:organizationID/gateways/:mac(\w{16})" component={GatewayLayout} />
-              {/* \w{16} to make sure we don't match nodes/create */}
-              <Route path="/organizations/:organizationID/applications/:applicationID/nodes/:devEUI(\w{16})" component={NodeLayout} />
-              {/* \d+ regexp to make sure we don't match 'applications/create' */}
-              <Route path="/organizations/:organizationID/applications/:applicationID(\d+)" component={ApplicationLayout} />
-              <Route path="/organizations/:organizationID" component={OrganizationLayout} />
-            </Switch>
+                <Route
+                  exact
+                  path="/join-a-network"
+                  component={JoinGatewayNetwork}
+                />
+
+                <Route exact path="/" component={OrganizationRedirect} />
+                <Route exact path="/users/create" component={CreateUser} />
+                <Route
+                  exact
+                  path="/users/:userID/password"
+                  component={UpdatePassword}
+                />
+                <Route
+                  exact
+                  path="/users/:userID/edit"
+                  component={UpdateUser}
+                />
+
+                <Route
+                  exact
+                  path="/organizations"
+                  component={ListOrganizations}
+                />
+
+                <Route
+                  exact
+                  path="/organizations/create"
+                  component={CreateOrganization}
+                />
+
+                <Route
+                  path="/organizations/:organizationID"
+                  component={EditOrganization}
+                />
+              </Switch>
+            </div>
           </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
+      </MuiThemeProvider>
     );
   }
 }
 
-export default Layout;
+export default withTheme(theme)(Layout);

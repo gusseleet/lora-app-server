@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import dispatcher from "../dispatcher";
+import dispatcher from "../config/dispatcher";
 
 class ErrorStore extends EventEmitter {
   constructor() {
@@ -28,15 +28,11 @@ class ErrorStore extends EventEmitter {
   }
 
   deleteError(id) {
-    let err = null;
-
     for(var error of this.errors) {
       if(error.id === id) {
-        err = error
+        this.errors.splice(this.errors.indexOf(error.id), 1);
       }
-    }
-
-    this.errors.splice(this.errors.indexOf(err), 1);
+    }    
     this.emit("change");
   }
 

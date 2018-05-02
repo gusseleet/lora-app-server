@@ -1,12 +1,12 @@
 import { EventEmitter } from "events";
 import { errorHandler, checkStatus } from "./helpers";
-import dispatcher from "../dispatcher";
+import dispatcher from "../config/dispatcher";
 
 var loginErrorHandler = (error) => {
   error.then((data) => {
     dispatcher.dispatch({
       type: "CREATE_ERROR",
-      error: data,
+      error: data
     });
   });
 };
@@ -20,11 +20,11 @@ class SessionStore extends EventEmitter {
     this.settings = {};
     this.branding = {};
 
-    this.fetchBranding( () => {} );
+    this.fetchBranding(() => {});
 
     if (this.getToken() !== "") {
       this.fetchProfile(() => {});
-    } 
+    }
   }
 
   setToken(token) {
@@ -43,29 +43,33 @@ class SessionStore extends EventEmitter {
     return localStorage.getItem("organizationID");
   }
 
+  getOrganizations() {
+    return this.organizations;
+  }
+
   getHeader() {
     if (this.getToken() !== "") {
       return {
-        "Grpc-Metadata-Authorization": "Bearer " + this.getToken(),
-      }
+        "Grpc-Metadata-Authorization": "Bearer " + this.getToken()
+      };
     } else {
-      return {}
+      return {};
     }
   }
 
   getLogo() {
     if (this.branding) {
-        return this.branding.logo;
-      } else {
-        return null;
+      return this.branding.logo;
+    } else {
+      return null;
     }
   }
 
   getFooter() {
     if (this.branding) {
-        return this.branding.footer;
-      } else {
-        return null;
+      return this.branding.footer;
+    } else {
+      return null;
     }
   }
 
@@ -80,8 +84,8 @@ class SessionStore extends EventEmitter {
   login(login, callbackFunc) {
     fetch("/api/internal/login", {method: "POST", body: JSON.stringify(login)})
       .then(checkStatus)
-      .then((response) => response.json())
-      .then((responseData) => {
+      .then(response => response.json())
+      .then(responseData => {
         this.setToken(responseData.jwt);
         this.fetchProfile(callbackFunc);
       })
@@ -91,23 +95,23 @@ class SessionStore extends EventEmitter {
   fetchProfile(callbackFunc) {
     fetch("/api/internal/profile", {headers: this.getHeader()})
       .then(checkStatus)
-      .then((response) => response.json())
-      .then((responseData) => {
+      .then(response => response.json())
+      .then(responseData => {
         this.user = responseData.user;
 
-        if (typeof(responseData.applications) !== "undefined") {
+        if (typeof responseData.applications !== "undefined") {
           this.applications = responseData.applications;
         } else {
           this.applications = [];
         }
 
-        if (typeof(responseData.organizations) !== "undefined") {
+        if (typeof responseData.organizations !== "undefined") {
           this.organizations = responseData.organizations;
         } else {
           this.organizations = [];
         }
 
-        if (typeof(responseData.settings) !== "undefined") {
+        if (typeof responseData.settings !== "undefined") {
           this.settings = responseData.settings;
         } else {
           this.settings = {};
@@ -122,8 +126,8 @@ class SessionStore extends EventEmitter {
   fetchBranding(callbackFunc) {
     fetch("/api/internal/branding", {headers: this.getHeader()})
       .then(checkStatus)
-      .then((response) => response.json())
-      .then((responseData) => {
+      .then(response => response.json())
+      .then(responseData => {
         this.branding = responseData;
         this.emit("change");
         callbackFunc();
@@ -155,7 +159,9 @@ class SessionStore extends EventEmitter {
 
   isOrganizationAdmin(organizationID) {
     for (let i = 0; i < this.organizations.length; i++) {
-      if (Number(this.organizations[i].organizationID) === Number(organizationID)) {
+      if (
+        Number(this.organizations[i].organizationID) === Number(organizationID)
+      ) {
         return this.organizations[i].isAdmin;
       }
     }
