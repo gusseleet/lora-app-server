@@ -708,11 +708,6 @@
           "type": "string",
           "format": "int64",
           "title": "Max Nodes"
-        },
-        "gatewayNetworkID": {
-          "type": "string",
-          "format": "int64",
-          "title": "Gateway Network ID"
         }
       }
     },
