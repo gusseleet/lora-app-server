@@ -102,7 +102,6 @@ func TestGatewayAPI(t *testing.T) {
 				NetworkServerID: n.ID,
 				Tags : []string{"Test","Tag"},
 				MaxNodes: 3,
-				GatewayNetworkID: gwn.ID,
 			})
 			So(err, ShouldBeNil)
 			So(validator.ctx, ShouldResemble, ctx)
