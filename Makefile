@@ -5,6 +5,8 @@ GOOS ?= linux
 GOARCH ?= amd64
 #TESTNAME ?= TestGatewayNetworkAPI
 
+#Another test
+
 build: ui/build internal/statics internal/migrations
 	@echo "Compiling source for $(GOOS) $(GOARCH)"
 	@mkdir -p build
