@@ -525,6 +525,13 @@
             "$ref": "#/definitions/apiGateways"
           },
           "title": "List of gateways to add"
+        },
+        "paymentPlans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiPaymentPlans"
+          },
+          "title": "List of payment plans to add"
         }
       },
       "description": "Add a new organization."
@@ -585,19 +592,50 @@
       "properties": {
         "mac": {
           "type": "string",
-          "description": "Hex encoded mac of the gateway."
+          "description": "Hex encoded mac address."
         },
         "name": {
           "type": "string",
-          "description": "Name of the gateway."
+          "title": "A name for the gateway"
+        },
+        "description": {
+          "type": "string",
+          "title": "A description for the gateway"
         },
         "createdAt": {
           "type": "string",
-          "description": "When the gateway was created."
+          "title": "Creation timestamp of the record"
         },
         "updatedAt": {
           "type": "string",
-          "description": "When the gateway was last updated."
+          "title": "Last update timestamp of the record"
+        },
+        "organizationID": {
+          "type": "string",
+          "format": "int64",
+          "description": "ID of the organization to which this gateway belongs."
+        },
+        "ping": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Gateway sends out a periodic ping."
+        },
+        "networkServerID": {
+          "type": "string",
+          "format": "int64",
+          "description": "ID of the network-server to which the gateway is connected."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags"
+        },
+        "maxNodes": {
+          "type": "string",
+          "format": "int64",
+          "title": "Max Nodes"
         }
       },
       "title": "Response for a gateway in the gateway network"
@@ -750,6 +788,16 @@
           "items": {
             "$ref": "#/definitions/apiGetGatewayNetworkResponse"
           }
+        }
+      }
+    },
+    "apiPaymentPlans": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "ID of payment plan"
         }
       }
     },

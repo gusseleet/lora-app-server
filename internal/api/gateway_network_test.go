@@ -20,7 +20,7 @@ import (
 func TestGatewayNetworkAPI(t *testing.T) {
 	conf := test.GetConfig()
 
-	Convey("Given a clean database with an organization", t, func() {
+	Convey("Given a clean database with an organization and a payment plan", t, func() {
 		db, err := storage.OpenDatabase(conf.PostgresDSN)
 		So(err, ShouldBeNil)
 		config.C.PostgreSQL.DB = db
@@ -30,11 +30,23 @@ func TestGatewayNetworkAPI(t *testing.T) {
 		validator := &TestValidator{}
 		api := NewGatewayNetworkAPI(validator)
 		gatewayAPI := NewGatewayAPI(validator)
+		payPlanAPI := NewPaymentPlanAPI(validator)
 
 		org := storage.Organization{
 			Name: "test-organization",
 		}
 		So(storage.CreateOrganization(config.C.PostgreSQL.DB, &org), ShouldBeNil)
+
+		pp := storage.PaymentPlan{
+			Name:           "Test",
+			DataLimit:      10,
+			AllowedDevices: 10,
+			AllowedApps:    10,
+			FixedPrice:     10,
+			AddedDataPrice: 10,
+			OrganizationID: org.ID,
+		}
+		So(storage.CreatePaymentPlan(config.C.PostgreSQL.DB, &pp), ShouldBeNil)
 
 		Convey("When creating a gateway network with a valid name", func() {
 			validator.returnIsAdmin = true
@@ -320,6 +332,62 @@ func TestGatewayNetworkAPI(t *testing.T) {
 										So(gn.PrivateNetwork, ShouldEqual, createReq.PrivateNetwork)
 										So(gn.OrganizationID, ShouldEqual, createReq.OrganizationID)
 
+									})
+								})
+
+								Convey("When trying to create a gateway network with an invalid payment plan", func() {
+									validator.returnIsAdmin = true
+									createReq := &pb.CreateGatewayNetworkRequest{
+										Name:           "testNetwork4",
+										Description:    "A test network with an invalid payment plan",
+										PrivateNetwork: true,
+										OrganizationID: org.ID,
+										PaymentPlans:   []*pb.PaymentPlans{&pb.PaymentPlans{
+											Id: 34,
+										}},
+									}
+									_, err := api.Create(ctx, createReq)
+									So(err, ShouldNotBeNil)
+									So(errors.Cause(err), ShouldResemble, errToRPCError(storage.ErrDoesNotExist))
+								})
+
+								Convey("When creating a gateway network with a payment plan", func() {
+									validator.returnIsAdmin = true
+									createReq := &pb.CreateGatewayNetworkRequest{
+										Name:           "testNetwork5",
+										Description:    "A test network with a payment plan",
+										PrivateNetwork: true,
+										OrganizationID: org.ID,
+										PaymentPlans:   []*pb.PaymentPlans{
+											&pb.PaymentPlans{
+												Id: pp.ID,
+											},
+										},
+									}
+									createResp, err := api.Create(ctx, createReq)
+									So(err, ShouldBeNil)
+									So(validator.validatorFuncs, ShouldHaveLength, 1)
+									So(createResp, ShouldNotBeNil)
+
+									Convey("Then the gateway network has been created", func() {
+										gn, err := api.Get(ctx, &pb.GatewayNetworkRequest{
+											Id: createResp.Id,
+										})
+										So(err, ShouldBeNil)
+										So(gn.Name, ShouldEqual, createReq.Name)
+										So(gn.Description, ShouldEqual, createReq.Description)
+										So(gn.PrivateNetwork, ShouldEqual, createReq.PrivateNetwork)
+										So(gn.OrganizationID, ShouldEqual, createReq.OrganizationID)
+									})
+
+									Convey("Then the gateway network has a payment plan", func() {
+										gnpp, err := payPlanAPI.GetGatewayNetwork(ctx, &pb.PayPlanGatewayNetworkRequest{
+											Id:               pp.ID,
+											GatewayNetworkID: createResp.Id,
+										})
+										So(err, ShouldBeNil)
+										So(gnpp.Name, ShouldEqual, createReq.Name)
+										So(gnpp.Id, ShouldEqual, createResp.Id)
 									})
 								})
 

@@ -175,11 +175,19 @@ message CreateGatewayNetworkRequest {
 
     // List of gateways to add
     repeated Gateways gateways = 5;
+
+    // List of payment plans to add
+    repeated PaymentPlans paymentPlans = 6;
 }
 
 message Gateways {
     // Hex encoded mac address.
     string gatewayMAC = 1;
+}
+
+message PaymentPlans {
+    // ID of payment plan
+    int64 id = 1;
 }
 
 message CreateGatewayNetworkResponse {
@@ -252,17 +260,35 @@ message GetGatewayNetworkGatewayRequest {
 
 // Response for a gateway in the gateway network
 message GetGatewayNetworkGatewayResponse {
-    // Hex encoded mac of the gateway.
+    // Hex encoded mac address.
     string mac = 1;
 
-    // Name of the gateway.
+    // A name for the gateway
     string name = 2;
 
-    // When the gateway was created.
-    string createdAt = 3;
+    // A description for the gateway
+    string description = 3;
 
-    // When the gateway was last updated.
-    string updatedAt = 4;
+    // Creation timestamp of the record
+    string createdAt = 7;
+
+    // Last update timestamp of the record
+    string updatedAt = 8;
+
+    // ID of the organization to which this gateway belongs.
+    int64 organizationID = 11;
+
+    // Gateway sends out a periodic ping.
+    bool ping = 13;
+
+    // ID of the network-server to which the gateway is connected.
+    int64 networkServerID = 14;
+
+    // Tags
+    repeated string tags = 15;
+
+    // Max Nodes
+    int64 maxNodes = 16;
 }
 
 // Response for the gateways in a gateway network.
