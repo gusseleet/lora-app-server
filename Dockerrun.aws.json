@@ -26,6 +26,12 @@
       }
     },
     {
+      "name": "static_files",
+      "host": {
+        "sourcePath": "/home/ec2-user/staticfiles"
+      }
+    },
+    {
       "name": "mosquitto",
       "host": {
         "sourcePath": "current-mosquitto"
@@ -48,7 +54,11 @@
       "mountPoints": [
         {
           "sourceVolume": "client-ui",
-          "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client-test"
+          "containerPath": "/go/src/github.com/gusseleet/lora-app-server/client"
+        },
+        {
+          "sourceVolume": "static_files",
+          "containerPath": "/go/src/github.com/gusseleet/lora-app-server/static/static"
         }
       ],
       "links": [
