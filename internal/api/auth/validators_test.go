@@ -662,6 +662,12 @@ func TestValidators(t *testing.T) {
 					ExpectedOK: true,
 				},
 				{
+					Name:       "organziation admins can read",
+					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Read, gatewayNetworks[0].ID)},
+					Claims:     Claims{Username: "user10"},
+					ExpectedOK: true,
+				},
+				{
 					Name:       "organization user admins can update or delete",
 					Validators: []ValidatorFunc{ValidateGatewayNetworkAccess(Update, gatewayNetworks[0].ID), ValidateGatewayNetworkAccess(Delete, gatewayNetworks[0].ID)},
 					Claims:     Claims{Username: "user10"},
