@@ -450,6 +450,33 @@ func GetGatewayNetworkGateways(db sqlx.Queryer, gatewayNetworkID int64, limit, o
 	return gateways, nil
 }
 
+// GetGatewayNetworkGateways returns the gateways for the given gateway network and gateway mac.
+func GetGatewayNetworkGatewaysForGatewayMAC(db sqlx.Queryer, gatewayMAC lorawan.EUI64, limit, offset int) ([]GatewayNetworkGateway, error) {
+	var gateways []GatewayNetworkGateway
+	err := sqlx.Select(db, &gateways, `
+		select
+			g.mac as gateway_mac,
+			g.name as name,
+			gng.created_at as created_at,
+			gng.updated_at as updated_at,
+			g.tags as tags
+		from gateway_network_gateway gng
+		inner join "gateway" g
+			on g.mac = gng.gateway_mac
+		where
+			gng.gateway_mac = $1
+		order by g.name
+		limit $2 offset $3`,
+		gatewayMAC,
+		limit,
+		offset,
+	)
+	if err != nil {
+		return nil, handlePSQLError(Select, err, "select error")
+	}
+	return gateways, nil
+}
+
 // DeleteAllGatewayNetworkGatewaysForGatewayNetworkID deletes all gateway network- gateway links
 // given a gateway network id.
 func DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db sqlx.Ext, gatewayNetworkID int64) error {
@@ -461,6 +488,25 @@ func DeleteAllGatewayNetworkGatewaysForGatewayNetworkID(db sqlx.Ext, gatewayNetw
 
 	for _, gng := range gngs {
 		err = DeleteGatewayNetworkGateway(db, gatewayNetworkID, gng.GatewayMAC)
+		if err != nil {
+			return errors.Wrap(err, "delete gateway network gateway error")
+		}
+	}
+
+	return nil
+}
+
+// DeleteAllGatewayNetworkGatewaysForGatewayMAC deletes all gateway network- gateway links
+// given a gateway MAC.
+func DeleteAllGatewayNetworkGatewaysForGatewayMAC(db sqlx.Ext, gatewayMAC lorawan.EUI64) error {
+	var gngs []GatewayNetworkGateway
+	gngs, err := GetGatewayNetworkGatewaysForGatewayMAC(db, gatewayMAC, 0, 0 )
+	if err != nil {
+		return handlePSQLError(Select, err, "select error")
+	}
+
+	for _, gng := range gngs {
+		err = DeleteGatewayNetworkGateway(db, gng.ID, gatewayMAC)
 		if err != nil {
 			return errors.Wrap(err, "delete gateway network gateway error")
 		}
