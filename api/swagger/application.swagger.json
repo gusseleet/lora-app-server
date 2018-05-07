@@ -335,6 +335,16 @@
         "serviceProfileName": {
           "type": "string",
           "description": "Service-profile name."
+        },
+        "gatewayNetworkID": {
+          "type": "string",
+          "format": "int64",
+          "title": "Gateway network ID"
+        },
+        "paymentPlanID": {
+          "type": "string",
+          "format": "int64",
+          "title": "Payment plan ID"
         }
       }
     },
@@ -369,6 +379,16 @@
         "payloadDecoderScript": {
           "type": "string",
           "description": "Payload decoder script."
+        },
+        "gatewayNetworkID": {
+          "type": "string",
+          "format": "int64",
+          "title": "Gateway network ID"
+        },
+        "paymentPlanID": {
+          "type": "string",
+          "format": "int64",
+          "title": "Payment plan ID"
         }
       }
     },
@@ -424,6 +444,16 @@
         "payloadDecoderScript": {
           "type": "string",
           "description": "Payload decoder script."
+        },
+        "gatewayNetworkID": {
+          "type": "string",
+          "format": "int64",
+          "title": "Gateway network ID"
+        },
+        "paymentPlanID": {
+          "type": "string",
+          "format": "int64",
+          "title": "Payment plan ID"
         }
       }
     },
@@ -540,6 +570,16 @@
         "payloadDecoderScript": {
           "type": "string",
           "description": "Payload decoder script."
+        },
+        "gatewayNetworkID": {
+          "type": "string",
+          "format": "int64",
+          "title": "Gateway network ID"
+        },
+        "paymentPlanID": {
+          "type": "string",
+          "format": "int64",
+          "title": "Payment plan ID"
         }
       }
     },

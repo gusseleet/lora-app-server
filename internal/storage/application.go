@@ -22,6 +22,8 @@ type Application struct {
 	PayloadCodec         codec.Type `db:"payload_codec"`
 	PayloadEncoderScript string     `db:"payload_encoder_script"`
 	PayloadDecoderScript string     `db:"payload_decoder_script"`
+	GatewayNetworkID	 int64		`db:"gateway_network_id"`
+	PaymentPlanID        int64      `db:"payment_plan_id"`
 }
 
 // ApplicationListItem devices the application as a list item.
@@ -53,8 +55,10 @@ func CreateApplication(db sqlx.Queryer, item *Application) error {
 			service_profile_id,
 			payload_codec,
 			payload_encoder_script,
-			payload_decoder_script
-		) values ($1, $2, $3, $4, $5, $6, $7) returning id`,
+			payload_decoder_script,
+			gateway_network_id,
+			payment_plan_id
+		) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id`,
 		item.Name,
 		item.Description,
 		item.OrganizationID,
@@ -62,6 +66,8 @@ func CreateApplication(db sqlx.Queryer, item *Application) error {
 		item.PayloadCodec,
 		item.PayloadEncoderScript,
 		item.PayloadDecoderScript,
+		item.GatewayNetworkID,
+		item.PaymentPlanID,
 	)
 	if err != nil {
 		return handlePSQLError(Insert, err, "insert error")
@@ -238,7 +244,9 @@ func UpdateApplication(db sqlx.Execer, item Application) error {
 			service_profile_id = $5,
 			payload_codec = $6,
 			payload_encoder_script = $7,
-			payload_decoder_script = $8
+			payload_decoder_script = $8,
+			gateway_network_id = $9,
+			payment_plan_id = $10
 		where id = $1`,
 		item.ID,
 		item.Name,
@@ -248,6 +256,8 @@ func UpdateApplication(db sqlx.Execer, item Application) error {
 		item.PayloadCodec,
 		item.PayloadEncoderScript,
 		item.PayloadDecoderScript,
+		item.GatewayNetworkID,
+		item.PaymentPlanID,
 	)
 	if err != nil {
 		return handlePSQLError(Update, err, "update error")

@@ -89,10 +89,31 @@ func TestHandler(t *testing.T) {
 			}
 			So(storage.CreateServiceProfile(config.C.PostgreSQL.DB, &sp), ShouldBeNil)
 
+			gwn := storage.GatewayNetwork{
+				Name:			"test-gwn",
+				Description:	"A test network",
+				PrivateNetwork:	false,
+				OrganizationID: org.ID,
+			}
+			So(storage.CreateGatewayNetwork(config.C.PostgreSQL.DB, &gwn), ShouldBeNil)
+
+			pp := storage.PaymentPlan{
+				Name:				 "test-pp",
+				DataLimit:           1000,
+				AllowedDevices:      10,
+				AllowedApps: 		 10,
+				FixedPrice:          1000,
+				AddedDataPrice:      10,
+				OrganizationID:		 org.ID,
+			}
+			So(storage.CreatePaymentPlan(config.C.PostgreSQL.DB, &pp), ShouldBeNil)
+
 			app := storage.Application{
 				OrganizationID:   org.ID,
 				Name:             "test-app",
 				ServiceProfileID: sp.ServiceProfile.ServiceProfileID,
+				GatewayNetworkID: gwn.ID,
+				PaymentPlanID:    pp.ID,
 			}
 			So(storage.CreateApplication(db, &app), ShouldBeNil)
 

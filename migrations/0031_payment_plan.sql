@@ -22,7 +22,15 @@ create table gateway_network_to_payment_plan (
 create index idx_gateway_network_to_payment_plan_gw_id on gateway_network_to_payment_plan(gw_id);
 create index idx_gateway_network_to_payment_plan_pay_plan_id on gateway_network_to_payment_plan(pay_plan_id);
 
+alter table application
+	add column gateway_network_id bigserial not null references gateway_network on delete cascade,
+	add column payment_plan_id bigserial not null references payment_plan on delete cascade;
+
 -- +migrate Down
+
+alter table application
+	drop column gateway_network_id,
+	drop column payment_plan_id;
 
 drop index idx_payment_plan_id;
 drop index idx_gateway_network_to_payment_plan_gw_id;
