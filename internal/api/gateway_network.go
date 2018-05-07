@@ -228,7 +228,7 @@ func (a *GatewayNetworkAPI) GetDetailed(ctx context.Context, req *pb.GatewayNetw
 		return nil, errToRPCError(err)
 	}
 
-	ppRes := make([]*pb.GetGatewayNetworkPaymentPlanResponse, len(gws))
+	ppRes := make([]*pb.GetGatewayNetworkPaymentPlanResponse, len(pps))
 	for i, pp := range pps {
 		ppRes[i] = &pb.GetGatewayNetworkPaymentPlanResponse{
 			Id:                  pp.ID,
