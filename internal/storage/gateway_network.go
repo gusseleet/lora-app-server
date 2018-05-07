@@ -431,7 +431,8 @@ func GetGatewayNetworkGateways(db sqlx.Queryer, gatewayNetworkID int64, limit, o
 			g.mac as gateway_mac,
 			g.name as name,
 			gng.created_at as created_at,
-			gng.updated_at as updated_at
+			gng.updated_at as updated_at,
+			g.tags as tags
 		from gateway_network_gateway gng
 		inner join "gateway" g
 			on g.mac = gng.gateway_mac
