@@ -160,6 +160,7 @@ func ValidateUserAccess(userID int64, flag Flag) ValidatorFunc {
 		where = [][]string{
 			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
 			{"u.username = $1", "u.is_active = true", "u.id = $2"},
+			{"u.username = $1", "u.is_active = true", "ou.is_admin = true"},
 		}
 	case Update, Delete:
 		// global admin
