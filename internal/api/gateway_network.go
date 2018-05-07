@@ -395,6 +395,16 @@ func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNet
 		return nil, errToRPCError(err)
 	}
 
+	gng, err := storage.GetGatewayNetworkGateways(config.C.PostgreSQL.DB, gn.ID, 99999, 0)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	gnpp, err := storage.GetGatewayNetworkPaymentPlans(config.C.PostgreSQL.DB, gn.ID, 99999, 0)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
 	gn.Name = req.Name
 	gn.Description = req.Description
 	gn.PrivateNetwork = req.PrivateNetwork
@@ -403,6 +413,39 @@ func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNet
 	err = storage.UpdateGatewayNetwork(config.C.PostgreSQL.DB, &gn)
 	if err != nil {
 		return nil, errToRPCError(err)
+	}
+
+	// Remove old gateway connections and add the new
+	for _, oldGW := range gng {
+		err := storage.DeleteGatewayNetworkGateway(config.C.PostgreSQL.DB, gn.ID, oldGW.GatewayMAC)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+	}
+
+	for _, newGW := range req.Gateways {
+		var mac lorawan.EUI64
+		if err := mac.UnmarshalText([]byte(newGW.GatewayMAC)); err != nil {
+			return nil, grpc.Errorf(codes.InvalidArgument, "bad gateway mac: %s", err)
+		}
+
+		if err = storage.CreateGatewayNetworkGateway(config.C.PostgreSQL.DB, gn.ID, mac); err != nil {
+			return nil, errToRPCError(err)
+		}
+	}
+
+	// Remove old Payment Plan connections and add the new
+	for _, oldPP := range gnpp {
+		err := storage.DeletePaymentPlanToGatewayNetwork(config.C.PostgreSQL.DB, oldPP.ID, gn.ID)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+	}
+
+	for _, newPP := range req.PaymentPlans {
+		if err = storage.CreatePaymentPlanToGatewayNetwork(config.C.PostgreSQL.DB, newPP.Id, gn.ID); err != nil {
+			return nil, errToRPCError(err)
+		}
 	}
 
 	return &pb.GatewayNetworkEmptyResponse{}, nil

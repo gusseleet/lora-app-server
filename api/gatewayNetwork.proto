@@ -261,6 +261,12 @@ message UpdateGatewayNetworkRequest {
 
     // Organization the gateway network belongs to.
     int64 organizationID = 5;
+
+    // List of gateways to add
+    repeated Gateways gateways = 6;
+
+    // List of payment plans to add
+    repeated PaymentPlans paymentPlans = 7;
 }
 
 message ListGatewayNetworksResponse {
