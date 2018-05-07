@@ -169,6 +169,7 @@ func (a *OrganizationAPI) Update(ctx context.Context, req *pb.UpdateOrganization
 
 	org.Name = req.Name
 	org.DisplayName = req.DisplayName
+	org.OrgNr = req.OrgNr
 	if isAdmin {
 		org.CanHaveGateways = req.CanHaveGateways
 	}

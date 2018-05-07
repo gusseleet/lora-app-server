@@ -212,13 +212,15 @@ func UpdateOrganization(db sqlx.Execer, org *Organization) error {
 			name = $2,
 			display_name = $3,
 			can_have_gateways = $4,
-			updated_at = $5
+			updated_at = $5,
+			org_nr = $6
 		where id = $1`,
 		org.ID,
 		org.Name,
 		org.DisplayName,
 		org.CanHaveGateways,
 		now,
+		org.OrgNr,
 	)
 
 	if err != nil {

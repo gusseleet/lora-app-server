@@ -1108,6 +1108,20 @@
           "type": "string",
           "format": "int64",
           "description": "Organization the gateway network belongs to."
+        },
+        "gateways": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGateways"
+          },
+          "title": "List of gateways to add"
+        },
+        "paymentPlans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiPaymentPlans"
+          },
+          "title": "List of payment plans to add"
         }
       },
       "description": "Update existing gateway network."
