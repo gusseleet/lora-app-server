@@ -4,6 +4,7 @@ package api;
 
 // for grpc-gateway
 import "google/api/annotations.proto";
+import "organization.proto";
 
 // GatewayNetwork is the service managing the gateway network access.
 service GatewayNetwork {
@@ -18,6 +19,20 @@ service GatewayNetwork {
     rpc Get(GatewayNetworkRequest) returns (GetGatewayNetworkResponse) {
         option(google.api.http) = {
 			get: "/api/gatewaynetworks/{id}"
+		};
+    }
+
+    // Get detailed gateway network list.
+    rpc ListDetailed(ListGatewayNetworksRequest) returns (ListDetailedGatewayNetworksResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworksdetailed"
+		};
+    }
+
+    // Get detailed data for a particular gateway network.
+    rpc GetDetailed(GatewayNetworkRequest) returns (GetDetailedGatewayNetworkResponse) {
+        option(google.api.http) = {
+			get: "/api/gatewaynetworksdetailed/{id}"
 		};
     }
 
@@ -109,6 +124,13 @@ service GatewayNetwork {
 		};
     }
 
+    // Get the payment plans of a gateway network.
+    rpc ListGatewayNetworkPaymentPlans(ListGatewayNetworkPaymentPlansRequest) returns (ListGatewayNetworkPaymentPlansResponse) {
+        option(google.api.http) = {
+            get: "/api/gatewaynetworks/{id}/paymentplans"
+        };
+    }
+
 }
 
 // Request the gateway networks defined in the system.
@@ -156,7 +178,35 @@ message GetGatewayNetworkResponse {
 
     // Organization the gateway network belongs to.
     int64 organizationID = 7;
+}
 
+message GetDetailedGatewayNetworkResponse {
+    // ID of the Gateway Network.
+    int64 id = 1;
+
+    // When the gateway network was created.
+    string createdAt = 2;
+
+    // When the gateway network was last updated.
+    string updatedAt = 3;
+
+    // Gateway Network name.
+    string name = 4;
+
+    // Description of the gateway network.
+    string description = 5;
+
+    // Is the network private or not.
+    bool privateNetwork = 6;
+
+    // Organization the gateway network belongs to.
+    GetOrganizationResponse organization = 7;
+
+    // List of gateways of the network
+    ListGatewayNetworkGatewaysResponse gateways = 8;
+
+    // List of payment plans of the network
+    ListGatewayNetworkPaymentPlansResponse paymentPlans = 9;
 }
 
 // Add a new organization.
@@ -216,6 +266,11 @@ message UpdateGatewayNetworkRequest {
 message ListGatewayNetworksResponse {
     int32 totalCount = 1;
     repeated GetGatewayNetworkResponse result = 2;
+}
+
+message ListDetailedGatewayNetworksResponse {
+    int32 totalCount = 1;
+    repeated GetDetailedGatewayNetworkResponse result = 2;
 }
 
 message GatewayNetworkEmptyResponse {
@@ -394,4 +449,52 @@ message ListGatewayNetworkOrganizationsResponse {
 
     // The organizations in the requested limit, offset range.
     repeated GetGatewayNetworkOrganizationResponse result = 2;
+}
+
+// Request to get the payment plans of the gateway network
+message ListGatewayNetworkPaymentPlansRequest {
+    // The ID of the gateway network
+    int64 id = 1;
+
+    // Max number of users to return in the result-set.
+    int32 limit = 2;
+
+    // Offset in the result-set (for pagination).
+    int32 offset = 3;
+}
+
+// Lists the payment plans of the specified gateway network id
+message ListGatewayNetworkPaymentPlansResponse {
+    // The total number of payment plans of the gateway network.
+    int32 totalCount = 1;
+
+    // The list of payment plans of the gateway network
+    repeated GetGatewayNetworkPaymentPlanResponse paymentPlans = 2;
+}
+
+// The response of a payment plan of a gateway network
+message GetGatewayNetworkPaymentPlanResponse {
+    // ID of the payment plan.
+    int64 id = 1;
+
+    // The name of the payment plan.
+    string name = 2;
+
+    // The data limit of the payment plan.
+    int32 dataLimit = 3;
+
+    // The number of allowed devices of the payment plan.
+    int32 allowedDevices = 4;
+
+    // The number of allowed applications of the payment plan.
+    int32 allowedApplications = 5;
+
+    // The fixed price of the payment plan.
+    int32 fixedPrice = 6;
+
+    // The price of data that exceeds the data limit.
+    int32 addedDataPrice = 7;
+
+    // Organization ID that the payment plan belongs to.
+    int64 organizationID = 8;
 }

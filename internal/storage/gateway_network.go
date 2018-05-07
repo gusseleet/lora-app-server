@@ -431,7 +431,8 @@ func GetGatewayNetworkGateways(db sqlx.Queryer, gatewayNetworkID int64, limit, o
 			g.mac as gateway_mac,
 			g.name as name,
 			gng.created_at as created_at,
-			gng.updated_at as updated_at
+			gng.updated_at as updated_at,
+			g.tags as tags
 		from gateway_network_gateway gng
 		inner join "gateway" g
 			on g.mac = gng.gateway_mac
@@ -706,4 +707,51 @@ func DeleteAllGatewayNetworkOrganizationsForGatewayNetworkID(db sqlx.Ext, gatewa
 	}
 
 	return nil
+}
+
+func GetGatewayNetworkPaymentPlans(db sqlx.Ext, gatewayNetworkID int64, limit, offset int) ([]PaymentPlan, error) {
+	var paymentPlans []PaymentPlan
+	err := sqlx.Select(db, &paymentPlans, `
+		select
+			pp.id as id,
+			pp.name as name,
+			pp.data_limit as data_limit,
+			pp.nr_of_allowed_devices as nr_of_allowed_devices,
+			pp.nr_of_allowed_apps as nr_of_allowed_apps,
+			pp.fixed_price as fixed_price,
+			pp.added_data_price as added_data_price,
+			pp.organization_id as organization_id
+		from payment_plan pp
+		inner join gateway_network_to_payment_plan gwnpp
+			on gwnpp.pay_plan_id = pp.id
+		where
+			gwnpp.gw_id = $1
+		order by pp.name
+		limit $2 offset $3`,
+		gatewayNetworkID,
+		limit,
+		offset,
+	)
+	if err != nil {
+		return nil, handlePSQLError(Select, err, "select error")
+	}
+	return paymentPlans, nil
+}
+
+func GetGatewayNetworkPaymentPlanCount(db sqlx.Ext, gatewayNetworkID int64) (int, error) {
+	var count int
+	err := sqlx.Get(db, &count, `
+		select
+			count(*)
+		from payment_plan pp
+		inner join gateway_network_to_payment_plan gwnpp
+			on gwnpp.pay_plan_id = pp.id
+		where
+			gwnpp.gw_id = $1`,
+		gatewayNetworkID,)
+	if err != nil {
+		return count, handlePSQLError(Select, err, "select error")
+	}
+
+	return count, nil
 }

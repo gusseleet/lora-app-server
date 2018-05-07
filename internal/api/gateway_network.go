@@ -166,6 +166,223 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 	}, nil
 }
 
+// Get returns the gateway network matching the given ID.
+func (a *GatewayNetworkAPI) GetDetailed(ctx context.Context, req *pb.GatewayNetworkRequest) (*pb.GetDetailedGatewayNetworkResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkAccess(auth.Read, req.Id)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	gn, err := storage.GetGatewayNetwork(config.C.PostgreSQL.DB, req.Id)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	org, err := storage.GetOrganization(config.C.PostgreSQL.DB, gn.OrganizationID)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+	orgRes := &pb.GetOrganizationResponse{
+		Id:              org.ID,
+		Name:            org.Name,
+		DisplayName:     org.DisplayName,
+		CanHaveGateways: org.CanHaveGateways,
+		CreatedAt:       org.CreatedAt.Format(time.RFC3339Nano),
+		UpdatedAt:       org.UpdatedAt.Format(time.RFC3339Nano),
+		OrgNr:           org.OrgNr,
+	}
+
+	gws, err := storage.GetGatewayNetworkGateways(config.C.PostgreSQL.DB, gn.ID, 99999, 0)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	gwCount, err := storage.GetGatewayNetworkGatewayCount(config.C.PostgreSQL.DB, gn.ID)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	gwRes := make([]*pb.GetGatewayNetworkGatewayResponse, len(gws))
+	for i, gw := range gws {
+		gwRes[i] = &pb.GetGatewayNetworkGatewayResponse{
+			Mac:             gw.GatewayMAC.String(),
+			Name:            gw.Name,
+			Description:     gw.Description,
+			CreatedAt:       gw.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt:       gw.UpdatedAt.Format(time.RFC3339Nano),
+			OrganizationID:  gw.OrganizationID,
+			Ping:            gw.Ping,
+			NetworkServerID: gw.NetworkServerID,
+			Tags:            gw.Tags,
+			MaxNodes:        gw.MaxNodes,
+		}
+	}
+
+	pps, err := storage.GetGatewayNetworkPaymentPlans(config.C.PostgreSQL.DB, gn.ID, 99999, 0)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	ppCount, err := storage.GetGatewayNetworkPaymentPlanCount(config.C.PostgreSQL.DB, gn.ID)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	ppRes := make([]*pb.GetGatewayNetworkPaymentPlanResponse, len(gws))
+	for i, pp := range pps {
+		ppRes[i] = &pb.GetGatewayNetworkPaymentPlanResponse{
+			Id:                  pp.ID,
+			Name:                pp.Name,
+			DataLimit:           pp.DataLimit,
+			AllowedDevices:      pp.AllowedDevices,
+			AllowedApplications: pp.AllowedApps,
+			FixedPrice:          pp.FixedPrice,
+			AddedDataPrice:      pp.AddedDataPrice,
+			OrganizationID:      pp.OrganizationID,
+		}
+	}
+
+	return &pb.GetDetailedGatewayNetworkResponse{
+		Id:             gn.ID,
+		CreatedAt:      gn.CreatedAt.Format(time.RFC3339Nano),
+		UpdatedAt:      gn.UpdatedAt.Format(time.RFC3339Nano),
+		Name:           gn.Name,
+		Description:    gn.Description,
+		PrivateNetwork: gn.PrivateNetwork,
+		Organization:   orgRes,
+		Gateways:       &pb.ListGatewayNetworkGatewaysResponse{
+			TotalCount: int32(gwCount),
+			Result:     gwRes,
+		},
+		PaymentPlans:   &pb.ListGatewayNetworkPaymentPlansResponse{
+			TotalCount:   int32(ppCount),
+			PaymentPlans: ppRes,
+		},
+	}, nil
+}
+
+// List lists the gateway networks to which the organization has access.
+func (a *GatewayNetworkAPI) ListDetailed(ctx context.Context, req *pb.ListGatewayNetworksRequest) (*pb.ListDetailedGatewayNetworksResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworksAccess(auth.List, req.OrganizationID)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	var count int
+	var gns []storage.GatewayNetwork
+	var err error
+
+	if req.OrganizationID == 0 {
+		gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, req.PrivateNetwork, int(req.Limit), int(req.Offset))
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+
+		count, err = storage.GetGatewayNetworkCount(config.C.PostgreSQL.DB, req.PrivateNetwork)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+	} else {
+		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset))
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+	}
+
+	result := make([]*pb.GetDetailedGatewayNetworkResponse, len(gns))
+	for i, gn := range gns {
+		org, err := storage.GetOrganization(config.C.PostgreSQL.DB, gn.OrganizationID)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+		orgRes := &pb.GetOrganizationResponse{
+			Id:              org.ID,
+			Name:            org.Name,
+			DisplayName:     org.DisplayName,
+			CanHaveGateways: org.CanHaveGateways,
+			CreatedAt:       org.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt:       org.UpdatedAt.Format(time.RFC3339Nano),
+			OrgNr:           org.OrgNr,
+		}
+
+		gws, err := storage.GetGatewayNetworkGateways(config.C.PostgreSQL.DB, gn.ID, 99999, 0)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+
+		gwCount, err := storage.GetGatewayNetworkGatewayCount(config.C.PostgreSQL.DB, gn.ID)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+
+		gwRes := make([]*pb.GetGatewayNetworkGatewayResponse, len(gws))
+		for i, gw := range gws {
+			gwRes[i] = &pb.GetGatewayNetworkGatewayResponse{
+				Mac:             gw.GatewayMAC.String(),
+				Name:            gw.Name,
+				Description:     gw.Description,
+				CreatedAt:       gw.CreatedAt.Format(time.RFC3339Nano),
+				UpdatedAt:       gw.UpdatedAt.Format(time.RFC3339Nano),
+				OrganizationID:  gw.OrganizationID,
+				Ping:            gw.Ping,
+				NetworkServerID: gw.NetworkServerID,
+				Tags:            gw.Tags,
+				MaxNodes:        gw.MaxNodes,
+			}
+		}
+
+		pps, err := storage.GetGatewayNetworkPaymentPlans(config.C.PostgreSQL.DB, gn.ID, 99999, 0)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+
+		ppCount, err := storage.GetGatewayNetworkPaymentPlanCount(config.C.PostgreSQL.DB, gn.ID)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+
+		ppRes := make([]*pb.GetGatewayNetworkPaymentPlanResponse, len(gws))
+		for i, pp := range pps {
+			ppRes[i] = &pb.GetGatewayNetworkPaymentPlanResponse{
+				Id:                  pp.ID,
+				Name:                pp.Name,
+				DataLimit:           pp.DataLimit,
+				AllowedDevices:      pp.AllowedDevices,
+				AllowedApplications: pp.AllowedApps,
+				FixedPrice:          pp.FixedPrice,
+				AddedDataPrice:      pp.AddedDataPrice,
+				OrganizationID:      pp.OrganizationID,
+			}
+		}
+		result[i] = &pb.GetDetailedGatewayNetworkResponse{
+			Id:             gn.ID,
+			CreatedAt:      gn.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt:      gn.UpdatedAt.Format(time.RFC3339Nano),
+			Name:           gn.Name,
+			Description:    gn.Description,
+			PrivateNetwork: gn.PrivateNetwork,
+			Organization:   orgRes,
+			Gateways:       &pb.ListGatewayNetworkGatewaysResponse{
+				TotalCount: int32(gwCount),
+				Result:     gwRes,
+			},
+			PaymentPlans:   &pb.ListGatewayNetworkPaymentPlansResponse{
+				TotalCount:   int32(ppCount),
+				PaymentPlans: ppRes,
+			},
+		}
+	}
+
+	return &pb.ListDetailedGatewayNetworksResponse{
+		TotalCount: int32(count),
+		Result:     result,
+	}, nil
+}
+
 // Update updates the given gateway network with the given data.
 func (a *GatewayNetworkAPI) Update(ctx context.Context, req *pb.UpdateGatewayNetworkRequest) (*pb.GatewayNetworkEmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
@@ -430,5 +647,37 @@ func (a *GatewayNetworkAPI) GetOrganization(ctx context.Context, req *pb.GetGate
 		DisplayName:  		organization.DisplayName,
 		CreatedAt: 			organization.CreatedAt.Format(time.RFC3339Nano),
 		UpdatedAt: 			organization.UpdatedAt.Format(time.RFC3339Nano),
+	}, nil
+}
+
+func (a *GatewayNetworkAPI) ListGatewayNetworkPaymentPlans(ctx context.Context, req *pb.ListGatewayNetworkPaymentPlansRequest) (*pb.ListGatewayNetworkPaymentPlansResponse, error) {
+
+	pps, err := storage.GetGatewayNetworkPaymentPlans(config.C.PostgreSQL.DB, req.Id, int(req.Limit), int(req.Offset))
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	ppCount, err := storage.GetGatewayNetworkPaymentPlanCount(config.C.PostgreSQL.DB, req.Id)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	result := make([]*pb.GetGatewayNetworkPaymentPlanResponse, len(pps))
+	for i, pp := range pps {
+		result[i] = &pb.GetGatewayNetworkPaymentPlanResponse{
+			Id:                  pp.ID,
+			Name:                pp.Name,
+			DataLimit:           pp.DataLimit,
+			AllowedDevices:      pp.AllowedDevices,
+			AllowedApplications: pp.AllowedApps,
+			FixedPrice:          pp.FixedPrice,
+			AddedDataPrice:      pp.AddedDataPrice,
+			OrganizationID:      pp.OrganizationID,
+		}
+	}
+
+	return &pb.ListGatewayNetworkPaymentPlansResponse{
+		TotalCount:   int32(ppCount),
+		PaymentPlans: result,
 	}, nil
 }

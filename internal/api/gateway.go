@@ -268,6 +268,7 @@ func (a *GatewayAPI) Update(ctx context.Context, req *pb.UpdateGatewayRequest) (
 		gw.Name = req.Name
 		gw.Description = req.Description
 		gw.Ping = req.Ping
+		gw.Tags = req.Tags
 		if isAdmin {
 			gw.OrganizationID = req.OrganizationID
 		}
