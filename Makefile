@@ -85,6 +85,7 @@ requirements:
 	@go get -u github.com/smartystreets/goconvey
 	@go get -u golang.org/x/tools/cmd/stringer
 	@go get -u github.com/golang/dep/cmd/dep
+	@go get -u github.com/golang/lint/golint
 	@dep ensure -v
 
 ui-requirements:

@@ -48,10 +48,31 @@ func TestIntegration(t *testing.T) {
 		}
 		So(CreateServiceProfile(config.C.PostgreSQL.DB, &sp), ShouldBeNil)
 
+		gwn := GatewayNetwork{
+			Name:			"test-gwn",
+			Description:	"A test network",
+			PrivateNetwork:	false,
+			OrganizationID: org.ID,
+		}
+		So(CreateGatewayNetwork(config.C.PostgreSQL.DB, &gwn), ShouldBeNil)
+
+		pp := PaymentPlan{
+			Name:				 "test-pp",
+			DataLimit:           1000,
+			AllowedDevices:      10,
+			AllowedApps: 		 10,
+			FixedPrice:          1000,
+			AddedDataPrice:      10,
+			OrganizationID:		 org.ID,
+		}
+		So(CreatePaymentPlan(config.C.PostgreSQL.DB, &pp), ShouldBeNil)
+
 		app := Application{
 			OrganizationID:   org.ID,
 			ServiceProfileID: sp.ServiceProfile.ServiceProfileID,
 			Name:             "test-app",
+			GatewayNetworkID: gwn.ID,
+			PaymentPlanID:    pp.ID,
 		}
 		So(CreateApplication(db, &app), ShouldBeNil)
 

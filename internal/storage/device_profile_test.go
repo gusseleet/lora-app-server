@@ -46,6 +46,25 @@ func TestDeviceProfile(t *testing.T) {
 		}
 		So(CreateNetworkServer(config.C.PostgreSQL.DB, &n), ShouldBeNil)
 
+		gwn := GatewayNetwork{
+			Name:			"test-gwn",
+			Description:	"A test network",
+			PrivateNetwork:	false,
+			OrganizationID: org.ID,
+		}
+		So(CreateGatewayNetwork(config.C.PostgreSQL.DB, &gwn), ShouldBeNil)
+
+		pp := PaymentPlan{
+			Name:				 "test-pp",
+			DataLimit:           1000,
+			AllowedDevices:      10,
+			AllowedApps: 		 10,
+			FixedPrice:          1000,
+			AddedDataPrice:      10,
+			OrganizationID:		 org.ID,
+		}
+		So(CreatePaymentPlan(config.C.PostgreSQL.DB, &pp), ShouldBeNil)
+
 		Convey("Then CreateDeviceProfile creates the device-profile", func() {
 			dp := DeviceProfile{
 				NetworkServerID: n.ID,
@@ -264,6 +283,7 @@ func TestDeviceProfile(t *testing.T) {
 			})
 
 			Convey("Given two service-profiles and applications", func() {
+
 				n2 := NetworkServer{
 					Name:   "ns-server-2",
 					Server: "ns-server-2:1234",
@@ -289,6 +309,8 @@ func TestDeviceProfile(t *testing.T) {
 					Description:      "test app",
 					OrganizationID:   org.ID,
 					ServiceProfileID: sp1.ServiceProfile.ServiceProfileID,
+					GatewayNetworkID: gwn.ID,
+					PaymentPlanID:    pp.ID,
 				}
 				So(CreateApplication(config.C.PostgreSQL.DB, &app1), ShouldBeNil)
 
@@ -297,6 +319,8 @@ func TestDeviceProfile(t *testing.T) {
 					Description:      "test app 2",
 					OrganizationID:   org.ID,
 					ServiceProfileID: sp2.ServiceProfile.ServiceProfileID,
+					GatewayNetworkID: gwn.ID,
+					PaymentPlanID:    pp.ID,
 				}
 				So(CreateApplication(config.C.PostgreSQL.DB, &app2), ShouldBeNil)
 

@@ -143,11 +143,14 @@ It has these top-level messages:
 	ListGatewayNetworksRequest
 	GatewayNetworkRequest
 	GetGatewayNetworkResponse
+	GetDetailedGatewayNetworkResponse
 	CreateGatewayNetworkRequest
 	Gateways
+	PaymentPlans
 	CreateGatewayNetworkResponse
 	UpdateGatewayNetworkRequest
 	ListGatewayNetworksResponse
+	ListDetailedGatewayNetworksResponse
 	GatewayNetworkEmptyResponse
 	GatewayNetworkGatewayRequest
 	DeleteGatewayNetworkGatewayRequest
@@ -164,6 +167,9 @@ It has these top-level messages:
 	GetGatewayNetworkOrganizationResponse
 	ListGatewayNetworkOrganizationGatewayNetworksResponse
 	ListGatewayNetworkOrganizationsResponse
+	ListGatewayNetworkPaymentPlansRequest
+	ListGatewayNetworkPaymentPlansResponse
+	GetGatewayNetworkPaymentPlanResponse
 	ListOrganizationRequest
 	OrganizationRequest
 	GetOrganizationResponse

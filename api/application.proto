@@ -103,6 +103,12 @@ message CreateApplicationRequest {
 
 	// Payload decoder script.
 	string payloadDecoderScript = 18;
+
+	// Gateway network ID
+	int64 gatewayNetworkID = 19;
+
+	// Payment plan ID
+	int64 paymentPlanID = 20;
 }
 
 message CreateApplicationResponse {
@@ -139,6 +145,12 @@ message GetApplicationResponse {
 
 	// Payload decoder script.
 	string payloadDecoderScript = 18;
+
+	// Gateway network ID
+	int64 gatewayNetworkID = 19;
+
+	// Payment plan ID
+	int64 paymentPlanID = 20;
 }
 
 message UpdateApplicationRequest {
@@ -162,6 +174,12 @@ message UpdateApplicationRequest {
 
 	// Payload decoder script.
 	string payloadDecoderScript = 18;
+
+	// Gateway network ID
+	int64 gatewayNetworkID = 19;
+
+	// Payment plan ID
+	int64 paymentPlanID = 20;
 }
 
 message UpdateApplicationResponse {}
@@ -202,6 +220,12 @@ message ApplicationListItem {
 
 	// Service-profile name.
 	string serviceProfileName = 16;
+
+	// Gateway network ID
+	int64 gatewayNetworkID = 19;
+
+	// Payment plan ID
+	int64 paymentPlanID = 20;
 }
 
 message ListApplicationResponse {
