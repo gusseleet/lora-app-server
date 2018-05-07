@@ -53,6 +53,26 @@ func TestApplicationAPI(t *testing.T) {
 		}
 		So(storage.CreateServiceProfile(config.C.PostgreSQL.DB, &sp), ShouldBeNil)
 
+		gwn := storage.GatewayNetwork{
+			Name:			"test-gwn",
+			Description:	"A test network",
+			PrivateNetwork:	false,
+			OrganizationID: org.ID,
+		}
+		So(storage.CreateGatewayNetwork(config.C.PostgreSQL.DB, &gwn), ShouldBeNil)
+
+		pp := storage.PaymentPlan{
+			Name:				 "test-pp",
+			DataLimit:           1000,
+			AllowedDevices:      10,
+			AllowedApps: 		 10,
+			FixedPrice:          1000,
+			AddedDataPrice:      10,
+			OrganizationID:		 org.ID,
+		}
+		So(storage.CreatePaymentPlan(config.C.PostgreSQL.DB, &pp), ShouldBeNil)
+
+
 		Convey("When creating an application", func() {
 			createResp, err := api.Create(ctx, &pb.CreateApplicationRequest{
 				OrganizationID:       org.ID,
@@ -62,6 +82,8 @@ func TestApplicationAPI(t *testing.T) {
 				PayloadCodec:         "CUSTOM_JS",
 				PayloadEncoderScript: "Encode() {}",
 				PayloadDecoderScript: "Decode() {}",
+				GatewayNetworkID:     gwn.ID,
+				PaymentPlanID:        pp.ID,
 			})
 			So(err, ShouldBeNil)
 			So(validator.ctx, ShouldResemble, ctx)
@@ -84,6 +106,8 @@ func TestApplicationAPI(t *testing.T) {
 					PayloadCodec:         "CUSTOM_JS",
 					PayloadEncoderScript: "Encode() {}",
 					PayloadDecoderScript: "Decode() {}",
+					GatewayNetworkID:     gwn.ID,
+					PaymentPlanID:        pp.ID,
 				})
 			})
 
@@ -104,6 +128,8 @@ func TestApplicationAPI(t *testing.T) {
 					OrganizationID:   org2.ID,
 					Name:             "test-app-2",
 					ServiceProfileID: sp.ServiceProfile.ServiceProfileID,
+					GatewayNetworkID: gwn.ID,
+					PaymentPlanID:    pp.ID,
 				}
 				So(storage.CreateApplication(config.C.PostgreSQL.DB, &app2), ShouldBeNil)
 
@@ -126,6 +152,8 @@ func TestApplicationAPI(t *testing.T) {
 							Description:        "A test application",
 							ServiceProfileID:   sp.ServiceProfile.ServiceProfileID,
 							ServiceProfileName: sp.Name,
+							GatewayNetworkID:   gwn.ID,
+							PaymentPlanID:      pp.ID,
 						})
 					})
 				})
@@ -157,6 +185,8 @@ func TestApplicationAPI(t *testing.T) {
 					PayloadCodec:         "CUSTOM_JS",
 					PayloadEncoderScript: "Encode2() {}",
 					PayloadDecoderScript: "Decode2() {}",
+					GatewayNetworkID:     gwn.ID,
+					PaymentPlanID:        pp.ID,
 				})
 				So(err, ShouldBeNil)
 				So(validator.ctx, ShouldResemble, ctx)
@@ -176,6 +206,8 @@ func TestApplicationAPI(t *testing.T) {
 						PayloadCodec:         "CUSTOM_JS",
 						PayloadEncoderScript: "Encode2() {}",
 						PayloadDecoderScript: "Decode2() {}",
+						GatewayNetworkID:     gwn.ID,
+						PaymentPlanID:        pp.ID,
 					})
 				})
 			})

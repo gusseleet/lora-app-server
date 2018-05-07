@@ -100,80 +100,6 @@ func TestValidators(t *testing.T) {
 		}
 	}
 
-	applications := []storage.Application{
-		{OrganizationID: organizations[0].ID, Name: "application-1", ServiceProfileID: serviceProfiles[0].ServiceProfile.ServiceProfileID},
-		{OrganizationID: organizations[1].ID, Name: "application-2", ServiceProfileID: serviceProfiles[0].ServiceProfile.ServiceProfileID},
-	}
-	for i := range applications {
-		if err := storage.CreateApplication(db, &applications[i]); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	devices := []storage.Device{
-		{DevEUI: lorawan.EUI64{1, 1, 1, 1, 1, 1, 1, 1}, Name: "test-1", ApplicationID: applications[0].ID, DeviceProfileID: deviceProfiles[0].DeviceProfile.DeviceProfileID},
-		{DevEUI: lorawan.EUI64{2, 2, 2, 2, 2, 2, 2, 2}, Name: "test-2", ApplicationID: applications[1].ID, DeviceProfileID: deviceProfiles[1].DeviceProfile.DeviceProfileID},
-	}
-	for _, d := range devices {
-		if err := storage.CreateDevice(db, &d); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	// cleanup once structs are in place
-	users := []struct {
-		ID       int64
-		Username string
-		Email	 string
-		IsActive bool
-		IsAdmin  bool
-	}{
-		{ID: 11, Username: "user1", Email: "user1@example.com", IsActive: true, IsAdmin: true},
-		{ID: 12, Username: "user2", Email: "user2@example.com", IsActive: true},
-		{ID: 13, Username: "user3", Email: "user3@example.com", IsActive: true},
-		{ID: 14, Username: "user4", Email: "user4@example.com", IsActive: true},
-		{ID: 15, Username: "user5", Email: "user5@example.com", IsActive: true},
-		{ID: 16, Username: "user6", Email: "user6@example.com", IsActive: true},
-		{ID: 17, Username: "user7", Email: "user7@example.com", IsActive: false},
-		{ID: 18, Username: "user8", Email: "user8@example.com", IsActive: false, IsAdmin: true},
-		{ID: 19, Username: "user9", Email: "user9@example.com", IsActive: true},
-		{ID: 20, Username: "user10", Email: "user10@example.com", IsActive: true},
-		{ID: 21, Username: "user11", Email: "user11@example.com", IsActive: false},
-		{ID: 22, Username: "user12", Email: "user12@example.com", IsActive: true},
-	}
-	for _, user := range users {
-		_, err = db.Exec(`insert into "user" (id, created_at, updated_at, username, password_hash, session_ttl, is_active, is_admin, email) values ($1, now(), now(), $2, '', 0, $3, $4, $5)`, user.ID, user.Username, user.IsActive, user.IsAdmin, user.Email)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	orgUsers := []struct {
-		UserID         int64
-		OrganizationID int64
-		IsAdmin        bool
-	}{
-		{UserID: users[8].ID, OrganizationID: organizations[0].ID, IsAdmin: false},
-		{UserID: users[9].ID, OrganizationID: organizations[0].ID, IsAdmin: true},
-		{UserID: users[10].ID, OrganizationID: organizations[0].ID, IsAdmin: false},
-		{UserID: users[11].ID, OrganizationID: organizations[1].ID, IsAdmin: true},
-	}
-	for _, orgUser := range orgUsers {
-		if err := storage.CreateOrganizationUser(db, orgUser.OrganizationID, orgUser.UserID, orgUser.IsAdmin); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	gateways := []storage.Gateway{
-		{MAC: lorawan.EUI64{1, 1, 1, 1, 1, 1, 1, 1}, Name: "gateway1", OrganizationID: organizations[0].ID, NetworkServerID: networkServers[0].ID},
-		{MAC: lorawan.EUI64{2, 2, 2, 2, 2, 2, 2, 2}, Name: "gateway2", OrganizationID: organizations[1].ID, NetworkServerID: networkServers[0].ID},
-	}
-	for i := range gateways {
-		if err := storage.CreateGateway(db, &gateways[i]); err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	gatewayNetworks := []storage.GatewayNetwork{
 		{Name: "gatewayNetwork1",
 			Description: "GWN 1",
@@ -186,6 +112,16 @@ func TestValidators(t *testing.T) {
 	}
 	for i := range gatewayNetworks {
 		if err := storage.CreateGatewayNetwork(db, &gatewayNetworks[i]); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	gateways := []storage.Gateway{
+		{MAC: lorawan.EUI64{1, 1, 1, 1, 1, 1, 1, 1}, Name: "gateway1", OrganizationID: organizations[0].ID, NetworkServerID: networkServers[0].ID},
+		{MAC: lorawan.EUI64{2, 2, 2, 2, 2, 2, 2, 2}, Name: "gateway2", OrganizationID: organizations[1].ID, NetworkServerID: networkServers[0].ID},
+	}
+	for i := range gateways {
+		if err := storage.CreateGateway(db, &gateways[i]); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -251,6 +187,70 @@ func TestValidators(t *testing.T) {
 	}
 	for _, ppgn := range ppgns {
 		if err := storage.CreatePaymentPlanToGatewayNetwork(db, ppgn.PaymentPlanID, ppgn.GatewayNetworkID); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	applications := []storage.Application{
+		{OrganizationID: organizations[0].ID, Name: "application-1", ServiceProfileID: serviceProfiles[0].ServiceProfile.ServiceProfileID, GatewayNetworkID: gatewayNetworks[0].ID, PaymentPlanID: paymentPlans[0].ID},
+		{OrganizationID: organizations[1].ID, Name: "application-2", ServiceProfileID: serviceProfiles[0].ServiceProfile.ServiceProfileID, GatewayNetworkID: gatewayNetworks[1].ID, PaymentPlanID: paymentPlans[1].ID},
+	}
+	for i := range applications {
+		if err := storage.CreateApplication(db, &applications[i]); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	devices := []storage.Device{
+		{DevEUI: lorawan.EUI64{1, 1, 1, 1, 1, 1, 1, 1}, Name: "test-1", ApplicationID: applications[0].ID, DeviceProfileID: deviceProfiles[0].DeviceProfile.DeviceProfileID},
+		{DevEUI: lorawan.EUI64{2, 2, 2, 2, 2, 2, 2, 2}, Name: "test-2", ApplicationID: applications[1].ID, DeviceProfileID: deviceProfiles[1].DeviceProfile.DeviceProfileID},
+	}
+	for _, d := range devices {
+		if err := storage.CreateDevice(db, &d); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// cleanup once structs are in place
+	users := []struct {
+		ID       int64
+		Username string
+		Email	 string
+		IsActive bool
+		IsAdmin  bool
+	}{
+		{ID: 11, Username: "user1", Email: "user1@example.com", IsActive: true, IsAdmin: true},
+		{ID: 12, Username: "user2", Email: "user2@example.com", IsActive: true},
+		{ID: 13, Username: "user3", Email: "user3@example.com", IsActive: true},
+		{ID: 14, Username: "user4", Email: "user4@example.com", IsActive: true},
+		{ID: 15, Username: "user5", Email: "user5@example.com", IsActive: true},
+		{ID: 16, Username: "user6", Email: "user6@example.com", IsActive: true},
+		{ID: 17, Username: "user7", Email: "user7@example.com", IsActive: false},
+		{ID: 18, Username: "user8", Email: "user8@example.com", IsActive: false, IsAdmin: true},
+		{ID: 19, Username: "user9", Email: "user9@example.com", IsActive: true},
+		{ID: 20, Username: "user10", Email: "user10@example.com", IsActive: true},
+		{ID: 21, Username: "user11", Email: "user11@example.com", IsActive: false},
+		{ID: 22, Username: "user12", Email: "user12@example.com", IsActive: true},
+	}
+	for _, user := range users {
+		_, err = db.Exec(`insert into "user" (id, created_at, updated_at, username, password_hash, session_ttl, is_active, is_admin, email) values ($1, now(), now(), $2, '', 0, $3, $4, $5)`, user.ID, user.Username, user.IsActive, user.IsAdmin, user.Email)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	orgUsers := []struct {
+		UserID         int64
+		OrganizationID int64
+		IsAdmin        bool
+	}{
+		{UserID: users[8].ID, OrganizationID: organizations[0].ID, IsAdmin: false},
+		{UserID: users[9].ID, OrganizationID: organizations[0].ID, IsAdmin: true},
+		{UserID: users[10].ID, OrganizationID: organizations[0].ID, IsAdmin: false},
+		{UserID: users[11].ID, OrganizationID: organizations[1].ID, IsAdmin: true},
+	}
+	for _, orgUser := range orgUsers {
+		if err := storage.CreateOrganizationUser(db, orgUser.OrganizationID, orgUser.UserID, orgUser.IsAdmin); err != nil {
 			t.Fatal(err)
 		}
 	}

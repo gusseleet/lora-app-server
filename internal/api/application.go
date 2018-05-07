@@ -45,6 +45,8 @@ func (a *ApplicationAPI) Create(ctx context.Context, req *pb.CreateApplicationRe
 		PayloadCodec:         codec.Type(req.PayloadCodec),
 		PayloadEncoderScript: req.PayloadEncoderScript,
 		PayloadDecoderScript: req.PayloadDecoderScript,
+		GatewayNetworkID:     req.GatewayNetworkID,
+		PaymentPlanID:        req.PaymentPlanID,
 	}
 
 	if err := storage.CreateApplication(config.C.PostgreSQL.DB, &app); err != nil {
@@ -77,6 +79,8 @@ func (a *ApplicationAPI) Get(ctx context.Context, req *pb.GetApplicationRequest)
 		PayloadCodec:         string(app.PayloadCodec),
 		PayloadEncoderScript: app.PayloadEncoderScript,
 		PayloadDecoderScript: app.PayloadDecoderScript,
+		GatewayNetworkID:     app.GatewayNetworkID,
+		PaymentPlanID:        app.PaymentPlanID,
 	}
 
 	return &resp, nil
@@ -102,6 +106,8 @@ func (a *ApplicationAPI) Update(ctx context.Context, req *pb.UpdateApplicationRe
 	app.PayloadCodec = codec.Type(req.PayloadCodec)
 	app.PayloadEncoderScript = req.PayloadEncoderScript
 	app.PayloadDecoderScript = req.PayloadDecoderScript
+	app.GatewayNetworkID = req.GatewayNetworkID
+	app.PaymentPlanID = req.PaymentPlanID
 
 	err = storage.UpdateApplication(config.C.PostgreSQL.DB, app)
 	if err != nil {
@@ -207,6 +213,8 @@ func (a *ApplicationAPI) List(ctx context.Context, req *pb.ListApplicationReques
 			OrganizationID:     app.OrganizationID,
 			ServiceProfileID:   app.ServiceProfileID,
 			ServiceProfileName: app.ServiceProfileName,
+			GatewayNetworkID:   app.GatewayNetworkID,
+			PaymentPlanID:      app.PaymentPlanID,
 		}
 
 		resp.Result = append(resp.Result, &item)

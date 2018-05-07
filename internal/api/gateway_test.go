@@ -50,15 +50,6 @@ func TestGatewayAPI(t *testing.T) {
 		}
 		So(storage.CreateOrganization(config.C.PostgreSQL.DB, &org2), ShouldBeNil)
 
-		gwn := storage.GatewayNetwork{
-			Name:            "testNetwork",
-			Description:     "A test network",
-			PrivateNetwork:  true,
-			OrganizationID:  org.ID,
-		}
-		So(storage.CreateGatewayNetwork(config.C.PostgreSQL.DB, &gwn), ShouldBeNil)
-
-
 		now := time.Now().UTC()
 		getGatewayResponseNS := ns.GetGatewayResponse{
 			Mac:         []byte{1, 2, 3, 4, 5, 6, 7, 8},

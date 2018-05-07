@@ -46,6 +46,25 @@ func TestDeviceProfileServiceAPI(t *testing.T) {
 		}
 		So(storage.CreateOrganization(config.C.PostgreSQL.DB, &org), ShouldBeNil)
 
+		gwn := storage.GatewayNetwork{
+			Name:			"test-gwn",
+			Description:	"A test network",
+			PrivateNetwork:	false,
+			OrganizationID: org.ID,
+		}
+		So(storage.CreateGatewayNetwork(config.C.PostgreSQL.DB, &gwn), ShouldBeNil)
+
+		pp := storage.PaymentPlan{
+			Name:				 "test-pp",
+			DataLimit:           1000,
+			AllowedDevices:      10,
+			AllowedApps: 		 10,
+			FixedPrice:          1000,
+			AddedDataPrice:      10,
+			OrganizationID:		 org.ID,
+		}
+		So(storage.CreatePaymentPlan(config.C.PostgreSQL.DB, &pp), ShouldBeNil)
+
 		Convey("Then Create creates a device-profile", func() {
 			createReq := pb.CreateDeviceProfileRequest{
 				Name:            "test-dp",
@@ -282,6 +301,8 @@ func TestDeviceProfileServiceAPI(t *testing.T) {
 					Description:      "test app",
 					OrganizationID:   org.ID,
 					ServiceProfileID: sp1.ServiceProfile.ServiceProfileID,
+					GatewayNetworkID: gwn.ID,
+					PaymentPlanID:    pp.ID,
 				}
 				So(storage.CreateApplication(config.C.PostgreSQL.DB, &app1), ShouldBeNil)
 
@@ -290,6 +311,8 @@ func TestDeviceProfileServiceAPI(t *testing.T) {
 					Description:      "test app 2",
 					OrganizationID:   org.ID,
 					ServiceProfileID: sp2.ServiceProfile.ServiceProfileID,
+					GatewayNetworkID: gwn.ID,
+					PaymentPlanID:    pp.ID,
 				}
 				So(storage.CreateApplication(config.C.PostgreSQL.DB, &app2), ShouldBeNil)
 
