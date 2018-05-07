@@ -54,7 +54,8 @@ func handlePSQLError(action Action, err error, description string) error {
 			case Delete:
 				return ErrUsedByOtherObjects
 			default:
-				return ErrDoesNotExist
+				return err
+				//return ErrDoesNotExist
 			}
 		}
 	}
