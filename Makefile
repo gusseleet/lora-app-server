@@ -5,9 +5,9 @@ GOOS ?= linux
 GOARCH ?= amd64
 #TESTNAME ?= TestGatewayNetworkAPI
 
-#Another test
+.PHONY: ui/build
 
-build: ui/build internal/statics internal/migrations
+build: pre-ui ui/build internal/statics internal/migrations
 	@echo "Compiling source for $(GOOS) $(GOARCH)"
 	@mkdir -p build
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GO_EXTRA_BUILD_ARGS) -ldflags "-s -w -X main.version=$(VERSION)" -o build/lora-app-server$(BINEXT) cmd/lora-app-server/main.go
@@ -51,6 +51,13 @@ package: build
 package-deb: package
 	@echo "Building deb package for $(GOOS) $(GOARCH)"
 	@cd packaging && TARGET=deb ./package.sh
+
+pre-ui:
+	@echo "Removing GUI first"
+	@rm -rf static/static
+	@rm static/asset-manifest.json
+	@rm static/index.html
+	@rm static/service-worker.js
 
 ui/build:
 	@echo "Building ui"
