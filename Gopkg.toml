@@ -103,6 +103,4 @@
   name = "github.com/tmc/grpc-websocket-proxy"
 
 [prune]
-  non-go = true
   go-tests = true
-  unused-packages = true
