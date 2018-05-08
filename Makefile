@@ -75,18 +75,30 @@ static/swagger/api.swagger.json:
 
 requirements:
 	@echo "Installing development tools"
-	@go get -u github.com/golang/lint/golint
-	@go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	@go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-	@go get -u github.com/golang/protobuf/protoc-gen-go
+
+	@echo "- Building vendor folder"
+	@go get -u github.com/golang/dep/cmd/dep
+	@dep ensure -v
+
+	@echo "- Installing resources from repo"
+	@go get -u github.com/golang/glog
 	@go get -u github.com/elazarl/go-bindata-assetfs/...
 	@go get -u github.com/jteeuwen/go-bindata/...
 	@go get -u github.com/kisielk/errcheck
 	@go get -u github.com/smartystreets/goconvey
 	@go get -u golang.org/x/tools/cmd/stringer
-	@go get -u github.com/golang/dep/cmd/dep
-	@go get -u github.com/golang/lint/golint
-	@dep ensure -v
+	@echo "- Done"
+
+	@echo "- Installing resources from vendor folder"
+	@rm -rf $(GOPATH)/src/github.com/golang/protobuf
+	@rm -rf $(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway
+	@cp -R $(GOPATH)/src/github.com/gusseleet/lora-app-server/vendor/github.com/grpc-ecosystem $(GOPATH)/src/github.com 1>/dev/null
+	@cp -R $(GOPATH)/src/github.com/gusseleet/lora-app-server/vendor/github.com/golang $(GOPATH)/src/github.com 1>/dev/null
+	@cp -R $(GOPATH)/src/github.com/gusseleet/lora-app-server/vendor/google.golang.org $(GOPATH)/src 1>/dev/null
+	@cd $(GOPATH)/src/github.com/golang/protobuf/protoc-gen-go && go install
+	@cd $(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway && go install
+	@cd $(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger && go install
+	@echo "- Done"
 
 ui-requirements:
 	@echo "Installing UI requirements"
