@@ -21,7 +21,7 @@ import (
 func TestGatewayAPI(t *testing.T) {
 	conf := test.GetConfig()
 
-	Convey("Given clean database with an organization a mocked network-server api and a test gateway network", t, func() {
+	Convey("Given clean database with an organization a mocked network-server api", t, func() {
 		db, err := storage.OpenDatabase(conf.PostgresDSN)
 		So(err, ShouldBeNil)
 		config.C.PostgreSQL.DB = db
