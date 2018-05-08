@@ -276,7 +276,6 @@
       "command": [],
       "portMappings": [],
       "mountPoints": [],
-      "Logging": "/var/log/nginx"
       "links": [
         "mosquitto",
         "gateway_bridge",
