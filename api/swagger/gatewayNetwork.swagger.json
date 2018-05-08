@@ -64,8 +64,10 @@
             "description": "Optional organization id for filtering.",
             "in": "query",
             "required": false,
-            "type": "string",
-            "format": "int64"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
@@ -587,8 +589,10 @@
             "description": "Optional organization id for filtering.",
             "in": "query",
             "required": false,
-            "type": "string",
-            "format": "int64"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         ],
         "tags": [

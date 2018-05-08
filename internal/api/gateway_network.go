@@ -13,6 +13,8 @@ import (
 	"github.com/gusseleet/lora-app-server/internal/config"
 	"github.com/gusseleet/lora-app-server/internal/storage"
 	"github.com/brocaar/lorawan"
+	"strconv"
+	"fmt"
 )
 
 // GatewayNetworkAPI exports the gateway network related functions.
@@ -29,8 +31,11 @@ func NewGatewayNetworkAPI(validator auth.Validator) *GatewayNetworkAPI {
 
 // Create creates the given gateway network.
 func (a *GatewayNetworkAPI) Create(ctx context.Context, req *pb.CreateGatewayNetworkRequest) (*pb.CreateGatewayNetworkResponse, error) {
+	orgID := make([]int64, 1)
+	orgID[0] = req.OrganizationID
+
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworksAccess(auth.Create, req.OrganizationID)); err != nil {
+		auth.ValidateGatewayNetworksAccess(auth.Create, orgID)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
@@ -116,16 +121,28 @@ func (a *GatewayNetworkAPI) Get(ctx context.Context, req *pb.GatewayNetworkReque
 
 // List lists the gateway networks to which the organization has access.
 func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetworksRequest) (*pb.ListGatewayNetworksResponse, error) {
-	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworksAccess(auth.List, req.OrganizationID)); err != nil {
-		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	fmt.Println("--------TEEEEEEEST--------")
+	orgIDs := make([]int64, len(req.OrganizationID))
+	var err error
+	for i,orgID := range req.OrganizationID {
+		fmt.Println(req.OrganizationID[0])
+		fmt.Println(i)
+		fmt.Println(req.OrganizationID[i])
+		orgIDs[i], err = strconv.ParseInt(orgID, 10, 64)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
 	}
+	fmt.Println("--------------------------")
+	//if err = a.validator.Validate(ctx,
+	//	auth.ValidateGatewayNetworksAccess(auth.List, orgIDs)); err != nil {
+//		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+//	}
 
 	var count int
 	var gns []storage.GatewayNetwork
-	var err error
 
-	if req.OrganizationID == 0 {
+	if len(req.OrganizationID) == 0 {
 		gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
@@ -136,16 +153,15 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 			return nil, errToRPCError(err)
 		}
 	} else {
-		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
+		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, orgIDs, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
-		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, req.Search)
+		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, orgIDs, req.PrivateNetwork, req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
 	}
-
 
 	result := make([]*pb.GetGatewayNetworkResponse, len(gns))
 	for i, gn := range gns {
@@ -256,23 +272,30 @@ func (a *GatewayNetworkAPI) GetDetailed(ctx context.Context, req *pb.GatewayNetw
 		},
 		PaymentPlans:   &pb.ListGatewayNetworkPaymentPlansResponse{
 			TotalCount:   int32(ppCount),
-			PaymentPlans: ppRes,
+			Result: ppRes,
 		},
 	}, nil
 }
 
 // List lists the gateway networks to which the organization has access.
 func (a *GatewayNetworkAPI) ListDetailed(ctx context.Context, req *pb.ListGatewayNetworksRequest) (*pb.ListDetailedGatewayNetworksResponse, error) {
+	orgIDs := make([]int64, len(req.OrganizationID))
+	var err error
+	for i,orgID := range req.OrganizationID {
+		orgIDs[i], err = strconv.ParseInt(orgID, 10, 64)
+		if err != nil {
+			return nil, errToRPCError(err)
+		}
+	}
 	if err := a.validator.Validate(ctx,
-		auth.ValidateGatewayNetworksAccess(auth.List, req.OrganizationID)); err != nil {
+		auth.ValidateGatewayNetworksAccess(auth.List, orgIDs)); err != nil {
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
 	var count int
 	var gns []storage.GatewayNetwork
-	var err error
 
-	if req.OrganizationID == 0 {
+	if len(req.OrganizationID) == 0 {
 		gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
@@ -283,11 +306,11 @@ func (a *GatewayNetworkAPI) ListDetailed(ctx context.Context, req *pb.ListGatewa
 			return nil, errToRPCError(err)
 		}
 	} else {
-		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
+		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, orgIDs, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
-		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, req.Search)
+		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, orgIDs, req.PrivateNetwork, req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
@@ -372,7 +395,7 @@ func (a *GatewayNetworkAPI) ListDetailed(ctx context.Context, req *pb.ListGatewa
 			},
 			PaymentPlans:   &pb.ListGatewayNetworkPaymentPlansResponse{
 				TotalCount:   int32(ppCount),
-				PaymentPlans: ppRes,
+				Result: ppRes,
 			},
 		}
 	}
@@ -721,6 +744,6 @@ func (a *GatewayNetworkAPI) ListGatewayNetworkPaymentPlans(ctx context.Context, 
 
 	return &pb.ListGatewayNetworkPaymentPlansResponse{
 		TotalCount:   int32(ppCount),
-		PaymentPlans: result,
+		Result: result,
 	}, nil
 }
