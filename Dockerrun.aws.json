@@ -211,6 +211,22 @@
       ]
     },
     {
+      "name": "mosquitto-filter",
+      "image": "ansi/mosquitto",
+      "essential": true,
+      "memory": 128,
+      "portMappings": [
+        {
+          "hostPort": 1884,
+          "containerPort": 1883
+        }
+      ],
+      "links": [],
+      "mountPoints": [
+
+      ]
+    },
+    {
       "name": "gateway_bridge",
       "image": "loraserver/lora-gateway-bridge",
       "essential": true,
@@ -218,7 +234,7 @@
       "environment": [
         {
           "name": "MQTT_SERVER",
-          "value": "tcp://mosquitto:1883"
+          "value": "tcp://mosquitto:1884"
         }
       ],
       "command": [],
@@ -232,6 +248,40 @@
       "mountPoints": [],
       "links": [
         "mosquitto"
+      ]
+    },
+    {
+      "name": "lora-filter",
+      "image": "228684700718.dkr.ecr.eu-central-1.amazonaws.com/lora-filter:latest",
+      "essential": true,
+      "memory": 256,
+      "environment": [
+        {
+          "name": "MQTTServer",
+          "value": "tcp://mosquitto:1883"
+        },
+        {
+          "name": "MQTTClient",
+          "value": "tcp://mosquitto:1884"
+        },
+        {
+          "name": "RedisURI",
+          "value": "redis://redis:6379"
+        },
+        {
+          "name": "PostgresURI",
+          "value": "postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable"
+        }
+      ],
+      "command": [],
+      "portMappings": [],
+      "mountPoints": [],
+      "links": [
+        "mosquitto",
+        "gateway_bridge",
+        "mosquitto-filter",
+        "postgres",
+        "redis"
       ]
     },
     {
