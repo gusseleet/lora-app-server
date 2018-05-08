@@ -6,6 +6,7 @@ import (
 	"github.com/brocaar/lorawan"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	"github.com/lib/pq"
 )
 
 // Flag defines the authorization flag.
@@ -484,8 +485,10 @@ func ValidateGatewayAccess(flag Flag, mac lorawan.EUI64) ValidatorFunc {
 }
 
 // ValidateGatewayNetworksAccess validates if the client has access to the given gateway network.
-func ValidateGatewayNetworksAccess(flag Flag, organizationID int64) ValidatorFunc {
+func ValidateGatewayNetworksAccess(flag Flag, organizationID []int64) ValidatorFunc {
 	var where = [][]string{}
+
+	var OrgLen = len(organizationID)
 
 	switch flag {
 	case Create:
@@ -493,7 +496,7 @@ func ValidateGatewayNetworksAccess(flag Flag, organizationID int64) ValidatorFun
 		// organization admin
 		where = [][]string{
 			{"u.username = $1", "u.is_active = true"},
-			{"u.username = $1", "u.is_active = true", "ou.is_admin = true", "o.id = $2"},
+			{"u.username = $1", "u.is_active = true", "ou.is_admin = true", "o.id = any($2)", "$3 > 0"},
 		}
 	case List:
 		// global admin
@@ -501,15 +504,15 @@ func ValidateGatewayNetworksAccess(flag Flag, organizationID int64) ValidatorFun
 		// any active user (api will filter on user)
 		where = [][]string{
 			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
-			{"u.username = $1", "u.is_active = true", "$2 > 0", "o.id = $2"},
-			{"u.username = $1", "u.is_active = true", "$2 = 0"},
+			{"u.username = $1", "u.is_active = true", "$3 > 0", "o.id = any($2)"},
+			{"u.username = $1", "u.is_active = true", "$3 = 0"},
 		}
 	default:
 		panic("unsupported flag")
 	}
 
 	return func(db sqlx.Queryer, claims *Claims) (bool, error) {
-		return executeQuery(db, gnQuery, where, claims.Username, organizationID)
+		return executeQuery(db, gnQuery, where, claims.Username, pq.Array(organizationID), OrgLen)
 	}
 }
 
@@ -608,9 +611,11 @@ func ValidateGatewayNetworkOrganizationsAccess(flag Flag, organizationID int64) 
 	case Create:
 		// global admin
 		// organization user
+		// any user in the organization
 		where = [][]string{
 			{"u.username = $1", "u.is_active = true", "u.is_admin = true"},
 			{"u.username = $1", "u.is_active = true", "o.id = $2"},
+			{"u.username = $1", "u.is_active = true", "ou.organization_id = $2"},
 		}
 	case List:
 		// global admin

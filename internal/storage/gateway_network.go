@@ -159,7 +159,7 @@ func GetGatewayNetworkCount(db sqlx.Queryer, privateNetwork int64, search string
 }
 
 // GetGatewayNetworkCountForOrganizationID returns the total number of gateway networks for the given organization id.
-func GetGatewayNetworkCountForOrganizationID(db sqlx.Queryer, organizationID int64, privateNetwork int64, search string) (int, error) {
+func GetGatewayNetworkCountForOrganizationID(db sqlx.Queryer, organizationID []int64, privateNetwork int64, search string) (int, error) {
 	var count int
 
 	if privateNetwork == 0 {
@@ -167,28 +167,28 @@ func GetGatewayNetworkCountForOrganizationID(db sqlx.Queryer, organizationID int
 			`select count(*)
 			from gateway_network
 			where
-				(organization_id = $1 and $2 != '' and name ilike $2)
-				or (organization_id = $1 and $2 = '')`,
-			organizationID,
+				(organization_id = any($1) and $2 != '' and name ilike $2)
+				or (organization_id = any($1) and $2 = '')`,
+			pq.Array(organizationID),
 			search,
 		)
 		if err != nil {
 			return 0, handlePSQLError(Select, err, "select error")
 		}
 	} else if privateNetwork == 1 || privateNetwork == 2 {
-		pn := false;
+		pn := false
 
 		if privateNetwork == 2 {
-			pn = true;
+			pn = true
 		}
 
 		err := sqlx.Get(db, &count,
 			`select count(*)
 			from gateway_network
 			where
-				(organization_id = $1 and private_network = $2 and $3 != '' and name ilike $3)
-				or (organization_id = $1 and private_network = $2 and $3 = '')`,
-				organizationID,
+				(organization_id = any($1) and private_network = $2 and $3 != '' and name ilike $3)
+				or (organization_id = any($1) and private_network = $2 and $3 = '')`,
+				pq.Array(organizationID),
 				pn,
 				search,
 		)
@@ -255,8 +255,10 @@ func GetGatewayNetworks(db sqlx.Queryer, privateNetwork int64, limit, offset int
 }
 
 // GetGatewayNetworksForOrganizationID returns a slice of gateway networks for the give organization id.
-func GetGatewayNetworksForOrganizationID(db sqlx.Queryer, organizationID int64, privateNetwork int64, limit, offset int, search string) ([]GatewayNetwork, error) {
+func GetGatewayNetworksForOrganizationID(db sqlx.Queryer, organizationID []int64, privateNetwork int64, limit, offset int, search string) ([]GatewayNetwork, error) {
 	var gns []GatewayNetwork
+
+	//var test = pq.Int64Array(organizationID)
 
 	if privateNetwork == 0 {
 
@@ -264,11 +266,11 @@ func GetGatewayNetworksForOrganizationID(db sqlx.Queryer, organizationID int64, 
 		select *
 		from gateway_network
 		where 
-			(organization_id = $1 and $4 != '' and name ilike $4)
-			or (organization_id = $1 and $4 = '')
+			(organization_id = any($1) and $4 != '' and name ilike $4)
+			or (organization_id = any($1) and $4 = '')
 		order by name
 		limit $2 offset $3`,
-			organizationID,
+			pq.Array(organizationID),
 			limit,
 			offset,
 			search,
@@ -278,21 +280,21 @@ func GetGatewayNetworksForOrganizationID(db sqlx.Queryer, organizationID int64, 
 		}
 		return gns, nil
 	} else if privateNetwork == 1 || privateNetwork == 2 {
-		pn := false;
+		pn := false
 
 		if privateNetwork == 2{
-			pn = true;
+			pn = true
 		}
 
 		err := sqlx.Select(db, &gns, `
 		select *
 		from gateway_network
 		where
-			(organization_id = $1 and private_network = $2 and $5 != '' and name ilike $5)
-			or (organization_id = $1 and private_network = $2 and $5 = '')
+			(organization_id = any($1) and private_network = $2 and $5 != '' and name ilike $5)
+			or (organization_id = any($1) and private_network = $2 and $5 = '')
 		order by name
 		limit $3 offset $4`,
-			organizationID,
+			pq.Array(organizationID),
 			pn,
 			limit,
 			offset,

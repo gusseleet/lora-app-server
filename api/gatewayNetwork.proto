@@ -149,7 +149,7 @@ message ListGatewayNetworksRequest {
     int64 privateNetwork = 4;
 
     // Optional organization id for filtering
-    int64 organizationID = 5;
+    repeated string organizationID = 5;
 }
 
 // Request the gateway network information.
@@ -475,7 +475,7 @@ message ListGatewayNetworkPaymentPlansResponse {
     int32 totalCount = 1;
 
     // The list of payment plans of the gateway network
-    repeated GetGatewayNetworkPaymentPlanResponse paymentPlans = 2;
+    repeated GetGatewayNetworkPaymentPlanResponse result = 2;
 }
 
 // The response of a payment plan of a gateway network
