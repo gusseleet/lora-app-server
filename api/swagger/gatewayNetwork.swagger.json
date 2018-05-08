@@ -1048,7 +1048,7 @@
           "format": "int32",
           "description": "The total number of payment plans of the gateway network."
         },
-        "paymentPlans": {
+        "result": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiGetGatewayNetworkPaymentPlanResponse"
