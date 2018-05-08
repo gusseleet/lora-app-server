@@ -253,7 +253,7 @@
     {
       "name": "lora-filter",
       "image": "228684700718.dkr.ecr.eu-central-1.amazonaws.com/lora-filter:latest",
-      "essential": true,
+      "essential": false,
       "memory": 256,
       "environment": [
         {
@@ -262,7 +262,7 @@
         },
         {
           "name": "MQTTClient",
-          "value": "tcp://mosquitto:1884"
+          "value": "tcp://mosquitto-filter:1884"
         },
         {
           "name": "RedisURI",
