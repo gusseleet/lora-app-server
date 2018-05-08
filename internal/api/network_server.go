@@ -156,7 +156,7 @@ func (a *NetworkServerAPI) List(ctx context.Context, req *pb.ListNetworkServerRe
 	isAdmin, err := a.validator.GetIsAdmin(ctx)
 	if err != nil {
 		//Try to remove this, so everyone can list a network-git server
-		return nil, errToRPCError(err)
+		//return nil, errToRPCError(err)
 	}
 
 	var count int
