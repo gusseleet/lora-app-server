@@ -223,10 +223,10 @@ func TestGatewayNetwork(t *testing.T) {
 					So(CreateGatewayNetworkOrganization(db, gn.ID, org.ID), ShouldBeNil)
 
 					Convey("Then it can be retrieved", func() {
-						u, err := GetGatewayNetworkOrganization(db, gn.ID, org.ID)
+						gno, err := GetGatewayNetworkOrganization(db, gn.ID, org.ID)
 						So(err, ShouldBeNil)
-						So(u.OrganizationID, ShouldEqual, org.ID)
-						So(u.DisplayName, ShouldEqual, org.DisplayName)
+						So(gno.OrganizationID, ShouldEqual, org.ID)
+						So(gno.DisplayName, ShouldEqual, org.DisplayName)
 					})
 
 					Convey("Then the gateway network has 2 organizations linked(With the owner organization)", func() {
@@ -256,9 +256,10 @@ func TestGatewayNetwork(t *testing.T) {
 						So(c, ShouldEqual, 1)
 					})
 
-					Convey("Then searching the organization gateway networks returns the gateway network's name", func(){
+					Convey("Then searching the organization gateway networks returns the gateway network's id and name", func(){
 						gns, err := GetGatewayNetworkOrganizationGatewayNetworks(db, org.ID, 10, 0)
 						So(err, ShouldBeNil)
+						So(gns[0].GatewayNetworkID, ShouldEqual, gn.ID)
 						So(gns[0].Name, ShouldEqual, gn.Name)
 					})
 

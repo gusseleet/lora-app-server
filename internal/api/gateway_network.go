@@ -14,7 +14,6 @@ import (
 	"github.com/gusseleet/lora-app-server/internal/storage"
 	"github.com/brocaar/lorawan"
 	"strconv"
-	"fmt"
 )
 
 // GatewayNetworkAPI exports the gateway network related functions.
@@ -121,23 +120,18 @@ func (a *GatewayNetworkAPI) Get(ctx context.Context, req *pb.GatewayNetworkReque
 
 // List lists the gateway networks to which the organization has access.
 func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetworksRequest) (*pb.ListGatewayNetworksResponse, error) {
-	fmt.Println("--------TEEEEEEEST--------")
 	orgIDs := make([]int64, len(req.OrganizationID))
 	var err error
 	for i,orgID := range req.OrganizationID {
-		fmt.Println(req.OrganizationID[0])
-		fmt.Println(i)
-		fmt.Println(req.OrganizationID[i])
 		orgIDs[i], err = strconv.ParseInt(orgID, 10, 64)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
 	}
-	fmt.Println("--------------------------")
-	//if err = a.validator.Validate(ctx,
-	//	auth.ValidateGatewayNetworksAccess(auth.List, orgIDs)); err != nil {
-//		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
-//	}
+	if err = a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworksAccess(auth.List, orgIDs)); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
 
 	var count int
 	var gns []storage.GatewayNetwork
@@ -619,8 +613,8 @@ func (a *GatewayNetworkAPI) ListOrganizationGatewayNetworks(ctx context.Context,
 	result := make([]*pb.GetGatewayNetworkOrganizationGatewayNetworkResponse, len(gns))
 	for i, gn := range gns {
 		result[i] = &pb.GetGatewayNetworkOrganizationGatewayNetworkResponse{
-			Id:     			gn.ID,
-			Name:  		gn.Name,
+			Id:     			gn.GatewayNetworkID,
+			Name:  				gn.Name,
 			CreatedAt: 			gn.CreatedAt.Format(time.RFC3339Nano),
 			UpdatedAt: 			gn.UpdatedAt.Format(time.RFC3339Nano),
 		}
