@@ -75,6 +75,9 @@ func TestGatewayNetwork(t *testing.T) {
 			gn.CreatedAt = gn.CreatedAt.Truncate(time.Millisecond).UTC()
 			gn.UpdatedAt = gn.UpdatedAt.Truncate(time.Millisecond).UTC()
 
+			orgIDs := make([]int64, 1)
+			orgIDs[0] = gn.OrganizationID
+
 			Convey("Then it can be retrieved by its id", func() {
 				g, err := GetGatewayNetwork(db, gn.ID)
 				So(err, ShouldBeNil)
@@ -84,7 +87,7 @@ func TestGatewayNetwork(t *testing.T) {
 			})
 
 			Convey("Then the organization that created it can retrieve it", func() {
-				gns, err := GetGatewayNetworksForOrganizationID(db, gn.OrganizationID, 2,10, 0, "")
+				gns, err := GetGatewayNetworksForOrganizationID(db, orgIDs, 2,10, 0, "")
 				So(err, ShouldBeNil)
 				gns[0].CreatedAt = gn.CreatedAt.Truncate(time.Millisecond).UTC()
 				gns[0].UpdatedAt = gn.UpdatedAt.Truncate(time.Millisecond).UTC()
@@ -92,13 +95,13 @@ func TestGatewayNetwork(t *testing.T) {
 			})
 
 			Convey("Then get gateway network count for the creating organization returns 1", func() {
-				count, err := GetGatewayNetworkCountForOrganizationID(db, gn.OrganizationID, 2, "")
+				count, err := GetGatewayNetworkCountForOrganizationID(db, orgIDs, 2, "")
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 1)
 			})
 
 			Convey("Then the organization that created it can retrieve it with a search string", func() {
-				gns, err := GetGatewayNetworksForOrganizationID(db, gn.OrganizationID, 2,10, 0, "test%")
+				gns, err := GetGatewayNetworksForOrganizationID(db, orgIDs, 2,10, 0, "test%")
 				So(err, ShouldBeNil)
 				gns[0].CreatedAt = gn.CreatedAt.Truncate(time.Millisecond).UTC()
 				gns[0].UpdatedAt = gn.UpdatedAt.Truncate(time.Millisecond).UTC()
@@ -106,7 +109,7 @@ func TestGatewayNetwork(t *testing.T) {
 			})
 
 			Convey("Then get gateway network count for the creating organization returns 1 with a search string", func() {
-				count, err := GetGatewayNetworkCountForOrganizationID(db, gn.OrganizationID, 2, "test%")
+				count, err := GetGatewayNetworkCountForOrganizationID(db, orgIDs, 2, "test%")
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 1)
 			})
