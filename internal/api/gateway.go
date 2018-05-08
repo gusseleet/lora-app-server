@@ -328,6 +328,10 @@ func (a *GatewayAPI) Delete(ctx context.Context, req *pb.DeleteGatewayRequest) (
 		if err != nil {
 			return errToRPCError(err)
 		}
+		err = storage.DeleteAllGatewayNetworkGatewaysForGatewayMAC(tx, mac)
+		if err != nil {
+			return errToRPCError(err)
+		}
 
 		return nil
 	})

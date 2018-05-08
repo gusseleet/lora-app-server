@@ -94,6 +94,18 @@ func TestGatewayNetworkAPI(t *testing.T) {
 					So(gns.TotalCount, ShouldEqual, 1)
 				})
 
+				Convey("When trying to list the gateway network with a search string", func() {
+					gns, err := api.List(ctx, &pb.ListGatewayNetworksRequest{
+						PrivateNetwork: 2,
+						Limit:          10,
+						Offset:         0,
+						Search:			"test%",
+					})
+					So(err, ShouldBeNil)
+					So(gns.Result, ShouldHaveLength, 1)
+					So(gns.TotalCount, ShouldEqual, 1)
+				})
+
 				Convey("When updating the gateway network", func() {
 					updateGN := &pb.UpdateGatewayNetworkRequest{
 						Id:              gnId,
@@ -408,6 +420,34 @@ func TestGatewayNetworkAPI(t *testing.T) {
 										So(err, ShouldBeNil)
 										So(gnGateways, ShouldNotBeNil)
 										So(gnGateways.Result, ShouldHaveLength, 1)
+									})
+
+									Convey("When adding the gateway back and then removing the gateway", func() {
+										addGNGateway2 := &pb.GatewayNetworkGatewayRequest{
+											GatewayMAC: "0807060504030201",
+											Id:         gn.Id,
+										}
+										_, err := api.AddGateway(ctx, addGNGateway2)
+										So(err, ShouldBeNil)
+
+
+										Convey("When removing the gateway", func() {
+											_, err := gatewayAPI.Delete(ctx, &pb.DeleteGatewayRequest{
+												Mac:	"0807060504030201",
+											})
+											So(err, ShouldBeNil)
+
+											Convey("Then the gateway should be removed", func() {
+												gnGateways, err := api.ListGateways(ctx, &pb.ListGatewayNetworkGatewaysRequest{
+													Id:     gnId,
+													Limit:  10,
+													Offset: 0,
+												})
+												So(err, ShouldBeNil)
+												So(gnGateways, ShouldNotBeNil)
+												So(gnGateways.Result, ShouldHaveLength, 1)
+											})
+										})
 									})
 								})
 							})

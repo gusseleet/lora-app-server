@@ -126,21 +126,21 @@ func (a *GatewayNetworkAPI) List(ctx context.Context, req *pb.ListGatewayNetwork
 	var err error
 
 	if req.OrganizationID == 0 {
-		gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, req.PrivateNetwork, int(req.Limit), int(req.Offset))
+		gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
 
-		count, err = storage.GetGatewayNetworkCount(config.C.PostgreSQL.DB, req.PrivateNetwork)
+		count, err = storage.GetGatewayNetworkCount(config.C.PostgreSQL.DB, req.PrivateNetwork, req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
 	} else {
-		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset))
+		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
-		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork)
+		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
@@ -273,21 +273,21 @@ func (a *GatewayNetworkAPI) ListDetailed(ctx context.Context, req *pb.ListGatewa
 	var err error
 
 	if req.OrganizationID == 0 {
-		gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, req.PrivateNetwork, int(req.Limit), int(req.Offset))
+		gns, err = storage.GetGatewayNetworks(config.C.PostgreSQL.DB, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
 
-		count, err = storage.GetGatewayNetworkCount(config.C.PostgreSQL.DB, req.PrivateNetwork)
+		count, err = storage.GetGatewayNetworkCount(config.C.PostgreSQL.DB, req.PrivateNetwork, req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
 	} else {
-		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset))
+		gns, err = storage.GetGatewayNetworksForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, int(req.Limit), int(req.Offset), req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
-		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork)
+		count, err = storage.GetGatewayNetworkCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, req.PrivateNetwork, req.Search)
 		if err != nil {
 			return nil, errToRPCError(err)
 		}
