@@ -623,22 +623,25 @@ func TestValidators(t *testing.T) {
 		})
 
 		Convey("When testing ValidateGatewayNetworksAccess", func() {
+			orgIDs := make([]int64, 1)
+
+			orgIDs[0] = organizations[0].ID
 			tests := []validatorTest{
 				{
 					Name:       "global admin users can create or list",
-					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(Create, organizations[0].ID), ValidateGatewayNetworksAccess(List, organizations[0].ID)},
+					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(Create, orgIDs), ValidateGatewayNetworksAccess(List, orgIDs)},
 					Claims:     Claims{Username: "user1"},
 					ExpectedOK: true,
 				},
 				{
 					Name:       "Organization user admins can create",
-					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(Create, organizations[0].ID)},
+					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(Create, orgIDs)},
 					Claims:     Claims{Username: "user10"},
 					ExpectedOK: true,
 				},
 				{
 					Name:		"Organization users can list",
-					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(List, organizations[0].ID)},
+					Validators: []ValidatorFunc{ValidateGatewayNetworksAccess(List, orgIDs)},
 					Claims:		Claims{Username: "user9"},
 					ExpectedOK:	true,
 				},
