@@ -54,7 +54,6 @@ type GatewayNetworkGateway struct {
 
 // GatewayNetworkOrganization represents a gateway network organization
 type GatewayNetworkOrganization struct {
-	ID					int64					`db:"id"`
 	OrganizationID      int64           		`db:"organization_id"`
 	DisplayName			string					`db:"display_name"`
 	CreatedAt       	time.Time             	`db:"created_at"`
@@ -63,7 +62,6 @@ type GatewayNetworkOrganization struct {
 
 // GatewayNetworkOrganizationGatewayNetwork represents a gateway network organization, gateway
 type GatewayNetworkOrganizationGatewayNetwork struct {
-	ID					int64					`db:"id"`
 	GatewayNetworkID    int64           		`db:"gateway_network_id"`
 	Name				string					`db:"name"`
 	CreatedAt       	time.Time             	`db:"created_at"`
