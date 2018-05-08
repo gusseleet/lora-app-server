@@ -84,7 +84,7 @@ func TestGatewayNetwork(t *testing.T) {
 			})
 
 			Convey("Then the organization that created it can retrieve it", func() {
-				gns, err := GetGatewayNetworksForOrganizationID(db, gn.OrganizationID, 2,10, 0)
+				gns, err := GetGatewayNetworksForOrganizationID(db, gn.OrganizationID, 2,10, 0, "")
 				So(err, ShouldBeNil)
 				gns[0].CreatedAt = gn.CreatedAt.Truncate(time.Millisecond).UTC()
 				gns[0].UpdatedAt = gn.UpdatedAt.Truncate(time.Millisecond).UTC()
@@ -92,7 +92,21 @@ func TestGatewayNetwork(t *testing.T) {
 			})
 
 			Convey("Then get gateway network count for the creating organization returns 1", func() {
-				count, err := GetGatewayNetworkCountForOrganizationID(db, gn.OrganizationID, 2)
+				count, err := GetGatewayNetworkCountForOrganizationID(db, gn.OrganizationID, 2, "")
+				So(err, ShouldBeNil)
+				So(count, ShouldEqual, 1)
+			})
+
+			Convey("Then the organization that created it can retrieve it with a search string", func() {
+				gns, err := GetGatewayNetworksForOrganizationID(db, gn.OrganizationID, 2,10, 0, "test%")
+				So(err, ShouldBeNil)
+				gns[0].CreatedAt = gn.CreatedAt.Truncate(time.Millisecond).UTC()
+				gns[0].UpdatedAt = gn.UpdatedAt.Truncate(time.Millisecond).UTC()
+				So(gns[0], ShouldResemble, gn)
+			})
+
+			Convey("Then get gateway network count for the creating organization returns 1 with a search string", func() {
+				count, err := GetGatewayNetworkCountForOrganizationID(db, gn.OrganizationID, 2, "test%")
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 1)
 			})
@@ -115,13 +129,13 @@ func TestGatewayNetwork(t *testing.T) {
 			})
 
 			Convey("Then the nr of private gateway networks is 1", func() {
-				count, err := GetGatewayNetworkCount(db, 2)
+				count, err := GetGatewayNetworkCount(db, 2, "")
 				So(err, ShouldBeNil)
 				So(count, ShouldEqual, 1)
 			})
 
 			Convey("Then get gateway networks returns the expected items", func() {
-				items, err := GetGatewayNetworks(db, 2,10, 0)
+				items, err := GetGatewayNetworks(db, 2,10, 0, "")
 				So(err, ShouldBeNil)
 				So(items, ShouldHaveLength, 1)
 				items[0].CreatedAt = items[0].CreatedAt.Truncate(time.Millisecond).UTC()
@@ -237,14 +251,16 @@ func TestGatewayNetwork(t *testing.T) {
 					})
 
 					Convey("Then searching the organization gateway networks shows 1 gateway network", func(){
-
+						c, err := GetGatewayNetworkOrganizationGatewayNetworkCount(db, org.ID)
+						So(err, ShouldBeNil)
+						So(c, ShouldEqual, 1)
 					})
-					//GetGatewayNetworkOrganizationGatewayNetworkCount
 
-					Convey("Then searching the organization gateway networks returns the gateway network's name and id", func(){
-
+					Convey("Then searching the organization gateway networks returns the gateway network's name", func(){
+						gns, err := GetGatewayNetworkOrganizationGatewayNetworks(db, org.ID, 10, 0)
+						So(err, ShouldBeNil)
+						So(gns[0].Name, ShouldEqual, gn.Name)
 					})
-					//GetGatewayNetworkOrganizationGatewayNetworks
 
 					Convey("Then it can be deleted", func() {
 						So(DeleteGatewayNetworkOrganization(db, gn.ID, org.ID), ShouldBeNil) // admin user

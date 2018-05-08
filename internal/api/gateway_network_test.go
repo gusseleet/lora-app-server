@@ -94,6 +94,18 @@ func TestGatewayNetworkAPI(t *testing.T) {
 					So(gns.TotalCount, ShouldEqual, 1)
 				})
 
+				Convey("When trying to list the gateway network with a search string", func() {
+					gns, err := api.List(ctx, &pb.ListGatewayNetworksRequest{
+						PrivateNetwork: 2,
+						Limit:          10,
+						Offset:         0,
+						Search:			"test%",
+					})
+					So(err, ShouldBeNil)
+					So(gns.Result, ShouldHaveLength, 1)
+					So(gns.TotalCount, ShouldEqual, 1)
+				})
+
 				Convey("When updating the gateway network", func() {
 					updateGN := &pb.UpdateGatewayNetworkRequest{
 						Id:              gnId,
