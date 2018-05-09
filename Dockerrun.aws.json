@@ -200,10 +200,6 @@
       "essential": true,
       "memory": 128,
       "portMappings": [
-        {
-          "hostPort": 1883,
-          "containerPort": 1883
-        }
       ],
       "links": [],
       "mountPoints": [
