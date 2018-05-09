@@ -234,7 +234,7 @@
       "environment": [
         {
           "name": "MQTT_SERVER",
-          "value": "tcp://mosquitto-filter:1884"
+          "value": "tcp://mosquitto-filter:1883"
         }
       ],
       "command": [],
@@ -262,7 +262,7 @@
         },
         {
           "name": "MQTTClient",
-          "value": "tcp://mosquitto-filter:1884"
+          "value": "tcp://mosquitto-filter:1883"
         },
         {
           "name": "RedisURI",
