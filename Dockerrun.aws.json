@@ -51,6 +51,7 @@
       "image": "228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest",
       "essential": true,
       "memory": 512,
+      "cpu": 1024,
       "mountPoints": [
         {
           "sourceVolume": "client-ui",
