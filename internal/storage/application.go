@@ -265,7 +265,7 @@ func GetApplicationsForGatewayNetworkIDCount(db sqlx.Queryer, gatewayNetworkID i
 			count(*)
 		from application
 		where
-			a.gateway_network_id = $1`,
+			gateway_network_id = $1`,
 		gatewayNetworkID,
 	)
 
