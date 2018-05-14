@@ -304,6 +304,49 @@
           "Application"
         ]
       }
+    },
+    "/api/applicationsByGatewayNetwork": {
+      "get": {
+        "summary": "ListOnGatewayNetwork lists the available applications based on gateway network id.",
+        "operationId": "ListOnGatewayNetwork",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiListApplicationResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "description": "Max number of applications to return in the result-test.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "description": "Offset in the result-set (for pagination).",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "gatewayNetworkID",
+            "description": "ID of the Gateway network to filter on.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Application"
+        ]
+      }
     }
   },
   "definitions": {

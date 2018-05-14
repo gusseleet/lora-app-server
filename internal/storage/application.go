@@ -229,6 +229,53 @@ func GetApplicationsForOrganizationID(db sqlx.Queryer, organizationID int64, lim
 	return apps, nil
 }
 
+// GetApplicationsForGatewayNetworkID returns a slice of applications for the given
+// gateway network.
+func GetApplicationsForGatewayNetworkID(db sqlx.Queryer, gatewayNetworkID int64, limit, offset int) ([]ApplicationListItem, error) {
+	var apps []ApplicationListItem
+	err := sqlx.Select(db, &apps, `
+		select 
+			a.*,
+			sp.name as service_profile_name
+		from application a
+		inner join service_profile sp
+			on sp.service_profile_id = a.service_profile_id
+		where
+			a.gateway_network_id = $1
+		order by a.name
+		limit $2 offset $3`,
+		gatewayNetworkID,
+		limit,
+		offset,
+	)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "select error")
+	}
+
+	return apps, nil
+}
+
+// GetApplicationsForGatewayNetworkID returns a slice of applications for the given
+// gateway network.
+func GetApplicationsForGatewayNetworkIDCount(db sqlx.Queryer, gatewayNetworkID int64) (int, error) {
+	var count int
+	err := sqlx.Select(db, &count, `
+		select 
+			count(*)
+		from application
+		where
+			a.gateway_network_id = $1`,
+		gatewayNetworkID,
+	)
+
+	if err != nil {
+		return 0, errors.Wrap(err, "select error")
+	}
+
+	return count, nil
+}
+
 // UpdateApplication updates the given Application.
 func UpdateApplication(db sqlx.Execer, item Application) error {
 	if err := item.Validate(); err != nil {

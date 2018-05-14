@@ -44,6 +44,13 @@ service Application {
 		};
 	}
 
+	// ListOnGatewayNetwork lists the available applications based on gateway network id.
+	rpc ListOnGatewayNetwork(ListApplicationsByGWNRequest) returns (ListApplicationResponse) {
+		option(google.api.http) = {
+			get: "/api/applicationsByGatewayNetwork"
+		};
+	}
+
 	// CreateHTTPIntegration creates an HTTP application-integration.
 	rpc CreateHTTPIntegration(HTTPIntegration) returns (EmptyResponse) {
 		option(google.api.http) = {
@@ -200,6 +207,17 @@ message ListApplicationRequest {
 
 	// ID of the organization to filter on.
 	int64 organizationID = 3;
+}
+
+message ListApplicationsByGWNRequest {
+	// Max number of applications to return in the result-test.
+	int64 limit = 1;
+
+	// Offset in the result-set (for pagination).
+	int64 offset = 2;
+
+	// ID of the Gateway network to filter on.
+	int64 gatewayNetworkID = 4;
 }
 
 message ApplicationListItem {
