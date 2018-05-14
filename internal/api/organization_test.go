@@ -220,6 +220,15 @@ func TestOrganizationAPI(t *testing.T) {
 								So(err, ShouldBeNil)
 								So(orgUsers, ShouldNotBeNil)
 								So(orgUsers.Result, ShouldHaveLength, 1)
+
+								Convey("When trying to remove the last user an error should be generated", func() {
+									delLastOrgUser := &pb.DeleteOrganizationUserRequest{
+										Id:		orgId,
+										UserID: orgUsers.Result[0].Id,
+									}
+									_, err := api.DeleteUser(ctx, delLastOrgUser)
+									So(err, ShouldNotBeNil)
+								})
 							})
 						})
 					})
