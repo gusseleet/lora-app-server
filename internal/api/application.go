@@ -223,6 +223,45 @@ func (a *ApplicationAPI) List(ctx context.Context, req *pb.ListApplicationReques
 	return &resp, nil
 }
 
+func (a *ApplicationAPI) ListOnGatewayNetwork(ctx context.Context, req *pb.ListApplicationsByGWNRequest) (*pb.ListApplicationResponse, error) {
+	if err := a.validator.Validate(ctx,
+		auth.ValidateGatewayNetworkGatewaysAccess(auth.List, req.GatewayNetworkID),
+	); err != nil {
+		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
+	}
+
+	var apps []storage.ApplicationListItem
+
+	count, err := storage.GetApplicationsForGatewayNetworkIDCount(config.C.PostgreSQL.DB, req.GatewayNetworkID)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+	apps, err = storage.GetApplicationsForGatewayNetworkID(config.C.PostgreSQL.DB, req.GatewayNetworkID, int(req.Limit), int(req.Offset))
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	resp := pb.ListApplicationResponse{
+		TotalCount: int64(count),
+	}
+	for _, app := range apps {
+		item := pb.ApplicationListItem{
+			Id:                 app.ID,
+			Name:               app.Name,
+			Description:        app.Description,
+			OrganizationID:     app.OrganizationID,
+			ServiceProfileID:   app.ServiceProfileID,
+			ServiceProfileName: app.ServiceProfileName,
+			GatewayNetworkID:   app.GatewayNetworkID,
+			PaymentPlanID:      app.PaymentPlanID,
+		}
+
+		resp.Result = append(resp.Result, &item)
+	}
+
+	return &resp, nil
+}
+
 // CreateHTTPIntegration creates an HTTP application-integration.
 func (a *ApplicationAPI) CreateHTTPIntegration(ctx context.Context, in *pb.HTTPIntegration) (*pb.EmptyResponse, error) {
 	if err := a.validator.Validate(ctx,
