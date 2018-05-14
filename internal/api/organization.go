@@ -277,7 +277,16 @@ func (a *OrganizationAPI) DeleteUser(ctx context.Context, req *pb.DeleteOrganiza
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
-	err := storage.DeleteOrganizationUser(config.C.PostgreSQL.DB, req.Id, req.UserID)
+	users ,err := storage.GetOrganizationUsers(config.C.PostgreSQL.DB, req.Id, 10, 0)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	if len(users) == 1 && users[0].UserID == req.UserID{
+		return nil, errToRPCError(storage.ErrLastUserInOrg)
+	}
+
+	err = storage.DeleteOrganizationUser(config.C.PostgreSQL.DB, req.Id, req.UserID)
 	if err != nil {
 		return nil, errToRPCError(err)
 	}
