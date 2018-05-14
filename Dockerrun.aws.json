@@ -50,7 +50,7 @@
       "name": "appserver",
       "image": "228684700718.dkr.ecr.eu-central-1.amazonaws.com/maliot:latest",
       "essential": true,
-      "memory": 256,
+      "memory": 512,
       "mountPoints": [
         {
           "sourceVolume": "client-ui",
@@ -128,7 +128,7 @@
       "name": "postgres",
       "image": "postgres:9.5",
       "essential": true,
-      "memory": 128,
+      "memory": 64,
       "environment": [
         {
           "name": "POSTGRES_PASSWORD",
@@ -156,7 +156,7 @@
       "name": "postgres_ns",
       "image": "postgres:9.5",
       "essential": true,
-      "memory": 128,
+      "memory": 64,
       "environment": [
         {
           "name": "POSTGRES_PASSWORD",
@@ -184,7 +184,7 @@
       "name": "redis",
       "image": "redis:3.0.7-alpine",
       "essential": true,
-      "memory": 128,
+      "memory": 64,
       "portMappings": [
         {
           "hostPort": 6379,
@@ -198,7 +198,7 @@
       "name": "mosquitto",
       "image": "ansi/mosquitto",
       "essential": true,
-      "memory": 128,
+      "memory": 64,
       "portMappings": [
       ],
       "links": [],
@@ -226,7 +226,7 @@
       "name": "gateway_bridge",
       "image": "loraserver/lora-gateway-bridge",
       "essential": false,
-      "memory": 256,
+      "memory": 64,
       "environment": [
         {
           "name": "MQTT_SERVER",
@@ -284,7 +284,7 @@
       "name": "loraserver",
       "image": "loraserver/loraserver",
       "essential": true,
-      "memory": 128,
+      "memory": 256,
       "portMappings": [
         {
           "hostPort": 8000,
