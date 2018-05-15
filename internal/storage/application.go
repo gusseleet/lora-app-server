@@ -231,7 +231,7 @@ func GetApplicationsForOrganizationID(db sqlx.Queryer, organizationID int64, lim
 
 // GetApplicationsForGatewayNetworkID returns a slice of applications for the given
 // gateway network.
-func GetApplicationsForGatewayNetworkID(db sqlx.Queryer, gatewayNetworkID int64, limit, offset int) ([]ApplicationListItem, error) {
+func GetApplicationsForGatewayNetworkID(db sqlx.Queryer, gatewayNetworkID int64, limit int, offset int) ([]ApplicationListItem, error) {
 	var apps []ApplicationListItem
 	err := sqlx.Select(db, &apps, `
 		select 
@@ -259,8 +259,9 @@ func GetApplicationsForGatewayNetworkID(db sqlx.Queryer, gatewayNetworkID int64,
 // GetApplicationsForGatewayNetworkID returns a slice of applications for the given
 // gateway network.
 func GetApplicationsForGatewayNetworkIDCount(db sqlx.Queryer, gatewayNetworkID int64) (int, error) {
+
 	var count int
-	err := sqlx.Select(db, &count, `
+	err := sqlx.Get(db, &count, `
 		select 
 			count(*)
 		from application
