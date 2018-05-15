@@ -38,6 +38,8 @@ var (
 	ErrInvalidEmail              = errors.New("invalid e-mail")
 	ErrPaymentPlanInvalidName	 = errors.New("invalid payment plan name")
 	ErrLastUserInOrg			 = errors.New("last user in organization")
+	ErrApplicationLimitReached   = errors.New("allowed application quota met")
+	ErrDeviceLimitReached  		 = errors.New("allowed devices quota met")
 )
 
 func handlePSQLError(action Action, err error, description string) error {

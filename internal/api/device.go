@@ -44,6 +44,25 @@ func (a *DeviceAPI) Create(ctx context.Context, req *pb.CreateDeviceRequest) (*p
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
+	app, err := storage.GetApplication(config.C.PostgreSQL.DB, req.ApplicationID)
+	if err != nil{
+		return nil, errToRPCError(err)
+	}
+
+	pmp, err := storage.GetPaymentPlan(config.C.PostgreSQL.DB, app.PaymentPlanID)
+	if err != nil{
+		return nil, errToRPCError(err)
+	}
+
+	count, err := storage.GetDeviceCountForApplicationID(config.C.PostgreSQL.DB, req.ApplicationID, "")
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	if int32(count) >= pmp.AllowedDevices{
+		return nil, errToRPCError(storage.ErrDeviceLimitReached)
+	}
+
 	// if Name is "", set it to the DevEUI
 	if req.Name == "" {
 		req.Name = req.DevEUI
@@ -59,7 +78,7 @@ func (a *DeviceAPI) Create(ctx context.Context, req *pb.CreateDeviceRequest) (*p
 
 	// as this also performs a remote call to create the node on the
 	// network-server, wrap it in a transaction
-	err := storage.Transaction(config.C.PostgreSQL.DB, func(tx sqlx.Ext) error {
+	err = storage.Transaction(config.C.PostgreSQL.DB, func(tx sqlx.Ext) error {
 		return storage.CreateDevice(tx, &d)
 	})
 	if err != nil {
