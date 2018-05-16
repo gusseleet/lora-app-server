@@ -153,17 +153,12 @@ func (a *NetworkServerAPI) List(ctx context.Context, req *pb.ListNetworkServerRe
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
-	isAdmin, err := a.validator.GetIsAdmin(ctx)
-	if err != nil {
-		//Try to remove this, so everyone can list a network-git server
-		return nil, errToRPCError(err)
-	}
 
 	var count int
+	var err error
 	var nss []storage.NetworkServer
 
 	if req.OrganizationID == 0 {
-		if isAdmin {
 			count, err = storage.GetNetworkServerCount(config.C.PostgreSQL.DB)
 			if err != nil {
 				return nil, errToRPCError(err)
@@ -172,7 +167,6 @@ func (a *NetworkServerAPI) List(ctx context.Context, req *pb.ListNetworkServerRe
 			if err != nil {
 				return nil, errToRPCError(err)
 			}
-		}
 	} else {
 		count, err = storage.GetNetworkServerCountForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID)
 		if err != nil {
