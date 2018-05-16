@@ -119,17 +119,8 @@ func TestNetworkServerAPI(t *testing.T) {
 			})
 
 			Convey("Then List lists the network-servers", func() {
-				// non admin returns nothing
-				listResp, err := api.List(ctx, &pb.ListNetworkServerRequest{
-					Limit:  10,
-					Offset: 0,
-				})
-				So(err, ShouldBeNil)
-				So(listResp.TotalCount, ShouldEqual, 0)
-				So(listResp.Result, ShouldHaveLength, 0)
-
 				validator.returnIsAdmin = true
-				listResp, err = api.List(ctx, &pb.ListNetworkServerRequest{
+				listResp, err := api.List(ctx, &pb.ListNetworkServerRequest{
 					Limit:  10,
 					Offset: 0,
 				})
