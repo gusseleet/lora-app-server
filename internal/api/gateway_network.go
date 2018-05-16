@@ -14,7 +14,6 @@ import (
 	"github.com/gusseleet/lora-app-server/internal/storage"
 	"github.com/brocaar/lorawan"
 	"strconv"
-	"fmt"
 )
 
 // GatewayNetworkAPI exports the gateway network related functions.
@@ -277,7 +276,6 @@ func (a *GatewayNetworkAPI) ListDetailed(ctx context.Context, req *pb.ListGatewa
 	orgIDs := make([]int64, len(req.OrganizationID))
 	var err error
 	for i,orgID := range req.OrganizationID {
-		fmt.Println(orgID)
 		orgIDs[i], err = strconv.ParseInt(orgID, 10, 64)
 		if err != nil {
 			return nil, errToRPCError(err)
