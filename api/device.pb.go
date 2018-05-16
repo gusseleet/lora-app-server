@@ -58,6 +58,7 @@ It has these top-level messages:
 	DeleteApplicationRequest
 	DeleteApplicationResponse
 	ListApplicationRequest
+	ListApplicationsByGWNRequest
 	ApplicationListItem
 	ListApplicationResponse
 	EmptyResponse

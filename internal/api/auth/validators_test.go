@@ -1021,9 +1021,9 @@ func TestValidators(t *testing.T) {
 					ExpectedOK: true,
 				},
 				{
-					Name:       "organization users can list",
+					Name:       "organization admins can list",
 					Validators: []ValidatorFunc{ValidateNetworkServersAccess(List, organizations[0].ID)},
-					Claims:     Claims{Username: "user9"},
+					Claims:     Claims{Username: "user10"},
 					ExpectedOK: true,
 				},
 				{

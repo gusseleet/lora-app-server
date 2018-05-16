@@ -65,7 +65,7 @@ func TestApplicationAPI(t *testing.T) {
 			Name:				 "test-pp",
 			DataLimit:           1000,
 			AllowedDevices:      10,
-			AllowedApps: 		 10,
+			AllowedApps: 		 1,
 			FixedPrice:          1000,
 			AddedDataPrice:      10,
 			OrganizationID:		 org.ID,
@@ -109,6 +109,21 @@ func TestApplicationAPI(t *testing.T) {
 					GatewayNetworkID:     gwn.ID,
 					PaymentPlanID:        pp.ID,
 				})
+			})
+
+			Convey("When trying to create an application and hitting the payment plan limit", func() {
+				_, err := api.Create(ctx, &pb.CreateApplicationRequest{
+					OrganizationID:       org.ID,
+					Name:                 "test-app2",
+					Description:          "A second test application",
+					ServiceProfileID:     sp.ServiceProfile.ServiceProfileID,
+					PayloadCodec:         "CUSTOM_JS",
+					PayloadEncoderScript: "Encode() {}",
+					PayloadDecoderScript: "Decode() {}",
+					GatewayNetworkID:     gwn.ID,
+					PaymentPlanID:        pp.ID,
+				})
+				So(err, ShouldNotBeNil)
 			})
 
 			Convey("Given an extra application belonging to a different organization", func() {

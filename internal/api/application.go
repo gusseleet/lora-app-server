@@ -37,6 +37,28 @@ func (a *ApplicationAPI) Create(ctx context.Context, req *pb.CreateApplicationRe
 		return nil, grpc.Errorf(codes.Unauthenticated, "authentication failed: %s", err)
 	}
 
+	pmp, err := storage.GetPaymentPlan(config.C.PostgreSQL.DB, req.PaymentPlanID)
+	if err != nil{
+		return nil, errToRPCError(err)
+	}
+
+	apps, err := storage.GetApplicationsForOrganizationID(config.C.PostgreSQL.DB, req.OrganizationID, 9999, 0)
+	if err != nil {
+		return nil, errToRPCError(err)
+	}
+
+	var count int32 = 0
+	for _, app := range apps {
+		if app.PaymentPlanID == pmp.ID && app.GatewayNetworkID == req.GatewayNetworkID {
+			count++;
+		}
+	}
+
+	if count >= pmp.AllowedApps{
+		return nil, errToRPCError(storage.ErrApplicationLimitReached)
+	}
+
+
 	app := storage.Application{
 		Name:                 req.Name,
 		Description:          req.Description,

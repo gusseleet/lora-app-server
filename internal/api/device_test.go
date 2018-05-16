@@ -71,7 +71,7 @@ func TestNodeAPI(t *testing.T) {
 		pp := storage.PaymentPlan{
 			Name:				 "test-pp",
 			DataLimit:           1000,
-			AllowedDevices:      10,
+			AllowedDevices:      1,
 			AllowedApps: 		 10,
 			FixedPrice:          1000,
 			AddedDataPrice:      10,
@@ -143,6 +143,17 @@ func TestNodeAPI(t *testing.T) {
 					DeviceProfileID:     dp.DeviceProfile.DeviceProfileID,
 					DeviceStatusMargin:  256,
 					DeviceStatusBattery: 256,
+				})
+
+				Convey("When trying to create a device beyond the payment plan limit", func() {
+					_, err := api.Create(ctx, &pb.CreateDeviceRequest{
+						ApplicationID:   app.ID,
+						Name:            "test-device2",
+						Description:     "another test device description",
+						DevEUI:          "0807060504030202",
+						DeviceProfileID: dp.DeviceProfile.DeviceProfileID,
+					})
+					So(err, ShouldNotBeNil)
 				})
 
 				Convey("When setting the device-status battery and margin", func() {

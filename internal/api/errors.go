@@ -22,6 +22,8 @@ var errToCode = map[error]codes.Code{
 	storage.ErrInvalidEmail:              codes.InvalidArgument,
 	httphandler.ErrInvalidHeaderName:     codes.InvalidArgument,
 	storage.ErrLastUserInOrg:			  codes.InvalidArgument,
+	storage.ErrApplicationLimitReached:   codes.InvalidArgument,
+	storage.ErrDeviceLimitReached:   	  codes.InvalidArgument,
 }
 
 func errToRPCError(err error) error {
